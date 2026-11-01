@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>第 1 天：Token 与上下文窗口：Agent 系统的两项核心约束</title>
+<title>第 1 天：Token 与上下文窗口：LLM 的两项底层原理</title>
 <style>
   * { box-sizing: border-box; }
   body { margin: 0; font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f4f2ec; color: #222; line-height: 1.75; }
@@ -64,8 +64,8 @@
 <div class="wrap">
 <header>
   <div class="kicker">AI AGENTS 深入学习 · 第 1 天</div>
-  <h1>Token 与上下文窗口：Agent 系统的两项核心约束</h1>
-  <p class="thesis">模型不读文字，读 token：文本先按高频合并切成 token；生成时模型不是懂词，是算下一个 token 的概率、选一个接回去再重复。窗口是容量，不是记忆：超了就挤出，中间还看不清，账单还按圈数翻倍。设计 Agent 时，先给窗口、轮数和费用定预算，再谈能力。</p>
+  <h1>Token 与上下文窗口：LLM 的两项底层原理</h1>
+  <p class="thesis">模型不读文字，读 token：文本先按高频合并切成 token；生成时模型不是懂词，是算下一个 token 的概率、选一个接回去再重复。窗口是容量，不是记忆：超了就挤出，中间还看不清，账单还按圈数翻倍。这一课讲的是大模型本身的底层原理：它怎么读字、怎么续写、窗口和成本为什么是这样；后面讲注意力、幻觉、训练时，会不断回到这里。</p>
   <div class="meta">2026-11-01 · 约 12 分钟</div>
 </header>
 
@@ -158,7 +158,7 @@
 <section class="card c5">
   <div class="eyebrow">成本</div>
   <h2>成本是怎么乘出来的</h2>
-  <p>账单公式很简单：token 数 × 单价。但 Agent 是循环，每圈都要把历史重新输一遍，圈数一多，费用就按圈数翻倍，演示时看着便宜，上线后账单吓人。</p>
+  <p>账单公式很简单：token 数 × 单价。但实际使用中往往是多轮循环，每圈都要把历史重新输一遍，圈数一多，费用就按圈数翻倍，演示时看着便宜，上线后账单吓人。</p>
   <p>省钱的办法不在换便宜模型那一刻，而在循环设计：能缓存的缓存，能裁剪的裁剪，能提前停的提前停；每圈结束先问一句，还要不要继续。</p>
   <ul>
     <li>先算一圈的 token，再乘预期的圈数，才是真实预算。</li>
@@ -179,7 +179,7 @@
 <section class="card c6">
   <div class="eyebrow">设计</div>
   <h2>设计时记住什么</h2>
-  <p>设计 Agent 先定三条线：窗口预算（一次放多少）、轮数预算（最多跑几圈）、费用预算（最多花多少）。三条线写进循环，而不是凭感觉。</p>
+  <p>调用模型先定三条线：窗口预算（一次放多少）、轮数预算（最多跑几圈）、费用预算（最多花多少）。三条线写进循环，而不是凭感觉。</p>
   <p>窗口不够时优先压缩和裁剪，而不是硬塞；被挤掉的历史要有地方可查，比如摘要或外部存储，而不是直接丢掉——窗口是容量上限，不是记忆。</p>
   <ul>
     <li>窗口是容量上限，不是记忆；记忆要另外做。</li>
