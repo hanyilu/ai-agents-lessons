@@ -63,10 +63,10 @@
 <body>
 <div class="wrap">
 <header>
-  <div class="kicker">AI AGENTS 深入学习 · 第二版 · 第 1 天</div>
+  <div class="kicker">AI AGENTS 深入学习 · 第 1 天</div>
   <h1>Token 与上下文窗口：Agent 系统的两项核心约束</h1>
   <p class="thesis">模型不读文字，读 token：文本先按高频合并切成 token；生成时模型不是懂词，是算下一个 token 的概率、选一个接回去再重复。窗口是容量，不是记忆：超了就挤出，中间还看不清，账单还按圈数翻倍。设计 Agent 时，先给窗口、轮数和费用定预算，再谈能力。</p>
-  <div class="meta">2026-11-01 · 约 12 分钟 · 第二版</div>
+  <div class="meta">2026-11-01 · 约 12 分钟</div>
 </header>
 
 <main>
@@ -231,7 +231,7 @@
   </ul>
 </section>
 </main>
-<footer>归档自学习应用 · 第二版第 1 天 · 2026-11-01</footer>
+<footer>归档自学习应用 · 第 1 天 · 2026-11-01</footer>
 </div>
 <button class="navbtn" id="navbtn" aria-label="打开课程目录">☰</button>
 <div class="navoverlay" id="navoverlay"></div>
@@ -264,7 +264,7 @@
       var a = document.createElement('a');
       a.className = 'nd-item' + (it.file === cur ? ' cur' : '');
       a.href = prefix + it.file;
-      a.innerHTML = '<div class="nd-day">第二版 · 第 ' + it.day + ' 天</div><div class="nd-title">' + it.title + '</div><div class="nd-meta">' + it.date + ' · 约 ' + it.minutes + ' 分钟</div>';
+      a.innerHTML = '<div class="nd-day">第 ' + it.day + ' 天</div><div class="nd-title">' + it.title + '</div><div class="nd-meta">' + it.date + ' · 约 ' + it.minutes + ' 分钟</div>';
       list.appendChild(a);
     });
   }).catch(function(){
