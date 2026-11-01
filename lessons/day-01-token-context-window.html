@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 1 天：Token 与上下文窗口：Agent 系统的两项核心约束</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f4f2ec; color: #222; line-height: 1.75; }
+  .wrap { max-width: 780px; margin: 0 auto; padding: 32px 20px 60px; }
+  header { background: linear-gradient(135deg, #1e1b4b, #4c1d95); color: #fff; border-radius: 16px; padding: 28px 26px; }
+  .kicker { font-size: 13px; letter-spacing: 2px; opacity: .85; }
+  header h1 { margin: 10px 0 12px; font-size: 26px; line-height: 1.4; }
+  .thesis { font-size: 16px; opacity: .95; margin: 0 0 14px; }
+  .meta { font-size: 13px; opacity: .75; }
+  .note { margin-top: 16px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.25); border-radius: 10px; padding: 10px 14px; font-size: 13px; }
+  section.card { background: #fff; border-radius: 14px; padding: 22px 24px; margin-top: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.06); border-left: 5px solid #2563eb; }
+  section.card.c2 { border-left-color: #7c3aed; }
+  section.card.c3 { border-left-color: #0891b2; }
+  section.card.c4 { border-left-color: #d97706; }
+  section.card.c5 { border-left-color: #dc2626; }
+  section.card.c6 { border-left-color: #059669; }
+  section.card.c7 { border-left-color: #4f46e5; }
+  .eyebrow { font-size: 12px; letter-spacing: 2px; font-weight: 700; color: #6b7280; }
+  h2 { margin: 6px 0 12px; font-size: 20px; line-height: 1.5; }
+  p { margin: 0 0 12px; }
+  ul { margin: 0 0 12px; padding-left: 20px; }
+  li { margin-bottom: 6px; }
+  pre { background: #1e1e2e; color: #e8e8f0; border-radius: 10px; padding: 14px 16px; overflow-x: auto; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+  .anim { background: #f8f7ff; border: 1px solid #e4e1f5; border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .anim h3 { margin: 0 0 4px; font-size: 16px; }
+  .anim .cap { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+  .step { display: flex; gap: 12px; background: #fff; border: 1px solid #e8e6f2; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
+  .step .n { flex: 0 0 26px; height: 26px; border-radius: 50%; background: #4c1d95; color: #fff; text-align: center; line-height: 26px; font-size: 13px; font-weight: 700; }
+  .step .lab { font-weight: 700; font-size: 14px; }
+  .step .txt { font-size: 14px; color: #333; }
+  .step .ro { display: inline-block; margin-top: 4px; font-family: monospace; font-size: 12px; background: #f1f0f8; border-radius: 6px; padding: 1px 8px; color: #4c1d95; }
+  .takeaways { background: #fffbeb; border: 1px solid #f5d98b; }
+  .quiz { background: #eff6ff; border: 1px solid #bfdbfe; }
+  .quiz .opt { background: #fff; border: 1px solid #dbeafe; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: 14px; }
+  .quiz .opt.right { border-color: #22c55e; background: #f0fdf4; }
+  .quiz .exp { margin-top: 10px; font-size: 14px; background: #fff; border-radius: 8px; padding: 10px 12px; }
+  .sources { font-size: 14px; }
+  .sources li { margin-bottom: 14px; }
+  .sources a { color: #1d4ed8; }
+  .sources .b { color: #6b7280; font-size: 13px; }
+  footer { margin-top: 28px; text-align: center; font-size: 12px; color: #9ca3af; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="kicker">AI AGENTS 深入学习 · 第二版 · 第 1 天</div>
+  <h1>Token 与上下文窗口：Agent 系统的两项核心约束</h1>
+  <p class="thesis">模型不读文字，读 token：文本先按高频合并切成 token；生成时模型不是懂词，是算下一个 token 的概率、选一个接回去再重复。窗口是容量，不是记忆：超了就挤出，中间还看不清，账单还按圈数翻倍。设计 Agent 时，先给窗口、轮数和费用定预算，再谈能力。</p>
+  <div class="meta">2026-11-01 · 约 12 分钟 · 第二版</div>
+  <p class="note">本页为静态归档版（带样式的网页文件），交互动画请在学习应用里查看。</p>
+</header>
+
+<main>
+<section class="card">
+  <div class="eyebrow">分词机制</div>
+  <h2>BPE 的核心不是“懂词”，而是反复合并高频片段。</h2>
+  <p>经典 BPE 思路从最小符号出发：统计训练语料里相邻片段出现的频率，反复把高频组合并进词表。这样常见字符串用较少 token 表示，罕见字符串仍能退回更小片段，不必依赖一个无限大的词表。</p>
+  <p>这是一种压缩与开放词表之间的折中，不是语言学意义上的完美分词。一个 token 可能没有独立语义；不同 tokenizer 对同一句话也可能切出不同序列。</p>
+  <pre>初始：l o w · l o w e r
+高频合并：l+o → lo
+继续合并：lo+w → low
+结果：low · low e r</pre>
+  <ul>
+    <li>词表是有限集合；未见过的字符串通常被拆成更小单元。</li>
+    <li>代码、URL、多语言文本的切分效率可能明显不同。</li>
+    <li>字符数、单词数和 token 数不能互相固定换算。</li>
+  </ul>
+  <div class="anim">
+    <h3>动画：高频片段反复合并成词表</h3>
+    <div class="cap">机制示意，不是真实模型行为：合并过程为示意，非真实词表训练数据。</div>
+    <div class="step"><div class="n">1</div><div><div class="lab">问题</div><div class="txt">词表是怎么建出来的？先从最小符号开始。</div><div class="ro">词表：从小符号开始</div></div></div>
+    <div class="step"><div class="n">2</div><div><div class="lab">起点</div><div class="txt">先把 low 和 lower 拆成最小符号：一个字母一块。</div><div class="ro">最小符号：8 块</div></div></div>
+    <div class="step"><div class="n">3</div><div><div class="lab">合并一次</div><div class="txt">语料里 l 和 o 老挨在一起，先把 l+o 合并成 lo。</div><div class="ro">l+o → lo</div></div></div>
+    <div class="step"><div class="n">4</div><div><div class="lab">再合并</div><div class="txt">lo 和 w 也老挨在一起，再合并成 low。</div><div class="ro">lo+w → low</div></div></div>
+    <div class="step"><div class="n">5</div><div><div class="lab">结论</div><div class="txt">常见串用较少 token，罕见串退回小片段：词表有限，却能表示几乎所有输入。</div><div class="ro">词表有限，输入无限</div></div></div>
+  </div>
+</section>
+
+<section class="card c2">
+  <div class="eyebrow">生成原理</div>
+  <h2>模型不是懂词，是算概率更高的词。</h2>
+  <p>模型不是懂词：它先算下一个 token 的概率分布，选一个接回序列，再重复同样过程。回答看起来一次写成，底层却是一连串逐步决策。</p>
+  <p>这句话的意思是：一整句话的概率，等于每一步“在前面所有词的条件下出这个词”的概率连乘。早期选了不同的词，后面全部条件都变了，一步走偏，后面可能全偏。</p>
+  <p>语言很顺，只说明这串词的概率高，不等于事实正确。顺不顺是概率问题，对不对是事实问题，两件事不要混在一起。</p>
+  <p>Temperature 只改变概率分布的尖锐程度：低温让分布更尖、输出更稳定，高温让分布更平、输出更多样。它不核验事实，调到 0 也不等于不幻觉；关键事实仍要来自数据库、检索或受控工具。</p>
+  <pre>P(t₁…tₙ) = ∏ P(tᵢ | t₁…tᵢ₋₁)
+上下文 → 概率分布 → 选一个 token → 追加 → 再预测</pre>
+  <ul>
+    <li>同一个早期选择会改变后续全部条件。</li>
+    <li>“语言很顺”只说明序列概率高，不等于事实正确。</li>
+    <li>Temperature 调的是分布尖锐程度，不是事实开关。</li>
+  </ul>
+  <div class="anim">
+    <h3>动画：算概率、选一个、接回去、再重复</h3>
+    <div class="cap">机制示意，不是真实模型行为：概率数字为举例，非真实模型输出。</div>
+    <div class="step"><div class="n">1</div><div><div class="lab">问题</div><div class="txt">模型是怎么“写”出下一句的？不是懂词，是算概率。</div><div class="ro">不是懂词，是算概率</div></div></div>
+    <div class="step"><div class="n">2</div><div><div class="lab">已有序列</div><div class="txt">前面已经有了：我、喜欢、吃。</div><div class="ro">已有：我喜欢吃</div></div></div>
+    <div class="step"><div class="n">3</div><div><div class="lab">算概率</div><div class="txt">模型算下一个词的概率：苹果最可能，梨子、香蕉也有可能。</div><div class="ro">苹果 60% / 梨子 25% / 香蕉 15%</div></div></div>
+    <div class="step"><div class="n">4</div><div><div class="lab">选一个</div><div class="txt">选一个接回去：这次选中了苹果。</div><div class="ro">选了：苹果</div></div></div>
+    <div class="step"><div class="n">5</div><div><div class="lab">再重复</div><div class="txt">拿新序列再算下一个，一步一步往下写。</div><div class="ro">再算下一个……</div></div></div>
+    <div class="step"><div class="n">6</div><div><div class="lab">结论</div><div class="txt">看起来一次写成，底层是一连串逐步决策；语言顺只说明概率高，不等于事实正确。</div><div class="ro">顺 ≠ 对</div></div></div>
+  </div>
+</section>
+
+<section class="card c3">
+  <div class="eyebrow">机制</div>
+  <h2>窗口是怎么满的</h2>
+  <p>模型不读文字，读 token：一段话先被切成小块，再一块块喂给模型。块数就是这次调用的输入规模，切法不同，块数也不同。</p>
+  <p>窗口是模型一次能同时看到的块数上限。系统指令、对话历史、工具返回都要占格，格子满了，新块进来就得挤掉最旧的块——不是报错，是静默丢失。</p>
+  <ul>
+    <li>窗口满了不是报错，是静默丢失：被挤掉的内容模型直接看不见。</li>
+    <li>历史越长，每圈重复输入越多，成本越高。</li>
+  </ul>
+  <div class="anim">
+    <h3>动画：窗口满了，旧字被丢掉</h3>
+    <div class="cap">机制示意，不是真实模型行为：窗口容量与挤出均为示意，非实测数据。</div>
+    <div class="step"><div class="n">1</div><div><div class="lab">问题</div><div class="txt">窗口只有 8 格，话长了装不下，怎么办？</div><div class="ro">窗口：8 格，空的</div></div></div>
+    <div class="step"><div class="n">2</div><div><div class="lab">切词</div><div class="txt">先把“我喜欢吃苹果”切成 4 块。</div></div></div>
+    <div class="step"><div class="n">3</div><div><div class="lab">进窗口</div><div class="txt">4 块先进窗口，占前 4 格。“我”是第一个，前面没有东西。</div><div class="ro">4 / 8 格</div></div></div>
+    <div class="step"><div class="n">4</div><div><div class="lab">继续写</div><div class="txt">接着往下写，“明天再吃”把剩下 4 格填满了。</div><div class="ro">8 / 8 格，已满</div></div></div>
+    <div class="step"><div class="n">5</div><div><div class="lab">满了</div><div class="txt">窗口满了，这时又来一个新字“梨”，在窗口外面等着，进不来。</div><div class="ro">8 / 8 格，已满</div></div></div>
+    <div class="step"><div class="n">6</div><div><div class="lab">丢弃</div><div class="txt">窗口满了不会报错，只能把最前面的“我”推出去、丢掉。</div><div class="ro">丢弃：我</div></div></div>
+    <div class="step"><div class="n">7</div><div><div class="lab">补进</div><div class="txt">剩下的往左挪一格，新字“梨”补进最后一格。</div><div class="ro">8 / 8 格</div></div></div>
+    <div class="step"><div class="n">8</div><div><div class="lab">结论</div><div class="txt">窗口满了不会报错，只会把最旧的丢掉——窗口是容量，不是记忆。</div><div class="ro">8 / 8 格</div></div></div>
+  </div>
+</section>
+
+<section class="card c4">
+  <div class="eyebrow">位置效应</div>
+  <h2>为什么中间会丢</h2>
+  <p>窗口里的位置也有讲究：实测发现模型对首尾的信息更敏感，夹在中间的内容最容易被忽略，这就是 Lost in the Middle：不是模型看不见，是注意力分给了两端。</p>
+  <p>所以重要的指令和关键证据不要只埋在中间：放开头或结尾，或者在关键步骤前单独拎出来再强调一次，比单纯堆量管用。</p>
+  <ul>
+    <li>长文档塞进窗口 ≠ 模型都用上了。</li>
+    <li>关键信息放两端，比堆量更管用。</li>
+  </ul>
+</section>
+
+<section class="card c5">
+  <div class="eyebrow">成本</div>
+  <h2>成本是怎么乘出来的</h2>
+  <p>账单公式很简单：token 数 × 单价。但 Agent 是循环，每圈都要把历史重新输一遍，圈数一多，费用就按圈数翻倍，演示时看着便宜，上线后账单吓人。</p>
+  <p>省钱的办法不在换便宜模型那一刻，而在循环设计：能缓存的缓存，能裁剪的裁剪，能提前停的提前停；每圈结束先问一句，还要不要继续。</p>
+  <ul>
+    <li>先算一圈的 token，再乘预期的圈数，才是真实预算。</li>
+    <li>预算护栏要写进循环：轮数、token、费用三上限。</li>
+  </ul>
+  <div class="anim">
+    <h3>动画：token 数 × 单价 × 圈数 = 账单</h3>
+    <div class="cap">机制示意，不是真实模型行为；单价为举例，不是真实价格，非实测账单。</div>
+    <div class="step"><div class="n">1</div><div><div class="lab">问题：这句话花多少</div><div class="txt">还是窗口里那句“我喜欢吃苹果”，它跑起来，账单是怎么来的？先看一张空账单。</div><div class="ro">账单：0分</div></div></div>
+    <div class="step"><div class="n">2</div><div><div class="lab">先算一圈：4块 × 1分</div><div class="txt">这 4 块每块举例按 1 分算：4 个 token × 1 分 = 4 分，这就是一圈的钱。</div><div class="ro">4分</div></div></div>
+    <div class="step"><div class="n">3</div><div><div class="lab">一圈是什么</div><div class="txt">一圈就是这同一套 4 块出现一次，账单加上 4 分。</div><div class="ro">4分</div></div></div>
+    <div class="step"><div class="n">4</div><div><div class="lab">跑 10 圈，涨到 4毛</div><div class="txt">同一套 4 块反复出现 10 圈：4 分 × 10 = 4 毛，账单跟着圈数一起涨。</div><div class="ro">4毛</div></div></div>
+    <div class="step"><div class="n">5</div><div><div class="lab">圈数翻倍，账单翻倍</div><div class="txt">从 10 圈翻到 20 圈，还是这 4 块多跑一倍：账单从 4 毛涨到 8 毛，翻了一倍。</div><div class="ro">8毛</div></div></div>
+    <div class="step"><div class="n">6</div><div><div class="lab">结论</div><div class="txt">账单 = token 数 × 单价 × 圈数；圈数翻倍，账单翻倍；所以要给圈数设上限。</div><div class="ro">8毛</div></div></div>
+  </div>
+</section>
+
+<section class="card c6">
+  <div class="eyebrow">设计</div>
+  <h2>设计时记住什么</h2>
+  <p>设计 Agent 先定三条线：窗口预算（一次放多少）、轮数预算（最多跑几圈）、费用预算（最多花多少）。三条线写进循环，而不是凭感觉。</p>
+  <p>窗口不够时优先压缩和裁剪，而不是硬塞；被挤掉的历史要有地方可查，比如摘要或外部存储，而不是直接丢掉——窗口是容量上限，不是记忆。</p>
+  <ul>
+    <li>窗口是容量上限，不是记忆；记忆要另外做。</li>
+    <li>先定预算，再谈能力。</li>
+  </ul>
+</section>
+
+<section class="card c7">
+  <div class="eyebrow">误区辨析</div>
+  <h2>容量、利用、记忆，别混为一谈。</h2>
+  <p>窗口能放下，不等于模型能答对：容量是“能放多少”，利用是“放进去后用得好不好”。长文档塞满窗口，中间照样可能被忽略，关键信息还是要放两端、做评测。</p>
+  <p>记忆也不是窗口的同义词：窗口只管这一次能看到多少，跨会话的事实要另外做存储、检索和更新——存在哪里、何时取出来、错了怎么改，都是存储与检索设计，不是把窗口扩大的事。</p>
+  <ul>
+    <li>容量 ≠ 利用：放得下 ≠ 答得对。</li>
+    <li>记忆 ≠ 窗口：跨会话事实要另外存、另外取、另外改。</li>
+  </ul>
+</section>
+
+<section class="card takeaways">
+  <div class="eyebrow">要点回顾</div>
+  <h2>这课记住什么</h2>
+  <ul>
+    <li>分词是高频合并：常见串用较少 token，罕见串退回小片段；一个 token 未必有独立语义，切法随 tokenizer 而变。</li>
+    <li>生成是算概率：模型算下一个 token 的分布、选一个接回去再重复；语言顺只说明概率高，不等于事实正确。</li>
+    <li>窗口是容量上限，不是记忆：满了就静默挤出，不会报错。</li>
+    <li>关键信息放两端，中间最容易被忽略。</li>
+    <li>成本 = token 数 × 单价 × 圈数；预算护栏要写进循环。</li>
+    <li>先定窗口、轮数、费用三条线，再谈能力。</li>
+  </ul>
+</section>
+
+<section class="card quiz">
+  <div class="eyebrow">自测</div>
+  <h2>窗口满了之后，新 token 进来会发生什么？</h2>
+  <div class="opt">A. 模型报错并停止</div>
+  <div class="opt right">B. 最旧的 token 被静默挤出 ✓</div>
+  <div class="opt">C. 窗口自动扩容</div>
+  <div class="opt">D. 新 token 被丢弃</div>
+  <div class="exp"><b>解析：</b>窗口是固定容量的，新内容进来时最旧的内容会被挤出，而且不会报错——这就是静默丢失，也是长任务里历史突然“失忆”的常见原因。</div>
+</section>
+
+<section class="card sources">
+  <div class="eyebrow">证据</div>
+  <h2>论文与文章</h2>
+  <ul>
+    <li><a href="https://arxiv.org/abs/1508.07909">Neural Machine Translation of Rare Words with Subword Units</a>（Rico Sennrich, Barry Haddow, Alexandra Birch，ACL 2016）<br>支持：分词（BPE）是 token 的来源：文本先被切成子词单元再输入模型，token 数决定输入规模。<br><span class="b">边界：这是机器翻译领域的分词方法，本文用它说明 token 的切分原理，不涉及 Agent 循环本身。</span></li>
+    <li><a href="https://arxiv.org/abs/2307.03172">Lost in the Middle: How Language Models Use Long Contexts</a>（Nelson F. Liu 等，arXiv 2023）<br>支持：长上下文中模型对首尾信息更敏感、中间信息最容易被忽略，是本课位置效应的证据。<br><span class="b">边界：实验用的是问答任务中的长上下文，不是 Agent 循环；结论用于说明位置效应，不直接等于所有 Agent 场景的表现。</span></li>
+    <li><a href="https://arxiv.org/abs/1706.03762">Attention Is All You Need</a>（Ashish Vaswani 等，NeurIPS 2017）<br>支持：支持自回归生成的背景：解码器用掩码注意力逐个算下一个 token 的概率分布，是理解“算概率、选一个、接回去”的起点。<br><span class="b">边界：原论文的主要实验是机器翻译与句法分析；现代 decoder-only LLM 在数据、规模和实现上已经发生变化。</span></li>
+  </ul>
+</section>
+</main>
+<footer>归档自学习应用 · 第二版第 1 天 · 2026-11-01</footer>
+</div>
+</body>
+</html>
