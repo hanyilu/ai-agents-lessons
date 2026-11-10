@@ -40,6 +40,60 @@
   <p>课程的带样式网页归档，每天同步新课。</p>
 </header>
 <main>
+  <a class="lesson" href="lessons/day-10-memory-rag.html">
+    <div class="day">第 10 天</div>
+    <h2>记忆与 RAG：给 Agent 装一个会忘、会找的外脑</h2>
+    <p>新版第 10 天：模型没有记忆——权重是冻结的只读知识，上下文是每次调用从零开始的草稿纸。记忆只能做在外面：短期轨迹放上下文、长期事实与知识放外部存储，用时按相关性、新鲜度、重要性三信号召回再拼回去。RAG 是同一机制：知识库切块向量化，查到了再生成，2100 万条维基段落让 4 亿参数的 BART 在问答上超过 110 亿参数的 T5。切块、召回、压缩每一步都有损：块切错了边界、向量只看相似不看有用、摘要会丢细节——所以要混合检索、重排和引用校验。MemGPT 则把搬运交给模型自己：主上下文像内存、外部存储像硬盘，函数调用就是系统调用，长对话记忆准确率从 32.1% 提到 92.5%。</p>
+    <div class="meta">2026-11-10 · 约 18 分钟</div>
+  </a>
+  <a class="lesson" href="lessons/day-09-react-agent-loop.html">
+    <div class="day">第 9 天</div>
+    <h2>ReAct 与 Agent 循环：想一想、动一动、看一看，循环转起来</h2>
+    <p>新版第 9 天：单次调用只能看到最初的信息，复杂任务要多步走、中间结果决定下一步。ReAct 让模型每轮先写 Thought、再调工具、看到 Observation 后修正想法，轨迹追加进上下文。论文实测：CoT 失败里 56% 是幻觉，ReAct 是 0%，因为它能查；但 ReAct 在 HotpotQA 上略输 CoT，结构约束换了灵活性。循环的刹车必须长在后端：步数上限、重复检测、超时，敏感动作还要人工确认。</p>
+    <div class="meta">2026-11-09 · 约 18 分钟</div>
+  </a>
+  <a class="lesson" href="lessons/day-08-prompt-tool-calling.html">
+    <div class="day">第 8 天</div>
+    <h2>Prompt 与工具调用：模型怎么挑工具、参数错了谁兜底</h2>
+    <p>新版第 8 天：模型从不执行代码——它只生成一段“调哪个工具、传什么参数”的结构化文本，执行永远在后端。选工具是在工具名上算概率，描述就是检索信号；填参数按 JSON Schema 逐词生成，strict 模式保形状、保不了语义。Toolformer 证明工具的价值是让后面的 token 更好算，Gorilla 证明微调加检索能让小模型在 API 调用上超过 GPT-4。参数传错分五种死法，分层兜底、错误回填重试、上限 3 次；工具太多要按需加载。记住：模型是总会传错参数的客户端，防呆做在服务端。</p>
+    <div class="meta">2026-11-08 · 约 18 分钟</div>
+  </a>
+  <a class="lesson" href="lessons/day-07-inference-optimization.html">
+    <div class="day">第 7 天</div>
+    <h2>推理优化：让模型跑得更快、更便宜的四把刀</h2>
+    <p>新版第 7 天：生成一个 token 就要把全部权重从显存读一遍，推理卡的是带宽不是算力。KV Cache 把每个 token 的 K、V 存下来复用，PagedAttention 用分页把利用率从 20–38% 提到 96.3%；量化把权重压小、读得更快；连续批处理让一次读权重服务整批请求；推测解码一次前向多出几个 token。但每把刀都有代价：缓存吃显存、量化丢精度、批处理抬延迟——先量瓶颈再动手。</p>
+    <div class="meta">2026-11-07 · 约 18 分钟</div>
+  </a>
+  <a class="lesson" href="lessons/day-06-reasoning-chain-of-thought.html">
+    <div class="day">第 6 天</div>
+    <h2>推理与思维链：为什么多写几步，答案就变准了</h2>
+    <p>新版第 6 天：模型一次前向只算一个 token 的概率，多步推理塞不进去——CoT 让模型先写步骤再给答案，把难题拆成一串简单预测，中间结果写进上下文当草稿纸。推理 token 就是推理时间：更长思考、更多采样、更深搜索都能换准确率，自洽性用多数投票压住随机错，搜索靠验证器挑路；Snell 等人发现按难度分配推理计算，比固定做法效率高 4 倍以上。但步骤流畅不等于真懂，没有外部信号的自我纠错会把对答案改错，长链还要配预算与验证器。</p>
+    <div class="meta">2026-11-06 · 约 18 分钟</div>
+  </a>
+  <a class="lesson" href="lessons/day-05-model-evaluation.html">
+    <div class="day">第 5 天</div>
+    <h2>模型评测方法：分数是怎么来的，又会在哪骗你</h2>
+    <p>新版第 5 天：评测是把能力压缩成一个可比较的数，但分数只是代理指标——选择题测认得答案不测写出答案，平均分掩盖偏科，prompt 与随机种子能让分数抖动几个点。更要命的是数据污染：测试题可能早已混进训练语料，模型考的是记忆不是能力。人工评估最真但最贵，LLM-as-judge 快但有位置、啰嗦、自我偏爱三类系统偏差。选模型时三类分数都要看，还要留自己的评测集做回归门禁。</p>
+    <div class="meta">2026-11-05 · 约 18 分钟</div>
+  </a>
+  <a class="lesson" href="lessons/day-04-training-alignment-decoding.html">
+    <div class="day">第 4 天</div>
+    <h2>训练与对齐、解码策略：概率分布是怎么被练出来、又怎么被调出来的</h2>
+    <p>新版第 4 天：预训练只教模型猜下一个词，压进参数的是语料的统计规律，不是真值表；SFT 用少量示范把续写器改成跟指令的助手，RLHF 再用人类偏好打分、调高被喜欢的回答的概率。解码参数不改模型，只改这张概率分布怎么被用：温度改形状，top-p 砍尾巴。Scaling Law 则回答预算怎么分：参数和数据要一起涨，大约 20 个 token 配一个参数。</p>
+    <div class="meta">2026-11-04 · 约 18 分钟</div>
+  </a>
+  <a class="lesson" href="lessons/day-03-hallucination.html">
+    <div class="day">第 3 天</div>
+    <h2>幻觉：模型为什么一本正经地编造，怎么把它关进笼子</h2>
+    <p>新版第 3 天：幻觉不是模型说谎，而是它本来就没有真值表。生成只是在算下一个词的概率，不知道也要选一个词，选出来还很流畅。本课讲清三层成因：知识是压缩进参数的近似记忆、训练奖励流畅和猜测、解码采样放大随机；再讲四层缓解：数据与训练、检索 grounding、解码约束、事后校验，校验要长在写侧而不是只看流畅度。</p>
+    <div class="meta">2026-11-03 · 约 16 分钟</div>
+  </a>
+  <a class="lesson" href="lessons/day-02-multi-head-attention.html">
+    <div class="day">第 2 天</div>
+    <h2>多头注意力：Q/K/V 怎么算，位置怎么进模型</h2>
+    <p>新版第 2 天：注意力不是“看一眼全文”，而是每个 token 用 Q 提问、用 K 匹配、用 V 取内容，分数经缩放与 softmax 变成权重再加权求和；多头是把这套计算并行做 h 次、每头专看一种关系，拼回后再融合。位置本来不在注意力里，RoPE 把位置变成 Q、K 的旋转角，让相对距离直接进入点积；代价是序列翻倍、分数表大约翻四倍。</p>
+    <div class="meta">2026-11-02 · 约 18 分钟</div>
+  </a>
   <a class="lesson" href="lessons/day-01-token-context-window.html">
     <div class="day">第 1 天</div>
     <h2>Token 与上下文窗口：LLM 的两项底层原理</h2>

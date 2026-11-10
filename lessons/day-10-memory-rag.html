@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 10 天：记忆与 RAG：给 Agent 装一个会忘、会找的外脑</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f4f2ec; color: #222; line-height: 1.75; }
+  .wrap { max-width: 780px; margin: 0 auto; padding: 32px 20px 60px; }
+  header { background: linear-gradient(135deg, #1e1b4b, #4c1d95); color: #fff; border-radius: 16px; padding: 28px 26px; }
+  .kicker { font-size: 13px; letter-spacing: 2px; opacity: .85; }
+  header h1 { margin: 10px 0 12px; font-size: 26px; line-height: 1.4; }
+  .thesis { font-size: 16px; opacity: .95; margin: 0 0 14px; }
+  .meta { font-size: 13px; opacity: .75; }
+  section.card { background: #fff; border-radius: 14px; padding: 22px 24px; margin-top: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.06); border-left: 5px solid #2563eb; }
+  section.card.c2 { border-left-color: #7c3aed; }
+  section.card.c3 { border-left-color: #0891b2; }
+  section.card.c4 { border-left-color: #d97706; }
+  section.card.c5 { border-left-color: #dc2626; }
+  section.card.c6 { border-left-color: #059669; }
+  section.card.c7 { border-left-color: #4f46e5; }
+  .eyebrow { font-size: 12px; letter-spacing: 2px; font-weight: 700; color: #6b7280; }
+  h2 { margin: 6px 0 12px; font-size: 20px; line-height: 1.5; }
+  p { margin: 0 0 12px; }
+  ul { margin: 0 0 12px; padding-left: 20px; }
+  li { margin-bottom: 6px; }
+  pre { background: #1e1e2e; color: #e8e8f0; border-radius: 10px; padding: 14px 16px; overflow-x: auto; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+  .anim { background: #f8f7ff; border: 1px solid #e4e1f5; border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .anim h3 { margin: 0 0 4px; font-size: 16px; }
+  .anim .cap { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+  .step { display: flex; gap: 12px; background: #fff; border: 1px solid #e8e6f2; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
+  .step .n { flex: 0 0 26px; height: 26px; border-radius: 50%; background: #4c1d95; color: #fff; text-align: center; line-height: 26px; font-size: 13px; font-weight: 700; }
+  .step .lab { font-weight: 700; font-size: 14px; }
+  .step .txt { font-size: 14px; color: #333; }
+  .step .ro { display: inline-block; margin-top: 4px; font-family: monospace; font-size: 12px; background: #f1f0f8; border-radius: 6px; padding: 1px 8px; color: #4c1d95; }
+  .takeaways { background: #fffbeb; border: 1px solid #f5d98b; }
+  .quiz { background: #eff6ff; border: 1px solid #bfdbfe; }
+  .quiz .opt { background: #fff; border: 1px solid #dbeafe; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: 14px; }
+  .quiz .opt.right { border-color: #22c55e; background: #f0fdf4; }
+  .quiz .exp { margin-top: 10px; font-size: 14px; background: #fff; border-radius: 8px; padding: 10px 12px; }
+  .sources { font-size: 14px; }
+  .sources li { margin-bottom: 14px; }
+  .sources a { color: #1d4ed8; }
+  .sources .b { color: #6b7280; font-size: 13px; }
+  footer { margin-top: 28px; text-align: center; font-size: 12px; color: #9ca3af; }
+  header { padding-right: 66px; }
+  .navbtn { position: fixed; top: 14px; right: 14px; z-index: 100; width: 40px; height: 40px; border-radius: 50%; border: none; background: #fff; color: #1e1b4b; font-size: 20px; line-height: 1; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+  .navoverlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 101; display: none; }
+  .navoverlay.open { display: block; }
+  .navdrawer { position: fixed; top: 0; right: 0; width: min(320px, 85vw); height: 100%; background: #fff; z-index: 102; transform: translateX(100%); transition: transform .25s ease; overflow-y: auto; padding: 20px; box-shadow: -2px 0 12px rgba(0,0,0,.2); }
+  .navdrawer.open { transform: translateX(0); }
+  .navdrawer h3 { margin: 0 0 4px; font-size: 17px; }
+  .nd-close { position: absolute; top: 12px; right: 14px; border: none; background: none; font-size: 22px; cursor: pointer; color: #666; }
+  .nd-item { display: block; text-decoration: none; color: inherit; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 12px; margin-top: 10px; }
+  .nd-item.cur { border-color: #4c1d95; background: #f5f3ff; }
+  .nd-day { font-size: 12px; color: #6b7280; font-weight: 700; letter-spacing: 1px; }
+  .nd-title { font-size: 14px; line-height: 1.5; margin-top: 2px; }
+  .nd-meta { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+  .nd-home { display: block; margin-top: 14px; font-size: 14px; color: #1d4ed8; text-decoration: none; }
+
+  .visual { background: #f8f7ff; border: 1px solid #e4e1f5; border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .visual h3 { margin: 0 0 4px; font-size: 16px; }
+  .visual .cap { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+  .vbar { margin-bottom: 10px; }
+  .vbar .vlab { font-size: 14px; font-weight: 700; }
+  .vbar .vval { font-size: 13px; color: #4c1d95; font-weight: 700; }
+  .vbar .vtrack { background: #e8e6f2; border-radius: 6px; height: 14px; margin-top: 4px; }
+  .vbar .vfill { background: linear-gradient(90deg, #1e1b4b, #7c3aed); border-radius: 6px; height: 14px; }
+  .vflow { list-style: none; margin: 0; padding: 0; }
+  .vflow li { background: #fff; border: 1px solid #e8e6f2; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: 14px; }
+  .vflow li + .varrow { text-align: center; color: #9ca3af; font-size: 14px; margin: -2px 0 6px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="kicker">AI AGENTS 深入学习 · 第 10 天</div>
+  <h1>记忆与 RAG：给 Agent 装一个会忘、会找的外脑</h1>
+  <p class="thesis">模型本身没有记忆：权重是训练完就冻结的只读知识，上下文是每次调用从零开始的临时草稿纸。Agent 的记忆只能做在外面——分层存（短期轨迹、长期事实、外部知识），用时按相关性、新鲜度、重要性三信号召回，拼进上下文再让模型读；RAG 是同一套机制的另一半：把知识库切块向量化，查到了再生成。记忆的难点从来不是存，而是写什么、何时忘、查什么——以及记住的东西要能改、能删、能分清是谁的。</p>
+  <div class="meta">2026-11-10 · 约 18 分钟</div>
+</header>
+
+<main>
+<section class="card">
+  <div class="eyebrow">01 为什么模型记不住</div>
+  <h2>权重是只读的，上下文是从零开始的草稿纸。</h2>
+  <p>每次调用模型都从零开始：它能看到的只有这次传进来的上下文。权重训练完就冻结了，调用不会改权重——昨天聊过的事，不写进这次的输入，模型就不知道。</p>
+  <p>这不是 bug，是架构：第 1 天讲过，窗口是容量不是记忆；第 4 天讲过，预训练压进参数的是统计规律。Agent 要“记住”，只能把记忆存在模型外面，用时再搬进上下文。</p>
+  <ul>
+    <li>权重只读，调用不改参数。</li>
+    <li>上下文是唯一的工作记忆，关掉就没了。</li>
+    <li>记忆是系统设计，不是模型能力。</li>
+  </ul>
+</section>
+
+<section class="card c2">
+  <div class="eyebrow">02 记忆分三层</div>
+  <h2>热的放近处，冷的放远处，各有各的管法。</h2>
+  <p>按存取速度分三层。工作记忆就是当前上下文：正在进行的对话、ReAct 轨迹（第 9 天），快但一关就没。情景记忆是过去的对话与事实：用户偏好、已办事项，存在数据库里。外部知识是 RAG 的知识库：文档、手册、规章，不属于任何一次对话。</p>
+  <p>分层的理由和后端一样：热数据放内存，冷数据放磁盘。每一层都有自己的写入、读取和淘汰规则，混在一起管，最后一定是窗口先爆、账单先炸。</p>
+  <ul>
+    <li>工作记忆：当前上下文，快、易失。</li>
+    <li>情景记忆：历史事实，跨会话。</li>
+    <li>外部知识：共享文档，RAG 管。</li>
+  </ul>
+</section>
+
+<section class="card c3">
+  <div class="eyebrow">03 短期记忆与压缩</div>
+  <h2>轨迹越攒越长，摘要压缩省 token 但丢细节。</h2>
+  <p>短期记忆就是轨迹本身：消息列表按顺序追加，越攒越长。第 1 天的窗口迟早会满，满了就要压缩——最常见是摘要：让模型把旧对话压成一段摘要，再把它当新上下文的开头。</p>
+  <p>但压缩是有损的：摘要只留“大概意思”，数字、人名、否定词最容易丢；递归摘要一层层压，意思越走越偏。所以关键事实别只靠摘要：偏好、待办、金额要单独存成结构化字段，摘要只负责叙事。</p>
+  <ul>
+    <li>轨迹追加是最简单的短期记忆。</li>
+    <li>摘要压缩省 token 但丢细节。</li>
+    <li>关键事实单独结构化存，别混进摘要。</li>
+  </ul>
+</section>
+
+<section class="card c4">
+  <div class="eyebrow">04 长期记忆怎么写</div>
+  <h2>粒度与打分在写入时定，别等召回时再猜。</h2>
+  <p>长期记忆的写入要定两件事：写什么粒度——原句、摘要还是一条提炼的结论；什么时候写——每轮都写，还是对话结束统一写。粒度太细，查回来全是噪音；粒度太粗，又查不到细节。</p>
+  <p>Generative Agents 的做法值得抄：每条记忆生成时，让模型评一个 1–10 的重要性分（“吃了吐司”1 分，“房子着火”10 分），写入时就带上分数。召回时按相关性、新鲜度、重要性三信号打分，等权相加，分数最高的先进上下文。</p>
+  <ul>
+    <li>写入粒度决定召回质量。</li>
+    <li>重要性在写入时打分，别事后猜。</li>
+    <li>三信号：相关、新鲜、重要。</li>
+  </ul>
+  <div class="anim"><h3>动画：三信号打分：谁进上下文</h3><div class="cap">机制示意，不是真实模型行为：分数为举例，权重按论文等权相加。</div><div class="step"><div class="n">1</div><div><div class="lab">三条记忆候选</div><div class="txt">用户问“周五下午能订会吗”，系统从记忆库里捞出三条候选：刚说的闲聊、上周的偏好、去年的旧事。</div><div class="ro">三条记忆候选</div></div></div><div class="step"><div class="n">2</div><div><div class="lab">相关性打分</div><div class="txt">相关性看向量像不像：上周的偏好最相关，刚说的闲聊几乎无关。</div><div class="ro">相关性：偏好最高</div></div></div><div class="step"><div class="n">3</div><div><div class="lab">新鲜度打分</div><div class="txt">新鲜度按时间指数衰减：刚说的闲聊最新，去年的旧事几乎归零。</div><div class="ro">新鲜度：闲聊最高</div></div></div><div class="step"><div class="n">4</div><div><div class="lab">重要性打分</div><div class="txt">重要性是写入时模型评的：不接会的偏好 9 分，闲聊 1 分。</div><div class="ro">重要性：偏好 9 分</div></div></div><div class="step"><div class="n">5</div><div><div class="lab">三项相加</div><div class="txt">三项等权相加：偏好总分最高。闲聊虽新，但又不相关、又不重要。</div><div class="ro">总分：偏好胜出</div></div></div><div class="step"><div class="n">6</div><div><div class="lab">胜者进上下文</div><div class="txt">只有胜者进上下文：模型看到“周五下午不接会”，再决定要不要先问用户。</div><div class="ro">只带胜者进上下文</div></div></div></div>
+</section>
+
+<section class="card c5">
+  <div class="eyebrow">05 RAG 流水线</div>
+  <h2>先查到，再生成：知识在库里，不在参数里。</h2>
+  <p>RAG 是同一套机制的另一半：知识不在参数里，在外部。离线先把文档切成块，每块算一个向量、存进索引；在线把用户问题也算成向量，在索引里找最相似的 top-k 块，拼进上下文再让模型生成。</p>
+  <p>关键在“相似不等于有用”：向量相似度只量文本像不像，不量能不能回答问题。所以生产 RAG 都在检索后加一步重排：用更强的模型或交叉编码器再筛一遍，只留真正相关的几块，再拼进上下文。</p>
+  <pre># 离线：切块 → 向量化 → 建索引
+chunks = split(doc, size=500, overlap=50)
+index.add(embed(c) for c in chunks)
+# 在线：问题向量 → 检索 → 重排 → 拼上下文
+hits = index.search(embed(query), top_k=20)
+top = rerank(query, hits)[:5]
+answer = llm(prompt + &quot;\n&quot;.join(top))</pre>
+  <ul>
+    <li>离线建索引，在线查 top-k。</li>
+    <li>向量检索看相似，重排看有用。</li>
+    <li>拼进上下文再生成，答案带引用才可信。</li>
+  </ul>
+  <div class="anim"><h3>动画：一次 RAG：先查到，再生成</h3><div class="cap">机制示意，不是真实模型行为：块数与内容为举例，流程为简化版。</div><div class="step"><div class="n">1</div><div><div class="lab">用户提问</div><div class="txt">用户问：周五下午能订会吗？顺便说说公司政策。</div><div class="ro">问题进检索</div></div></div><div class="step"><div class="n">2</div><div><div class="lab">问题变向量</div><div class="txt">问题先算成一个向量：意思是它在语义空间里的坐标。</div><div class="ro">问题算成向量</div></div></div><div class="step"><div class="n">3</div><div><div class="lab">索引里找邻居</div><div class="txt">在 2100 万块的索引里找离它最近的 5 块：会议室政策、周五安排……</div><div class="ro">找最相似的 5 块</div></div></div><div class="step"><div class="n">4</div><div><div class="lab">重排筛一遍</div><div class="txt">重排模型再筛：只留真正能回答问题的 2 块，去掉标题相似、内容无关的。</div><div class="ro">重排只留有用的</div></div></div><div class="step"><div class="n">5</div><div><div class="lab">拼进上下文</div><div class="txt">问题和 2 块证据一起拼进上下文，模型这回不是凭记忆猜，是照着证据答。</div><div class="ro">证据拼进上下文</div></div></div><div class="step"><div class="n">6</div><div><div class="lab">生成带引用</div><div class="txt">模型生成答案，并标出每句话来自哪块：标不出来源的，等于没答。</div><div class="ro">答案标出来源</div></div></div></div>
+</section>
+
+<section class="card c6">
+  <div class="eyebrow">06 召回为什么会错</div>
+  <h2>切块错、向量错、排序错，各有各的修法。</h2>
+  <p>召回错有三类。切块错：块太小，关键句被上下文切散；块太大，窗口塞满无关内容，信号被稀释。向量错：同义词、否定、数字细节在向量空间里长得很像，相似度分不出来。排序错：最相似的块不一定最有用，标题党段落常年排第一。</p>
+  <p>对策也是三件套：切块按语义边界切（段落、标题），别按固定字数硬切；检索用混合——向量召回加关键词 BM25，两路取并集；最后重排加引用校验，模型回答必须标出来源段落，标不出的不算答。</p>
+  <ul>
+    <li>切块边界决定召回下限。</li>
+    <li>混合检索补向量盲区。</li>
+    <li>回答要带引用，标不出处就不信。</li>
+  </ul>
+</section>
+
+<section class="card c7">
+  <div class="eyebrow">07 MemGPT</div>
+  <h2>让模型自己管记忆：主上下文是内存，外面是硬盘。</h2>
+  <p>MemGPT 换了一个思路：别由应用替模型决定搬什么，让模型自己管。主上下文分三块——只读的系统指令、定长的“工作上下文”（存用户偏好这类关键事实）、先进先出的消息队列；外面再挂两个库：完整消息历史的召回库、任意文本的归档库。</p>
+  <p>搬运靠函数调用：上下文快满时系统发警告，模型自己调函数把重要事实写进工作上下文、把旧消息归档；要查时再调搜索函数捞回来。像操作系统管虚拟内存：主上下文是内存，外部存储是硬盘，函数调用是系统调用。长对话记忆测试里，GPT-4 准确率从 32.1% 提到 92.5%。</p>
+  <ul>
+    <li>主上下文像内存，外部存储像硬盘。</li>
+    <li>模型用函数调用自己搬运。</li>
+    <li>满了先警告再归档，不是悄悄丢。</li>
+  </ul>
+</section>
+
+<section class="card">
+  <div class="eyebrow">08 常见坑与落地</div>
+  <h2>记忆是私人的、可写的：隔离、可删、会过期。</h2>
+  <p>第一，记忆和 RAG 的治理完全不同：RAG 的知识库是共享的、只读的；记忆是私人的、可写的——多用户系统里记忆必须按用户隔离，删账号要连记忆一起删，记住的偏好也不能跨用户泄露。</p>
+  <p>第二，记忆会变质：用户的偏好会变、事实会过期，写进去的东西要有时间戳和来源，过期要能更新、错误要能纠正。第三，别把记忆当真理：召回的东西和模型编的东西一样，都要校验——第 3 天的幻觉缓解手段，记忆召回同样适用。</p>
+  <ul>
+    <li>记忆按用户隔离、可删。</li>
+    <li>事实带时间戳与来源，过期要更新。</li>
+    <li>召回内容也要校验，别照单全收。</li>
+  </ul>
+</section>
+
+<section class="card takeaways">
+  <div class="eyebrow">要点回顾</div>
+  <h2>这课记住什么</h2>
+  <ul>
+    <li>权重是只读知识，上下文是临时草稿纸——模型本身没有跨调用记忆。</li>
+    <li>记忆分三层：工作记忆（当前上下文）、情景记忆（历史事实）、外部知识（RAG 知识库）。</li>
+    <li>写入要定粒度与时机：原句、摘要还是提炼的结论，写错粒度后面都查不回来。</li>
+    <li>召回按三信号打分：相关性（向量相似度）、新鲜度（指数衰减）、重要性（写入时模型打分 1–10）。</li>
+    <li>RAG 流水线：切块→向量化→检索 top-k→重排→拼进上下文→生成；召回不等于相关，更不等于有用。</li>
+    <li>切块大小是取舍：块太小丢上下文，太大塞满窗口还稀释信号；边界切断句子最伤召回。</li>
+    <li>压缩是有损的：摘要丢细节，递归摘要越压越偏；关键事实要单独存结构化字段。</li>
+    <li>MemGPT 式管理：主上下文当内存、外部存储当硬盘，模型用函数调用自己搬运；记忆要能改、能删、能分权限。</li>
+  </ul>
+</section>
+
+<section class="card quiz">
+  <div class="eyebrow">自测</div>
+  <h2>用户一周前说过“周五下午不接会”，今天让 Agent 查日历订会。按本课讲的记忆用法，后端最该怎么做？</h2>
+  <div class="opt">A. 直接按今天的问题查日历订会，一周前的偏好不用管</div>
+  <div class="opt right">B. 先召回“周五下午不接会”这条记忆放进上下文，再查日历，冲突时先问用户 ✓</div>
+  <div class="opt">C. 把一周前的对话全文都拼进上下文再查日历</div>
+  <div class="opt">D. 记住偏好后直接拒绝订会，不用查日历</div>
+  <div class="exp"><b>解析：</b>长期记忆要召回进上下文才能起作用——这条记忆相关性高（都是周五下午的会）、重要性也高；但记忆是参考不是禁令，和当前请求冲突时要先确认，不能直接替用户拒绝；全文拼进上下文既贵又挤占窗口，召回 top-k 就够了。</div>
+</section>
+
+<section class="card sources">
+  <div class="eyebrow">证据</div>
+  <h2>论文与文章</h2>
+  <ul>
+    <li><a href="https://arxiv.org/abs/2005.11401">Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks</a>（Patrick Lewis 等，NeurIPS 2020 2020）<br>支持：维基百科切成 2100 万条 100 词段落，DPR 编码检索、BART 生成；Natural Questions 上 44.5 分，超过 110 亿参数的 T5（34.5）；换 2016/2018 两版索引不换权重，答案跟着变；11.8% 的答案不在任何召回段落里。<br><span class="b">边界：2020 年配方（BART + DPR + 联合训练），今天多为指令微调模型加现成检索器；只在问答类任务上设了新纪录，结论随任务变化。</span></li>
+    <li><a href="https://arxiv.org/abs/2310.08560">MemGPT: Towards LLMs as Operating Systems</a>（Charles Packer 等，arXiv 2023）<br>支持：虚拟上下文管理：主上下文分系统指令、工作上下文、FIFO 队列三块，外挂召回与归档两个库，模型用函数调用自己搬运；长对话记忆测试里 GPT-4 准确率从 32.1% 提到 92.5%。<br><span class="b">边界：效果依赖模型自己管理记忆的能力与函数调用可靠性；实验用 GPT-4/3.5，基线窗口 8k，结论随模型变化。</span></li>
+    <li><a href="https://arxiv.org/abs/2304.03442">Generative Agents: Interactive Simulacra of Human Behavior</a>（Joon Sung Park 等，UIST 2023 2023）<br>支持：记忆流 + 三信号召回：相关性（向量余弦相似度）、新鲜度（0.995/小时指数衰减）、重要性（模型打分 1–10），三者等权相加；重要性总和超 150 触发反思，取最近 100 条记忆提炼高层结论。<br><span class="b">边界：25 个角色的沙盒模拟（ChatGPT），不是生产记忆系统；访谈评分衡量的是角色可信度，不能直接当生产指标。</span></li>
+  </ul>
+</section>
+</main>
+<footer>归档自学习应用 · 第 10 天 · 2026-11-10</footer>
+</div>
+<button class="navbtn" id="navbtn" aria-label="打开课程目录">☰</button>
+<div class="navoverlay" id="navoverlay"></div>
+<aside class="navdrawer" id="navdrawer" aria-label="课程目录">
+  <button class="nd-close" id="ndclose" aria-label="关闭目录">×</button>
+  <h3>课程目录</h3>
+  <div id="ndlist"></div>
+  <a class="nd-home" id="ndhome" href="../index.html">← 回到首页</a>
+</aside>
+<script>
+(function(){
+  var btn = document.getElementById('navbtn');
+  var overlay = document.getElementById('navoverlay');
+  var drawer = document.getElementById('navdrawer');
+  var list = document.getElementById('ndlist');
+  var home = document.getElementById('ndhome');
+  var inLessons = /\/lessons\//.test(location.pathname);
+  var jsonUrl = inLessons ? '../lessons.json' : 'lessons.json';
+  var prefix = inLessons ? '' : 'lessons/';
+  home.href = inLessons ? '../index.html' : 'index.html';
+  function open(){ drawer.classList.add('open'); overlay.classList.add('open'); }
+  function close(){ drawer.classList.remove('open'); overlay.classList.remove('open'); }
+  btn.addEventListener('click', open);
+  document.getElementById('ndclose').addEventListener('click', close);
+  overlay.addEventListener('click', close);
+  var cur = location.pathname.split('/').pop();
+  fetch(jsonUrl).then(function(r){ return r.json(); }).then(function(items){
+    list.innerHTML = '';
+    items.forEach(function(it){
+      var a = document.createElement('a');
+      a.className = 'nd-item' + (it.file === cur ? ' cur' : '');
+      a.href = prefix + it.file;
+      a.innerHTML = '<div class="nd-day">第 ' + it.day + ' 天</div><div class="nd-title">' + it.title + '</div><div class="nd-meta">' + it.date + ' · 约 ' + it.minutes + ' 分钟</div>';
+      list.appendChild(a);
+    });
+  }).catch(function(){
+    list.innerHTML = '<p style="font-size:14px;color:#666;">目录加载失败，请点“回到首页”查看全部课程。</p>';
+  });
+})();
+</script>
+</body>
+</html>

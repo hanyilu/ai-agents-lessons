@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 9 天：ReAct 与 Agent 循环：想一想、动一动、看一看，循环转起来</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f4f2ec; color: #222; line-height: 1.75; }
+  .wrap { max-width: 780px; margin: 0 auto; padding: 32px 20px 60px; }
+  header { background: linear-gradient(135deg, #1e1b4b, #4c1d95); color: #fff; border-radius: 16px; padding: 28px 26px; }
+  .kicker { font-size: 13px; letter-spacing: 2px; opacity: .85; }
+  header h1 { margin: 10px 0 12px; font-size: 26px; line-height: 1.4; }
+  .thesis { font-size: 16px; opacity: .95; margin: 0 0 14px; }
+  .meta { font-size: 13px; opacity: .75; }
+  section.card { background: #fff; border-radius: 14px; padding: 22px 24px; margin-top: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.06); border-left: 5px solid #2563eb; }
+  section.card.c2 { border-left-color: #7c3aed; }
+  section.card.c3 { border-left-color: #0891b2; }
+  section.card.c4 { border-left-color: #d97706; }
+  section.card.c5 { border-left-color: #dc2626; }
+  section.card.c6 { border-left-color: #059669; }
+  section.card.c7 { border-left-color: #4f46e5; }
+  .eyebrow { font-size: 12px; letter-spacing: 2px; font-weight: 700; color: #6b7280; }
+  h2 { margin: 6px 0 12px; font-size: 20px; line-height: 1.5; }
+  p { margin: 0 0 12px; }
+  ul { margin: 0 0 12px; padding-left: 20px; }
+  li { margin-bottom: 6px; }
+  pre { background: #1e1e2e; color: #e8e8f0; border-radius: 10px; padding: 14px 16px; overflow-x: auto; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+  .anim { background: #f8f7ff; border: 1px solid #e4e1f5; border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .anim h3 { margin: 0 0 4px; font-size: 16px; }
+  .anim .cap { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+  .step { display: flex; gap: 12px; background: #fff; border: 1px solid #e8e6f2; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
+  .step .n { flex: 0 0 26px; height: 26px; border-radius: 50%; background: #4c1d95; color: #fff; text-align: center; line-height: 26px; font-size: 13px; font-weight: 700; }
+  .step .lab { font-weight: 700; font-size: 14px; }
+  .step .txt { font-size: 14px; color: #333; }
+  .step .ro { display: inline-block; margin-top: 4px; font-family: monospace; font-size: 12px; background: #f1f0f8; border-radius: 6px; padding: 1px 8px; color: #4c1d95; }
+  .takeaways { background: #fffbeb; border: 1px solid #f5d98b; }
+  .quiz { background: #eff6ff; border: 1px solid #bfdbfe; }
+  .quiz .opt { background: #fff; border: 1px solid #dbeafe; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: 14px; }
+  .quiz .opt.right { border-color: #22c55e; background: #f0fdf4; }
+  .quiz .exp { margin-top: 10px; font-size: 14px; background: #fff; border-radius: 8px; padding: 10px 12px; }
+  .sources { font-size: 14px; }
+  .sources li { margin-bottom: 14px; }
+  .sources a { color: #1d4ed8; }
+  .sources .b { color: #6b7280; font-size: 13px; }
+  footer { margin-top: 28px; text-align: center; font-size: 12px; color: #9ca3af; }
+  header { padding-right: 66px; }
+  .navbtn { position: fixed; top: 14px; right: 14px; z-index: 100; width: 40px; height: 40px; border-radius: 50%; border: none; background: #fff; color: #1e1b4b; font-size: 20px; line-height: 1; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+  .navoverlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 101; display: none; }
+  .navoverlay.open { display: block; }
+  .navdrawer { position: fixed; top: 0; right: 0; width: min(320px, 85vw); height: 100%; background: #fff; z-index: 102; transform: translateX(100%); transition: transform .25s ease; overflow-y: auto; padding: 20px; box-shadow: -2px 0 12px rgba(0,0,0,.2); }
+  .navdrawer.open { transform: translateX(0); }
+  .navdrawer h3 { margin: 0 0 4px; font-size: 17px; }
+  .nd-close { position: absolute; top: 12px; right: 14px; border: none; background: none; font-size: 22px; cursor: pointer; color: #666; }
+  .nd-item { display: block; text-decoration: none; color: inherit; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 12px; margin-top: 10px; }
+  .nd-item.cur { border-color: #4c1d95; background: #f5f3ff; }
+  .nd-day { font-size: 12px; color: #6b7280; font-weight: 700; letter-spacing: 1px; }
+  .nd-title { font-size: 14px; line-height: 1.5; margin-top: 2px; }
+  .nd-meta { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+  .nd-home { display: block; margin-top: 14px; font-size: 14px; color: #1d4ed8; text-decoration: none; }
+
+  .visual { background: #f8f7ff; border: 1px solid #e4e1f5; border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .visual h3 { margin: 0 0 4px; font-size: 16px; }
+  .visual .cap { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+  .vbar { margin-bottom: 10px; }
+  .vbar .vlab { font-size: 14px; font-weight: 700; }
+  .vbar .vval { font-size: 13px; color: #4c1d95; font-weight: 700; }
+  .vbar .vtrack { background: #e8e6f2; border-radius: 6px; height: 14px; margin-top: 4px; }
+  .vbar .vfill { background: linear-gradient(90deg, #1e1b4b, #7c3aed); border-radius: 6px; height: 14px; }
+  .vflow { list-style: none; margin: 0; padding: 0; }
+  .vflow li { background: #fff; border: 1px solid #e8e6f2; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: 14px; }
+  .vflow li + .varrow { text-align: center; color: #9ca3af; font-size: 14px; margin: -2px 0 6px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="kicker">AI AGENTS 深入学习 · 第 9 天</div>
+  <h1>ReAct 与 Agent 循环：想一想、动一动、看一看，循环转起来</h1>
+  <p class="thesis">ReAct 把单次调用变成 Thought→Action→Observation 的循环：模型先想（拆解、计划、判断下一步），再动（调工具），看到真实结果后修正下一轮想法，轨迹全部追加进上下文。推理轨迹让计划可追踪，Observation 让模型不用靠猜；但循环本身不会停——Finish、步数上限、重复检测这些刹车必须由后端代码写死，模型只提议、代码才裁决。</p>
+  <div class="meta">2026-11-09 · 约 18 分钟</div>
+</header>
+
+<main>
+<section class="card">
+  <div class="eyebrow">01 为什么单次调用不够</div>
+  <h2>答案依赖中间结果，单次调用没有“下一步”。</h2>
+  <p>一次调用只能看到调用前的信息：用户说“周五下午有空吗，顺便订个会议室”，模型不查日历就不知道有没有空，不订会议室就不知道订没订上。答案依赖中间结果，中间结果又决定下一步——单次调用没有“下一步”这个位置。</p>
+  <p>这就是 Agent 循环要解决的问题：把一次调用拆成多轮，每轮模型先想、再调工具、再看结果，看到结果再决定下一轮干什么。循环的每一轮都在回答一个问题：已知这些，下一步该做什么。</p>
+  <ul>
+    <li>单次调用是开环：输入固定，输出一次定型。</li>
+    <li>多步任务是闭环：每步的结果决定下一步。</li>
+    <li>循环的本质是“看到反馈再决策”，不是“一次想全”。</li>
+  </ul>
+</section>
+
+<section class="card c2">
+  <div class="eyebrow">02 循环长什么样</div>
+  <h2>一轮三步：想、动、看结果，轨迹全进上下文。</h2>
+  <p>ReAct 规定每轮固定三步：Thought——模型用自然语言写下“现在是什么情况、下一步该干什么”；Action——调一个工具；Observation——工具返回的真实结果。三步写成文本，追加进上下文，下一轮模型全看得到。</p>
+  <p>循环结束也有固定动作：Finish——模型判断信息够了，停止调用、直接回答用户。从 Thought 到 Finish，整个轨迹就是一次任务的完整记录，人读得懂、机器能回放。</p>
+  <ul>
+    <li>Thought 是推理轨迹，Action 是工具调用，Observation 是环境反馈。</li>
+    <li>轨迹追加进上下文，越往后上下文越长、成本越高。</li>
+    <li>Finish 是模型主动喊停的动作，不是后端猜的。</li>
+  </ul>
+  <div class="anim"><h3>动画：一次 ReAct 循环：订会议室</h3><div class="cap">机制示意，不是真实模型行为：时间与工具名为举例，步骤为简化流程。</div><div class="step"><div class="n">1</div><div><div class="lab">用户目标</div><div class="txt">用户：周五下午有空吗？顺便帮我订个会议室。</div><div class="ro">目标进循环</div></div></div><div class="step"><div class="n">2</div><div><div class="lab">Thought 1：先想</div><div class="txt">想：要先查日历，看周五下午有没有冲突，再决定订几点。</div><div class="ro">想：拆解成两步</div></div></div><div class="step"><div class="n">3</div><div><div class="lab">Action 1：查日历</div><div class="txt">调工具：get_calendar(周五, 下午)，查那天下午的日程。</div><div class="ro">调工具查日历</div></div></div><div class="step"><div class="n">4</div><div><div class="lab">Observation 1</div><div class="txt">结果回来：15:00 之后空闲，之前有个会到 14:30。</div><div class="ro">事实进上下文</div></div></div><div class="step"><div class="n">5</div><div><div class="lab">Thought 2：再想</div><div class="txt">想：15:00 后有空，订 15:00 的会议室一小时。</div><div class="ro">想：下一步订房</div></div></div><div class="step"><div class="n">6</div><div><div class="lab">Action 2：订会议室</div><div class="txt">调工具：book_room(周五 15:00, 1 小时)。</div><div class="ro">调工具订会议室</div></div></div><div class="step"><div class="n">7</div><div><div class="lab">Observation 2</div><div class="txt">结果回来：会议室已订好，确认号 R-2041。</div><div class="ro">事实进上下文</div></div></div><div class="step"><div class="n">8</div><div><div class="lab">Finish：回答</div><div class="txt">想：信息够了，停循环，直接回答用户订好了。</div><div class="ro">循环结束</div></div></div></div>
+</section>
+
+<section class="card c3">
+  <div class="eyebrow">03 Thought 为什么有用</div>
+  <h2>Thought 是循环里的草稿纸，写下来才算数。</h2>
+  <p>Thought 不是给人看的装饰：它把计划写进上下文，下一轮模型不用重新猜“做到哪了”。第 6 天讲过，推理要落字才能当草稿纸——Thought 就是循环里的草稿纸，写下来才算数。</p>
+  <p>Thought 还管异常：工具报错、结果出乎意料时，模型先在 Thought 里复盘“刚才哪步错了、换什么策略”，再出下一个 Action。没有 Thought 的 Act-only 模式，模型只会机械地重复上一步。</p>
+  <ul>
+    <li>Thought 三个用处：拆解计划、跟踪进度、处理异常。</li>
+    <li>写进上下文才能被下一轮复用，只在脑子里想等于没想。</li>
+    <li>ReAct 论文：有推理的 ReAct 始终优于纯行动的 Act-only。</li>
+  </ul>
+</section>
+
+<section class="card c4">
+  <div class="eyebrow">04 Observation 怎么纠偏</div>
+  <h2>查到的事实进上下文，幻觉就没了立足点。</h2>
+  <p>Observation 是环境给的真实反馈：日历说 15:00 后空闲，会议室说已订好——这些是事实，不是模型猜的。第 3 天讲过，模型不知道也要选一个词；Observation 把“不知道”换成“查到了”，幻觉就没了立足点。</p>
+  <p>论文的人工分析很直接：200 条 HotpotQA 轨迹里，CoT 的失败 56% 是幻觉，ReAct 是 0%。ReAct 的主要失败变成搜索结果不好（23%）——问题从“模型编答案”变成了“工具没查到”，这是能修的工程问题。</p>
+  <ul>
+    <li>Observation 把猜测换成事实，是循环里唯一的真实来源。</li>
+    <li>幻觉 56%→0%，代价是失败变成工具问题。</li>
+    <li>但 Observation 也会错：工具返回的错结果，模型会照单全收。</li>
+  </ul>
+</section>
+
+<section class="card c5">
+  <div class="eyebrow">05 循环在后端怎么实现</div>
+  <h2>循环是后端写的 while，模型只出下一步。</h2>
+  <p>循环本身不是模型的能力，是后端写的一个 while：每轮调一次模型、解析它的 Action、执行工具、把结果拼回 messages，再进下一轮。轨迹、步数、超时都是代码里的变量，模型只负责出下一步。</p>
+  <p>关键设计是状态要显式：messages 存完整轨迹，step 计数防死循环，started_at 计超时。LangGraph 这类框架做的就是把这套状态机写成图——节点是步骤，边是转移，检查点是断点续跑的快照（第 11 天细讲）。</p>
+  <pre>messages = [system, user]        # 轨迹：每轮追加
+for step in range(MAX_STEPS):    # 护栏 1：步数上限
+    reply = llm(messages)        # 模型出 Thought + Action
+    if reply.is_finish():        # 模型喊停
+        return reply.text
+    result = run_tool(reply.tool)  # 后端执行工具
+    messages += [reply, result]  # Thought+Action+Observation 进轨迹
+raise TimeoutError(&quot;步数用完仍未完成&quot;)</pre>
+  <ul>
+    <li>模型出 Thought+Action，后端执行并回填 Observation。</li>
+    <li>状态显式化：轨迹、步数、超时都要有变量管。</li>
+    <li>框架只是把这套 while 循环写成状态机。</li>
+  </ul>
+</section>
+
+<section class="card c6">
+  <div class="eyebrow">06 什么时候停</div>
+  <h2>停的条件要写死，模型不会自己停。</h2>
+  <p>循环不会自己停：模型可能一直觉得“还差一点”，调一整夜工具。停的条件必须由代码写死——模型返回 Finish、步数到上限、token 预算用完、总超时到，四条里任何一条触发就停。</p>
+  <p>Anthropic 的建议很实在：给 Agent 设最大轮数这类停止条件。预算也要分开算：步数管“转几圈”，token 预算管“花多少钱”，超时管“等多久”——三个上限各管各的，缺一个都有洞。</p>
+  <ul>
+    <li>Finish 是模型喊停，其余三条是代码强制停。</li>
+    <li>步数、token、超时三个上限各管各的。</li>
+    <li>停下来之后要告诉用户“做到哪了”，而不是悄悄返回半成品。</li>
+  </ul>
+</section>
+
+<section class="card c7">
+  <div class="eyebrow">07 循环失控的四种样子</div>
+  <h2>循环在转、任务没进展，就是失控。</h2>
+  <p>最常见的是重复：模型用同一参数调同一个工具，Observation 一模一样，它还继续调——第 8 天讲过的错误回填没写好时就会这样。其次是提前 Finish：信息还没够，模型就觉得够了，交了半成品。</p>
+  <p>还有两种更隐蔽：Thought 与 Action 脱节——想的是查 A，调的却是 B；错误循环——工具报错，模型不改参数原样再调。共同点都是循环在转、任务没进展，轨迹越长越贵。</p>
+  <ul>
+    <li>重复动作、提前 Finish、想做脱节、报错原样重试。</li>
+    <li>失控的信号是轨迹变长、任务没进展。</li>
+    <li>发现失控要靠代码检测，模型自己很难察觉。</li>
+  </ul>
+  <div class="anim"><h3>动画：循环失控：同一动作转三圈</h3><div class="cap">机制示意，不是真实模型行为：次数与阈值为举例，护栏逻辑为简化版。</div><div class="step"><div class="n">1</div><div><div class="lab">Thought 写错</div><div class="txt">想：搜不到就再搜一次，没换关键词、没换策略。</div><div class="ro">想错了方向</div></div></div><div class="step"><div class="n">2</div><div><div class="lab">Action 重复</div><div class="txt">调工具：search(同一关键词)，和上一轮一模一样。</div><div class="ro">动作重复</div></div></div><div class="step"><div class="n">3</div><div><div class="lab">Observation 相同</div><div class="txt">结果回来：和上一轮完全一样，还是没有想要的答案。</div><div class="ro">原地打转</div></div></div><div class="step"><div class="n">4</div><div><div class="lab">又想又查</div><div class="txt">第三轮：同样的 Thought、同样的 Action、同样的结果。</div><div class="ro">三圈没进展</div></div></div><div class="step"><div class="n">5</div><div><div class="lab">护栏 1：重复检测</div><div class="txt">代码发现连续 3 次相同 Action，叫停：换策略或问用户。</div><div class="ro">重复检测触发</div></div></div><div class="step"><div class="n">6</div><div><div class="lab">护栏 2：步数上限</div><div class="txt">就算没检测到重复，第 10 步还没 Finish 也强制停。</div><div class="ro">步数上限兜底</div></div></div><div class="step"><div class="n">7</div><div><div class="lab">结论</div><div class="txt">循环要配刹车：模型负责转，代码负责在转不动时停。</div><div class="ro">刹车长在后端</div></div></div></div>
+</section>
+
+<section class="card">
+  <div class="eyebrow">08 常见坑与落地</div>
+  <h2>模型提议、代码裁决；反思要配外部信号。</h2>
+  <p>第一，护栏分工：模型只提议，代码才裁决——重复检测、步数上限、敏感动作确认都写在后端，模型说“订好了”不算数，工具返回成功才算数。第二，Observation 要截断：工具返回几万字日志会把窗口挤爆（第 1 天），只留关键字段。</p>
+  <p>第三，反思要配外部信号：Reflexion 让模型在失败后写反思、下一轮复用，HumanEval 从 80.1% 提到 91%；但没有外部信号的反思会把对答案改错。后端类比：这就是事件循环——while + 状态 + 退出条件，写过服务器主循环就写过 Agent 循环。</p>
+  <ul>
+    <li>模型提议、代码裁决；敏感动作先确认再执行。</li>
+    <li>Observation 截断后再进上下文，别让日志挤爆窗口。</li>
+    <li>反思要配外部验证信号，没信号的自我纠错会改错。</li>
+  </ul>
+</section>
+
+<section class="card takeaways">
+  <div class="eyebrow">要点回顾</div>
+  <h2>这课记住什么</h2>
+  <ul>
+    <li>单次调用只看最初信息；多步任务要循环：中间结果决定下一步。</li>
+    <li>一轮 = Thought（想）→ Action（动）→ Observation（看结果），轨迹追加进上下文。</li>
+    <li>Thought 是写进上下文的草稿纸：拆解、跟踪进度、处理异常，下一轮能复用。</li>
+    <li>Observation 是真实反馈：CoT 失败 56% 是幻觉，ReAct 是 0%，主因是搜索结果不好。</li>
+    <li>循环在后端就是 while：轨迹、步数、超时都是代码管的状态，模型只出下一步。</li>
+    <li>停的条件要写死：Finish、步数上限、token 预算、超时，缺一个就可能死循环。</li>
+    <li>失控四种样子：重复动作、提前 Finish、想与做脱节、报错后原样重试。</li>
+    <li>护栏分工：模型提议、代码裁决；反思要配外部信号，没信号的自我纠错会改错。</li>
+  </ul>
+</section>
+
+<section class="card quiz">
+  <div class="eyebrow">自测</div>
+  <h2>循环里模型连续 3 次用同一参数调同一个搜索工具，每次返回同一结果。按本课讲的护栏，后端最该怎么做？</h2>
+  <div class="opt">A. 什么都不做，让模型继续调，直到上下文窗口满了再停</div>
+  <div class="opt right">B. 重复检测触发后停下，把“已试过 3 次、结果相同，换策略或向用户确认”回填给模型，步数上限兜底 ✓</div>
+  <div class="opt">C. 把搜索工具从工具清单里删掉，逼模型换别的工具</div>
+  <div class="opt">D. 直接拿最后一次结果当答案交差，不告诉用户循环失败了</div>
+  <div class="exp"><b>解析：</b>重复是代码能检测的信号：连续相同 Action 说明模型卡住了，靠它自己很难察觉。叫停后把错因与“换策略或问用户”回填给模型，步数上限是最后一道兜底；放任不管只会烧 token，删工具或悄悄交差都解决不了卡住的问题。</div>
+</section>
+
+<section class="card sources">
+  <div class="eyebrow">证据</div>
+  <h2>论文与文章</h2>
+  <ul>
+    <li><a href="https://arxiv.org/abs/2210.03629">ReAct: Synergizing Reasoning and Acting in Language Models</a>（姚顺宇 等，ICLR 2023 2022）<br>支持：Thought/Action/Observation 交替进行：推理帮模型定计划、处理异常，行动从外部取信息；HotpotQA 上 ReAct 27.4、CoT 29.4，两者结合 35.1；FEVER 上 ReAct 60.9、CoT 56.3；CoT 失败里 56% 是幻觉，ReAct 是 0%；ALFWorld 成功率比模仿学习高 34 个百分点。<br><span class="b">边界：结构约束会降低推理灵活性，HotpotQA 上 ReAct 略输 CoT；实验用 PaLM-540B 与维基 API，结论随模型与工具变化。</span></li>
+    <li><a href="https://arxiv.org/abs/2303.11366">Reflexion: Language Agents with Verbal Reinforcement Learning</a>（Noah Shinn 等，NeurIPS 2023 2023）<br>支持：失败后把反思写成文字存入情景记忆，下一轮复用：HumanEval pass@1 从 GPT-4 的 80.1% 提到 91%；ALFWorld 完成 130/134 个任务；但只反思不配外部信号时，最难 Rust 题得分 0.52，低于基线 0.60。<br><span class="b">边界：效果依赖评估器质量；自写测试假阳性率高时反而更差，MBPP Python 上 Reflexion 低于基线。</span></li>
+    <li><a href="https://www.anthropic.com/engineering/building-effective-agents">Building effective agents</a>（Erik Schluntz、Barry Zhang，Anthropic 工程博客 2024）<br>支持：Agent 是模型在循环里自己决定下一步、每步从环境拿 ground truth；建议从最简单的方案起步，给 Agent 设最大轮数这类停止条件，工具层要像设计用户界面一样认真设计。<br><span class="b">边界：工程指南而非对照实验；文中工具生态说明已随时间变化，结论以方法论为准。</span></li>
+  </ul>
+</section>
+</main>
+<footer>归档自学习应用 · 第 9 天 · 2026-11-09</footer>
+</div>
+<button class="navbtn" id="navbtn" aria-label="打开课程目录">☰</button>
+<div class="navoverlay" id="navoverlay"></div>
+<aside class="navdrawer" id="navdrawer" aria-label="课程目录">
+  <button class="nd-close" id="ndclose" aria-label="关闭目录">×</button>
+  <h3>课程目录</h3>
+  <div id="ndlist"></div>
+  <a class="nd-home" id="ndhome" href="../index.html">← 回到首页</a>
+</aside>
+<script>
+(function(){
+  var btn = document.getElementById('navbtn');
+  var overlay = document.getElementById('navoverlay');
+  var drawer = document.getElementById('navdrawer');
+  var list = document.getElementById('ndlist');
+  var home = document.getElementById('ndhome');
+  var inLessons = /\/lessons\//.test(location.pathname);
+  var jsonUrl = inLessons ? '../lessons.json' : 'lessons.json';
+  var prefix = inLessons ? '' : 'lessons/';
+  home.href = inLessons ? '../index.html' : 'index.html';
+  function open(){ drawer.classList.add('open'); overlay.classList.add('open'); }
+  function close(){ drawer.classList.remove('open'); overlay.classList.remove('open'); }
+  btn.addEventListener('click', open);
+  document.getElementById('ndclose').addEventListener('click', close);
+  overlay.addEventListener('click', close);
+  var cur = location.pathname.split('/').pop();
+  fetch(jsonUrl).then(function(r){ return r.json(); }).then(function(items){
+    list.innerHTML = '';
+    items.forEach(function(it){
+      var a = document.createElement('a');
+      a.className = 'nd-item' + (it.file === cur ? ' cur' : '');
+      a.href = prefix + it.file;
+      a.innerHTML = '<div class="nd-day">第 ' + it.day + ' 天</div><div class="nd-title">' + it.title + '</div><div class="nd-meta">' + it.date + ' · 约 ' + it.minutes + ' 分钟</div>';
+      list.appendChild(a);
+    });
+  }).catch(function(){
+    list.innerHTML = '<p style="font-size:14px;color:#666;">目录加载失败，请点“回到首页”查看全部课程。</p>';
+  });
+})();
+</script>
+</body>
+</html>
