@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 8 天：Prompt 与工具调用：模型怎么挑工具、参数错了谁兜底</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f4f2ec; color: #222; line-height: 1.75; }
+  .wrap { max-width: 780px; margin: 0 auto; padding: 32px 20px 60px; }
+  header { background: linear-gradient(135deg, #1e1b4b, #4c1d95); color: #fff; border-radius: 16px; padding: 28px 26px; }
+  .kicker { font-size: 13px; letter-spacing: 2px; opacity: .85; }
+  header h1 { margin: 10px 0 12px; font-size: 26px; line-height: 1.4; }
+  .thesis { font-size: 16px; opacity: .95; margin: 0 0 14px; }
+  .meta { font-size: 13px; opacity: .75; }
+  section.card { background: #fff; border-radius: 14px; padding: 22px 24px; margin-top: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.06); border-left: 5px solid #2563eb; }
+  section.card.c2 { border-left-color: #7c3aed; }
+  section.card.c3 { border-left-color: #0891b2; }
+  section.card.c4 { border-left-color: #d97706; }
+  section.card.c5 { border-left-color: #dc2626; }
+  section.card.c6 { border-left-color: #059669; }
+  section.card.c7 { border-left-color: #4f46e5; }
+  .eyebrow { font-size: 12px; letter-spacing: 2px; font-weight: 700; color: #6b7280; }
+  h2 { margin: 6px 0 12px; font-size: 20px; line-height: 1.5; }
+  p { margin: 0 0 12px; }
+  ul { margin: 0 0 12px; padding-left: 20px; }
+  li { margin-bottom: 6px; }
+  pre { background: #1e1e2e; color: #e8e8f0; border-radius: 10px; padding: 14px 16px; overflow-x: auto; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+  .anim { background: #f8f7ff; border: 1px solid #e4e1f5; border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .anim h3 { margin: 0 0 4px; font-size: 16px; }
+  .anim .cap { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+  .step { display: flex; gap: 12px; background: #fff; border: 1px solid #e8e6f2; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
+  .step .n { flex: 0 0 26px; height: 26px; border-radius: 50%; background: #4c1d95; color: #fff; text-align: center; line-height: 26px; font-size: 13px; font-weight: 700; }
+  .step .lab { font-weight: 700; font-size: 14px; }
+  .step .txt { font-size: 14px; color: #333; }
+  .step .ro { display: inline-block; margin-top: 4px; font-family: monospace; font-size: 12px; background: #f1f0f8; border-radius: 6px; padding: 1px 8px; color: #4c1d95; }
+  .takeaways { background: #fffbeb; border: 1px solid #f5d98b; }
+  .quiz { background: #eff6ff; border: 1px solid #bfdbfe; }
+  .quiz .opt { background: #fff; border: 1px solid #dbeafe; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: 14px; }
+  .quiz .opt.right { border-color: #22c55e; background: #f0fdf4; }
+  .quiz .exp { margin-top: 10px; font-size: 14px; background: #fff; border-radius: 8px; padding: 10px 12px; }
+  .sources { font-size: 14px; }
+  .sources li { margin-bottom: 14px; }
+  .sources a { color: #1d4ed8; }
+  .sources .b { color: #6b7280; font-size: 13px; }
+  footer { margin-top: 28px; text-align: center; font-size: 12px; color: #9ca3af; }
+  header { padding-right: 66px; }
+  .navbtn { position: fixed; top: 14px; right: 14px; z-index: 100; width: 40px; height: 40px; border-radius: 50%; border: none; background: #fff; color: #1e1b4b; font-size: 20px; line-height: 1; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+  .navoverlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 101; display: none; }
+  .navoverlay.open { display: block; }
+  .navdrawer { position: fixed; top: 0; right: 0; width: min(320px, 85vw); height: 100%; background: #fff; z-index: 102; transform: translateX(100%); transition: transform .25s ease; overflow-y: auto; padding: 20px; box-shadow: -2px 0 12px rgba(0,0,0,.2); }
+  .navdrawer.open { transform: translateX(0); }
+  .navdrawer h3 { margin: 0 0 4px; font-size: 17px; }
+  .nd-close { position: absolute; top: 12px; right: 14px; border: none; background: none; font-size: 22px; cursor: pointer; color: #666; }
+  .nd-item { display: block; text-decoration: none; color: inherit; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 12px; margin-top: 10px; }
+  .nd-item.cur { border-color: #4c1d95; background: #f5f3ff; }
+  .nd-day { font-size: 12px; color: #6b7280; font-weight: 700; letter-spacing: 1px; }
+  .nd-title { font-size: 14px; line-height: 1.5; margin-top: 2px; }
+  .nd-meta { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+  .nd-home { display: block; margin-top: 14px; font-size: 14px; color: #1d4ed8; text-decoration: none; }
+
+  .visual { background: #f8f7ff; border: 1px solid #e4e1f5; border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .visual h3 { margin: 0 0 4px; font-size: 16px; }
+  .visual .cap { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+  .vbar { margin-bottom: 10px; }
+  .vbar .vlab { font-size: 14px; font-weight: 700; }
+  .vbar .vval { font-size: 13px; color: #4c1d95; font-weight: 700; }
+  .vbar .vtrack { background: #e8e6f2; border-radius: 6px; height: 14px; margin-top: 4px; }
+  .vbar .vfill { background: linear-gradient(90deg, #1e1b4b, #7c3aed); border-radius: 6px; height: 14px; }
+  .vflow { list-style: none; margin: 0; padding: 0; }
+  .vflow li { background: #fff; border: 1px solid #e8e6f2; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: 14px; }
+  .vflow li + .varrow { text-align: center; color: #9ca3af; font-size: 14px; margin: -2px 0 6px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="kicker">AI AGENTS 深入学习 · 第 8 天</div>
+  <h1>Prompt 与工具调用：模型怎么挑工具、参数错了谁兜底</h1>
+  <p class="thesis">模型只会输出文本，工具调用是它碰世界的唯一方式：模型负责选哪个工具、填什么参数——这两次选择都是在算概率；后端负责解析、校验、执行、把结果拼回上下文。工具定义进提示当检索信号，JSON Schema 框住参数形状，strict 模式保证形状合规，但语义对不对只能由后端校验。参数传错要分层兜底、错误回填给模型重试；工具太多要按需加载。模型是总会传错参数的客户端，防呆必须做在服务端。</p>
+  <div class="meta">2026-11-08 · 约 18 分钟</div>
+</header>
+
+<main>
+<section class="card">
+  <div class="eyebrow">01 为什么需要工具</div>
+  <h2>模型只会出文本，工具是它碰世界的手。</h2>
+  <p>模型只会输出文本：它算的是下一个 token 的概率，再大的模型也碰不到真实世界——查不了天气、订不了机票、改不了数据库。工具调用就是给模型装手：模型只负责说“调哪个工具、传什么参数”，真正执行的是你的后端代码。</p>
+  <p>这条分工线是安全设计的起点：模型输出的只是一段结构化文本——工具名加一段 JSON 参数。后端拿到它要先解析、再校验、再执行，最后把结果拼回上下文，模型接着生成回答。模型从不直接碰数据库和 API。</p>
+  <ul>
+    <li>模型只生成调用意图（工具名 + JSON 参数），执行永远在后端。</li>
+    <li>工具返回的结果拼回上下文，变成下一轮生成的 observation。</li>
+    <li>这条分工线决定了安全边界：校验必须长在后端，不在模型嘴里。</li>
+  </ul>
+</section>
+
+<section class="card c2">
+  <div class="eyebrow">02 模型怎么选工具</div>
+  <h2>工具清单进提示，选工具就是算概率。</h2>
+  <p>工具清单是每次请求的一部分：每个工具的名字、描述、参数 JSON Schema 都被序列化进提示，模型在回答前先看到全部可选工具。它选哪个工具，本质上是在工具名 token 上算概率——描述与用户意图越匹配，该工具名的概率越高。</p>
+  <p>所以工具描述不是文档，是检索信号：名字要像动词短语，描述第一句就要写清“什么时候用、不用什么时候用”。两个功能重叠的工具，模型只能靠描述区分——描述写得含糊，选错就是必然。</p>
+  <ul>
+    <li>工具定义进提示：名字 + 描述 + JSON Schema，占用上下文、按 token 计费。</li>
+    <li>选工具 = 在工具名上算概率，描述写得越像检索关键词，挑得越准。</li>
+    <li>模型也可以决定不调工具：该调没调、不用却调，都是常见失效。</li>
+  </ul>
+  <div class="anim"><h3>动画：一次工具调用是怎么发生的</h3><div class="cap">机制示意，不是真实模型行为：概率数字为举例，步骤为简化流程。</div><div class="step"><div class="n">1</div><div><div class="lab">提示进模型</div><div class="txt">用户问题和工具清单一起进上下文，模型先看到全部可选工具。</div><div class="ro">工具清单进提示</div></div></div><div class="step"><div class="n">2</div><div><div class="lab">模型算概率</div><div class="txt">每个工具名都算一个概率，描述与意图越匹配，概率越高。</div><div class="ro">查天气胜出</div></div></div><div class="step"><div class="n">3</div><div><div class="lab">生成 JSON 参数</div><div class="txt">选定工具后，模型按 JSON Schema 逐 token 生成参数。</div><div class="ro">参数逐词生成</div></div></div><div class="step"><div class="n">4</div><div><div class="lab">后端收到调用意图</div><div class="txt">后端解析这段 JSON，校验形状：字段、类型、必填都对。</div><div class="ro">形状校验通过</div></div></div><div class="step"><div class="n">5</div><div><div class="lab">执行工具</div><div class="txt">后端真正去调天气接口，拿到结果。</div><div class="ro">结果返回</div></div></div><div class="step"><div class="n">6</div><div><div class="lab">结果拼回上下文</div><div class="txt">工具结果变成 observation 拼回上下文，模型接着写回答。</div><div class="ro">继续生成回答</div></div></div><div class="step"><div class="n">7</div><div><div class="lab">结论</div><div class="txt">模型只负责选和填，执行永远在后端——这条线就是安全边界。</div><div class="ro">分工明确</div></div></div></div>
+</section>
+
+<section class="card c3">
+  <div class="eyebrow">03 参数怎么填</div>
+  <h2>JSON Schema 是填空题的格子，只框形状不框语义。</h2>
+  <p>选定工具后，模型按 JSON Schema 逐 token 生成参数：哪个字段必填、哪个是字符串、哪个只能取枚举值，schema 把填空题的格子先画好。OpenAI 的 strict 模式更进一步，用约束解码保证输出一定符合 schema，形状错误基本绝迹。</p>
+  <p>但 schema 只框形状，不框语义：order_id 是字符串没错，可它指的订单根本不存在；date 格式对了，可那天是过去。模型填参数时看不到你的数据库，它只是在猜“什么样的值最可能出现”。语义对不对，只能由后端在执行前校验。</p>
+  <ul>
+    <li>Schema 框住类型、必填、枚举；strict 模式保证形状一定合规。</li>
+    <li>语义校验不在模型手里：不存在的 ID、过期的日期，schema 拦不住。</li>
+    <li>参数值是模型逐 token 猜出来的，不是查出来的——要当不可信输入。</li>
+  </ul>
+</section>
+
+<section class="card c4">
+  <div class="eyebrow">04 工具调用是练出来的</div>
+  <h2>先出工具名、再出参数，是微调练成的格式。</h2>
+  <p>基座模型天生不会调工具：它只会续写文本，工具调用的格式（先出工具名、再出 JSON 参数、等结果再继续）是后天练出来的。做法是在微调数据里放大量“用户问题 → 工具调用 → 结果 → 回答”的完整轨迹，让模型把这套格式学成条件反射。</p>
+  <p>Toolformer 更进一步，用自监督代替人工标注：模型自己在文本里提议 API 调用并真的执行，只保留那些让后续文本更容易预测（loss 下降）的调用来微调。GPT-J 6.7B 配上计算器、搜索等 5 个工具，零样本任务上常常超过大得多的模型——工具的价值，就是让后面的 token 更好算。</p>
+  <ul>
+    <li>工具调用是微调练出的格式，不是基座模型天生的能力。</li>
+    <li>Toolformer：只保留让后续文本 loss 下降的调用，模型自己学会何时调工具。</li>
+    <li>Gorilla：微调 LLaMA-7B 写 API 调用，在 1645 个 API 上准确率超过 GPT-4。</li>
+  </ul>
+</section>
+
+<section class="card c5">
+  <div class="eyebrow">05 参数传错怎么兜底</div>
+  <h2>五种死法，分四层接住。</h2>
+  <p>参数传错有五种死法：JSON 解析失败、调了不存在的工具、缺必填字段、类型不对、值在语义上不存在。前四种是形状问题，schema 和 strict 模式能拦；最后一种最常见也最危险——格式全对，查无此人，只能靠业务校验。</p>
+  <p>兜底要分层：解析层修 JSON 或判失败、schema 层校验形状、语义层查库核对存在性与权限、执行层设超时与重试。任何一层拦下，都不要只回一句“400”——把错误写成给模型的提示：错在哪、该怎么改、今天是几号。错误信息是模型的反馈通道，写得越具体，模型自我修正的成功率越高。</p>
+  <ul>
+    <li>五种死法：解析失败、工具不存在、缺字段、类型错、语义不存在。</li>
+    <li>分层兜底：解析 → schema → 语义 → 执行，每层只拦自己能判断的错。</li>
+    <li>错误要回填给模型重试：写清错因与修正方向，上限 3 次，超了转人工。</li>
+  </ul>
+  <div class="anim"><h3>动画：参数错了，分层兜底怎么接住</h3><div class="cap">机制示意，不是真实模型行为：日期与次数为举例，流程为简化版。</div><div class="step"><div class="n">1</div><div><div class="lab">模型填错参数</div><div class="txt">模型要查下周五的天气，参数却写成了“下周五”。</div><div class="ro">语义错误</div></div></div><div class="step"><div class="n">2</div><div><div class="lab">第一层拦不住</div><div class="txt">schema 只看形状：date 是字符串，校验通过。</div><div class="ro">形状没问题</div></div></div><div class="step"><div class="n">3</div><div><div class="lab">第二层拦截</div><div class="txt">语义层解析日期失败，在执行前把调用拦下。</div><div class="ro">拦在执行前</div></div></div><div class="step"><div class="n">4</div><div><div class="lab">错误回填给模型</div><div class="txt">把错因写成提示回填：格式必须是 YYYY-MM-DD，今天是 2026-11-08。</div><div class="ro">错误变提示</div></div></div><div class="step"><div class="n">5</div><div><div class="lab">模型修正重试</div><div class="txt">模型按提示修正参数，重新提交调用。</div><div class="ro">修正后重试</div></div></div><div class="step"><div class="n">6</div><div><div class="lab">执行成功</div><div class="txt">这次校验全部通过，执行成功，结果返回继续任务。</div><div class="ro">兜底成功</div></div></div><div class="step"><div class="n">7</div><div><div class="lab">结论</div><div class="txt">重试要设上限：3 次还改不对就停下来，转人工确认。</div><div class="ro">别无限重试</div></div></div></div>
+</section>
+
+<section class="card c6">
+  <div class="eyebrow">06 并行与串行</div>
+  <h2>一次调几个，看调用之间有没有依赖。</h2>
+  <p>一轮里模型可以一次发出多个工具调用：查北京天气和查上海天气互不依赖，并行调能省一轮往返；但“先查订单再退款”有依赖，必须等 observation 回来才能调下一个。并行还是串行，不由后端决定，由依赖关系决定——模型要自己判断哪些调用能一起发。</p>
+  <p>后端要做的是把这套语义接住：并行调用要并发执行、按 call_id 对齐结果；串行调用要等上一轮 observation 进上下文再发下一轮。ReAct 循环的每一轮都是这个结构：模型提议、后端执行、结果回填、模型再提议——工具调用是循环的 Action，observation 是循环的燃料。</p>
+  <ul>
+    <li>无依赖的调用可并行：一次发多个，按 call_id 对齐结果。</li>
+    <li>有依赖的必须等 observation 回来：先查后改，不能一次发完。</li>
+    <li>工具调用就是 ReAct 循环里的 Action，observation 是下一轮的输入。</li>
+  </ul>
+</section>
+
+<section class="card c7">
+  <div class="eyebrow">07 工具太多会怎样</div>
+  <h2>清单越长越贵、越容易挑错，按需加载。</h2>
+  <p>工具不是越多越好：每个工具定义几百 token，50 个工具光清单就上万 token，又贵又挤占真正的内容；选择空间一大，模型挑错的概率也跟着涨——第 5 天讲过，上下文越长，有效信息越容易被稀释，工具清单也一样。</p>
+  <p>做法是按需加载：平时只给模型一个“搜工具”的元工具或检索器，需要时再把具体工具定义取回来；或者按场景分组，客服场景只挂客服工具。Gorilla 的做法与此同构：先检索相关 API 文档，再让模型在小范围里选——选错率随候选集缩小而下降。</p>
+  <ul>
+    <li>每个工具定义占几百 token：清单越长越贵、选择越难。</li>
+    <li>按需加载：检索路由或 tool search，用时再取定义。</li>
+    <li>按场景分组挂工具，不用的工具不要出现在提示里。</li>
+  </ul>
+</section>
+
+<section class="card">
+  <div class="eyebrow">08 常见坑与落地</div>
+  <h2>模型是总会传错参数的客户端，防呆做在服务端。</h2>
+  <p>第一，把模型当可信调用方：参数不校验就执行，等于把 SQL 拼接交给用户输入——模型的参数永远是不可信输入，校验、权限、确认必须长在执行层。第二，错误信息写给人看不写给模型看：“参数错误”四个字模型改不对，要写“date 必须是 YYYY-MM-DD，今天是 2026-11-08”。</p>
+  <p>第三，无限重试：模型改不对时反复调同一工具，账单和延迟一起炸——重试要设上限、加退避、超了转人工。第四，工具描述写给人看：名字含糊、描述只写功能不写边界，模型选错是迟早的事。后端类比：工具调用就是 RPC，工具定义是 OpenAPI，模型是那个总会传错参数的客户端——所有防呆都要做在服务端。</p>
+  <ul>
+    <li>模型参数 = 不可信输入：校验、权限、确认长在执行层。</li>
+    <li>错误信息写给模型看：错因 + 修正方向 + 当前事实。</li>
+    <li>重试设上限、加退避；工具描述第一句写清使用边界。</li>
+  </ul>
+</section>
+
+<section class="card takeaways">
+  <div class="eyebrow">要点回顾</div>
+  <h2>这课记住什么</h2>
+  <ul>
+    <li>工具调用 = 模型生成调用意图（工具名 + JSON 参数），后端解析、校验、执行、回填结果；模型从不直接碰数据库和 API。</li>
+    <li>选工具是在工具名 token 上算概率：描述是检索信号，第一句就要写清何时用、何时不用。</li>
+    <li>填参数是按 JSON Schema 逐 token 生成；strict 模式保证形状合规，但语义（不存在的 ID、过期日期）只能后端校验。</li>
+    <li>工具调用是微调练出的格式；Toolformer 用自监督——只保留让后续文本 loss 下降的调用，GPT-J 6.7B 常超大模型。</li>
+    <li>Gorilla 微调 LLaMA-7B，在 1645 个 API 的 APIBench 上准确率超过 GPT-4；配文档检索能适应文档变化、减少幻觉。</li>
+    <li>参数传错五种死法：解析失败、工具不存在、缺字段、类型错、语义不存在；兜底分层：解析 → schema → 语义 → 执行。</li>
+    <li>错误是模型的反馈通道：回填时写清错因、修正方向与当前事实，重试上限 3 次，超了转人工。</li>
+    <li>工具太多要按需加载：检索路由或 tool search，用时再取定义；并行看依赖，串行等 observation。</li>
+  </ul>
+</section>
+
+<section class="card quiz">
+  <div class="eyebrow">自测</div>
+  <h2>线上 Agent 查订单时，模型把 order_id 填成了一个不存在的编号。按本课讲的分层兜底，后端最该怎么做？</h2>
+  <div class="opt">A. 直接执行查询，让数据库返回空结果，再由模型自己猜一个编号</div>
+  <div class="opt right">B. 执行前按业务规则校验编号是否存在，把“编号不存在，请向用户确认正确编号”作为 observation 回填给模型重试 ✓</div>
+  <div class="opt">C. 关掉 strict 模式，让模型自由发挥格式，少一次校验</div>
+  <div class="opt">D. 默默把编号改成最近的一单，继续执行，别打断用户</div>
+  <div class="exp"><b>解析：</b>order_id 格式全对、语义不存在，schema 拦不住，只能由语义层在执行前校验。拦下后要把错因写成给模型的提示回填，让它向用户确认后重试；直接执行、关校验、默默改值都会把小错放大成事故。</div>
+</section>
+
+<section class="card sources">
+  <div class="eyebrow">证据</div>
+  <h2>论文与文章</h2>
+  <ul>
+    <li><a href="https://arxiv.org/abs/2302.04761">Toolformer: Language Models Can Teach Themselves to Use Tools</a>（Timo Schick 等，NeurIPS 2023 2023）<br>支持：自监督学工具使用：模型自己提议 API 调用并执行，只保留让后续文本更容易预测（loss 下降）的调用来微调；GPT-J 6.7B 配 5 个工具，零样本任务上常超过更大的模型。<br><span class="b">边界：工具调用各自独立生成，不能串联多步、不能交互式追问，也不考虑调用成本。</span></li>
+    <li><a href="https://arxiv.org/abs/2305.15334">Gorilla: Large Language Model Connected with Massive APIs</a>（Shishir G. Patil 等，NeurIPS 2023 2023）<br>支持：微调 LLaMA-7B 写 API 调用，在 1645 个 API 的 APIBench 上功能准确率超过 GPT-4；配文档检索后能适应文档变化、减少幻觉。<br><span class="b">边界：结论基于 APIBench 的 ML API 场景；准确率指功能正确，参数语义仍需服务端校验。</span></li>
+    <li><a href="https://platform.openai.com/docs/guides/function-calling">Function calling</a>（OpenAI，OpenAI 平台文档 2023）<br>支持：工具调用是五步循环：定义工具（JSON Schema）→ 发请求 → 模型返回 tool_calls → 应用执行 → 结果作为 tool call output 拼回；strict 模式保证参数严格符合 schema，tool_choice 控制是否允许调用。<br><span class="b">边界：在线文档随版本更新，strict 模式与 tool search 等能力以当前文档为准。</span></li>
+  </ul>
+</section>
+</main>
+<footer>归档自学习应用 · 第 8 天 · 2026-11-08</footer>
+</div>
+<button class="navbtn" id="navbtn" aria-label="打开课程目录">☰</button>
+<div class="navoverlay" id="navoverlay"></div>
+<aside class="navdrawer" id="navdrawer" aria-label="课程目录">
+  <button class="nd-close" id="ndclose" aria-label="关闭目录">×</button>
+  <h3>课程目录</h3>
+  <div id="ndlist"></div>
+  <a class="nd-home" id="ndhome" href="../index.html">← 回到首页</a>
+</aside>
+<script>
+(function(){
+  var btn = document.getElementById('navbtn');
+  var overlay = document.getElementById('navoverlay');
+  var drawer = document.getElementById('navdrawer');
+  var list = document.getElementById('ndlist');
+  var home = document.getElementById('ndhome');
+  var inLessons = /\/lessons\//.test(location.pathname);
+  var jsonUrl = inLessons ? '../lessons.json' : 'lessons.json';
+  var prefix = inLessons ? '' : 'lessons/';
+  home.href = inLessons ? '../index.html' : 'index.html';
+  function open(){ drawer.classList.add('open'); overlay.classList.add('open'); }
+  function close(){ drawer.classList.remove('open'); overlay.classList.remove('open'); }
+  btn.addEventListener('click', open);
+  document.getElementById('ndclose').addEventListener('click', close);
+  overlay.addEventListener('click', close);
+  var cur = location.pathname.split('/').pop();
+  fetch(jsonUrl).then(function(r){ return r.json(); }).then(function(items){
+    list.innerHTML = '';
+    items.forEach(function(it){
+      var a = document.createElement('a');
+      a.className = 'nd-item' + (it.file === cur ? ' cur' : '');
+      a.href = prefix + it.file;
+      a.innerHTML = '<div class="nd-day">第 ' + it.day + ' 天</div><div class="nd-title">' + it.title + '</div><div class="nd-meta">' + it.date + ' · 约 ' + it.minutes + ' 分钟</div>';
+      list.appendChild(a);
+    });
+  }).catch(function(){
+    list.innerHTML = '<p style="font-size:14px;color:#666;">目录加载失败，请点“回到首页”查看全部课程。</p>';
+  });
+})();
+</script>
+</body>
+</html>

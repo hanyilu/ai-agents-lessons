@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 6 天：推理与思维链：为什么多写几步，答案就变准了</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f4f2ec; color: #222; line-height: 1.75; }
+  .wrap { max-width: 780px; margin: 0 auto; padding: 32px 20px 60px; }
+  header { background: linear-gradient(135deg, #1e1b4b, #4c1d95); color: #fff; border-radius: 16px; padding: 28px 26px; }
+  .kicker { font-size: 13px; letter-spacing: 2px; opacity: .85; }
+  header h1 { margin: 10px 0 12px; font-size: 26px; line-height: 1.4; }
+  .thesis { font-size: 16px; opacity: .95; margin: 0 0 14px; }
+  .meta { font-size: 13px; opacity: .75; }
+  section.card { background: #fff; border-radius: 14px; padding: 22px 24px; margin-top: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.06); border-left: 5px solid #2563eb; }
+  section.card.c2 { border-left-color: #7c3aed; }
+  section.card.c3 { border-left-color: #0891b2; }
+  section.card.c4 { border-left-color: #d97706; }
+  section.card.c5 { border-left-color: #dc2626; }
+  section.card.c6 { border-left-color: #059669; }
+  section.card.c7 { border-left-color: #4f46e5; }
+  .eyebrow { font-size: 12px; letter-spacing: 2px; font-weight: 700; color: #6b7280; }
+  h2 { margin: 6px 0 12px; font-size: 20px; line-height: 1.5; }
+  p { margin: 0 0 12px; }
+  ul { margin: 0 0 12px; padding-left: 20px; }
+  li { margin-bottom: 6px; }
+  pre { background: #1e1e2e; color: #e8e8f0; border-radius: 10px; padding: 14px 16px; overflow-x: auto; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+  .anim { background: #f8f7ff; border: 1px solid #e4e1f5; border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .anim h3 { margin: 0 0 4px; font-size: 16px; }
+  .anim .cap { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+  .step { display: flex; gap: 12px; background: #fff; border: 1px solid #e8e6f2; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
+  .step .n { flex: 0 0 26px; height: 26px; border-radius: 50%; background: #4c1d95; color: #fff; text-align: center; line-height: 26px; font-size: 13px; font-weight: 700; }
+  .step .lab { font-weight: 700; font-size: 14px; }
+  .step .txt { font-size: 14px; color: #333; }
+  .step .ro { display: inline-block; margin-top: 4px; font-family: monospace; font-size: 12px; background: #f1f0f8; border-radius: 6px; padding: 1px 8px; color: #4c1d95; }
+  .takeaways { background: #fffbeb; border: 1px solid #f5d98b; }
+  .quiz { background: #eff6ff; border: 1px solid #bfdbfe; }
+  .quiz .opt { background: #fff; border: 1px solid #dbeafe; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: 14px; }
+  .quiz .opt.right { border-color: #22c55e; background: #f0fdf4; }
+  .quiz .exp { margin-top: 10px; font-size: 14px; background: #fff; border-radius: 8px; padding: 10px 12px; }
+  .sources { font-size: 14px; }
+  .sources li { margin-bottom: 14px; }
+  .sources a { color: #1d4ed8; }
+  .sources .b { color: #6b7280; font-size: 13px; }
+  footer { margin-top: 28px; text-align: center; font-size: 12px; color: #9ca3af; }
+  header { padding-right: 66px; }
+  .navbtn { position: fixed; top: 14px; right: 14px; z-index: 100; width: 40px; height: 40px; border-radius: 50%; border: none; background: #fff; color: #1e1b4b; font-size: 20px; line-height: 1; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+  .navoverlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 101; display: none; }
+  .navoverlay.open { display: block; }
+  .navdrawer { position: fixed; top: 0; right: 0; width: min(320px, 85vw); height: 100%; background: #fff; z-index: 102; transform: translateX(100%); transition: transform .25s ease; overflow-y: auto; padding: 20px; box-shadow: -2px 0 12px rgba(0,0,0,.2); }
+  .navdrawer.open { transform: translateX(0); }
+  .navdrawer h3 { margin: 0 0 4px; font-size: 17px; }
+  .nd-close { position: absolute; top: 12px; right: 14px; border: none; background: none; font-size: 22px; cursor: pointer; color: #666; }
+  .nd-item { display: block; text-decoration: none; color: inherit; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 12px; margin-top: 10px; }
+  .nd-item.cur { border-color: #4c1d95; background: #f5f3ff; }
+  .nd-day { font-size: 12px; color: #6b7280; font-weight: 700; letter-spacing: 1px; }
+  .nd-title { font-size: 14px; line-height: 1.5; margin-top: 2px; }
+  .nd-meta { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+  .nd-home { display: block; margin-top: 14px; font-size: 14px; color: #1d4ed8; text-decoration: none; }
+
+  .visual { background: #f8f7ff; border: 1px solid #e4e1f5; border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .visual h3 { margin: 0 0 4px; font-size: 16px; }
+  .visual .cap { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+  .vbar { margin-bottom: 10px; }
+  .vbar .vlab { font-size: 14px; font-weight: 700; }
+  .vbar .vval { font-size: 13px; color: #4c1d95; font-weight: 700; }
+  .vbar .vtrack { background: #e8e6f2; border-radius: 6px; height: 14px; margin-top: 4px; }
+  .vbar .vfill { background: linear-gradient(90deg, #1e1b4b, #7c3aed); border-radius: 6px; height: 14px; }
+  .vflow { list-style: none; margin: 0; padding: 0; }
+  .vflow li { background: #fff; border: 1px solid #e8e6f2; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: 14px; }
+  .vflow li + .varrow { text-align: center; color: #9ca3af; font-size: 14px; margin: -2px 0 6px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="kicker">AI AGENTS 深入学习 · 第 6 天</div>
+  <h1>推理与思维链：为什么多写几步，答案就变准了</h1>
+  <p class="thesis">模型一次前向只算一个 token 的概率分布，多步推理塞不进一次计算。CoT 是把中间步骤写进上下文：每一步都是模型本来就会的简单预测，中间结果还能被后面的步骤回看，多写一个 token 就是多一次前向。推理时计算拿 token 换准确率——更长思考、更多采样、更深搜索，按难度分配最划算；但长链也会放大错误、烧掉预算，所以要配验证器与预算，自我纠错没有外部信号只会原地打转。</p>
+  <div class="meta">2026-11-06 · 约 18 分钟</div>
+</header>
+
+<main>
+<section class="card">
+  <div class="eyebrow">01 为什么直接答会错</div>
+  <h2>多步推理，一次前向算不完。</h2>
+  <p>23 个苹果吃掉 5 个又买 12 个，还剩几个？直接问，模型常给错答案。不是它不会减法，是自回归模型一次前向只算一个 token 的概率分布：答案要一次猜中，中间没有地方放草稿。</p>
+  <p>后端类比：像要求一个函数一次调用算完三层嵌套逻辑、中间不许用局部变量。心算三位数乘法不让打草稿，人也会错——模型缺的不是知识，是放中间结果的地方。</p>
+  <ul>
+    <li>一次前向只算一个 token 的概率分布，算不完多步推理。</li>
+    <li>直接答错的不是知识，是没有中间步骤可写。</li>
+    <li>模型需要草稿纸：把中间结果写下来，再继续算。</li>
+  </ul>
+</section>
+
+<section class="card c2">
+  <div class="eyebrow">02 CoT 是什么</div>
+  <h2>先写步骤，再给答案。</h2>
+  <p>CoT 就是让模型先把中间推理步骤写出来，再给最终答案。做法很简单：在 few-shot 范例里，每道例题都附上一步步的解法，模型会照着也写步骤；或者直接在问题后加一句“一步一步想”，大模型也常常开始拆解。</p>
+  <p>关键在：步骤是模型自己生成的 token，写进上下文就成了下一步的输入。第 1 天讲过，模型只会算下一个 token 的概率——CoT 没有给模型新能力，只是把一道难题换成了一串它本来就会的简单预测。</p>
+  <ul>
+    <li>few-shot CoT：范例带步骤；zero-shot：一句“一步一步想”。</li>
+    <li>步骤是模型自己生成的 token，写进上下文继续用。</li>
+    <li>不改模型、不改训练，只改 prompt 里的示范。</li>
+  </ul>
+</section>
+
+<section class="card c3">
+  <div class="eyebrow">03 为什么有效</div>
+  <h2>草稿纸的三个作用。</h2>
+  <p>第一，拆解：每一步只做一次加减、一次查表，是模型一次前向能算准的简单预测；难在组合，不在单步。第二，记忆：中间结果 18 写进上下文，后面的步骤不用凭空记住它，注意力可以直接回看——第 2 天讲的注意力机制就是干这个的。</p>
+  <p>第三，算力：多写一步，就多一次前向计算。推理 token 就是推理时间：写 100 个 token 的思考，相当于给了模型 100 次“想一想”的机会。Wei 等人的实验里，PaLM 540B 在 GSM8K 上从 17.9% 涨到 56.9%，靠的就是 8 条带步骤的范例。</p>
+  <ul>
+    <li>拆解：难推理变成一串简单预测。</li>
+    <li>记忆：中间结果进上下文，后面可回看。</li>
+    <li>算力：每多一个 token，就是多一次前向。</li>
+  </ul>
+  <div class="anim"><h3>动画：CoT：先打草稿，再给答案</h3><div class="cap">机制示意，不是真实模型行为：数字为举例，非真实推理过程。</div><div class="step"><div class="n">1</div><div><div class="lab">题目</div><div class="txt">23 个苹果，吃掉 5 个，又买 12 个，还剩几个？</div><div class="ro">一道两步算术题</div></div></div><div class="step"><div class="n">2</div><div><div class="lab">直接回答</div><div class="txt">模型一次算完，直接猜一个答案：26。错了。</div><div class="ro">直接给答案：26，错</div></div></div><div class="step"><div class="n">3</div><div><div class="lab">拆第一步</div><div class="txt">先写第一步：23 - 5 = 18。只做一次减法，模型算得准。</div><div class="ro">第一步：23 - 5 = 18</div></div></div><div class="step"><div class="n">4</div><div><div class="lab">拆第二步</div><div class="txt">再写第二步：18 + 12 = 30。同样只做一次加法。</div><div class="ro">第二步：18 + 12 = 30</div></div></div><div class="step"><div class="n">5</div><div><div class="lab">中间结果留下</div><div class="txt">18 写进了上下文，第二步不用凭空记住它，直接回看。</div><div class="ro">中间结果留在上下文里</div></div></div><div class="step"><div class="n">6</div><div><div class="lab">汇总答案</div><div class="txt">最后汇总：答案是 30。对了。</div><div class="ro">最后汇总：答案 30</div></div></div><div class="step"><div class="n">7</div><div><div class="lab">结论</div><div class="txt">难推理变成一串简单预测：每步都简单，串起来就难不倒模型。</div><div class="ro">难推理等于一串简单预测</div></div></div></div>
+</section>
+
+<section class="card c4">
+  <div class="eyebrow">04 推理时计算</div>
+  <h2>token 就是算力，难度决定花多少。</h2>
+  <p>训练时花算力是把能力压进参数，推理时花算力是把能力“想”出来：更长的思考链、更多的采样、更深的搜索，都是推理时计算。Snell 等人 2024 年的发现是：按题目难度分配才划算——难题多想、简单题少想，比固定的 best-of-N 做法效率高出 4 倍以上。</p>
+  <p>换个角度：推理时计算可以部分替代参数规模。在总计算量相当的前提下，小模型配足推理计算，能超过 14 倍大的模型——前提是小模型本身有一定成功率，完全不会的题，想再久也没用。预算要花在“差一点就对”的题上。</p>
+  <ul>
+    <li>推理时计算等于更长思考链加更多采样加更深搜索。</li>
+    <li>按难度分配：难题多想、简单题少想。</li>
+    <li>小模型加足够推理，可超 14 倍大模型（有前提）。</li>
+  </ul>
+  <div class="visual"><h3>同一道题，多想几步分数怎么涨</h3><div class="cap">PaLM 540B 在 GSM8K 上的实测准确率：直接答 17.9%、CoT 56.9%、自洽采样 74.8%；数字来自 Wei 等与 Wang 等的论文。</div><div class="vbar"><div class="vlab">直接答</div><div class="vtrack"><div class="vfill" style="width:18%"></div></div><div class="vval">18%</div></div><div class="vbar"><div class="vlab">写出步骤</div><div class="vtrack"><div class="vfill" style="width:57%"></div></div><div class="vval">57%</div></div><div class="vbar"><div class="vlab">多采样投票</div><div class="vtrack"><div class="vfill" style="width:75%"></div></div><div class="vval">75%</div></div></div>
+</section>
+
+<section class="card c5">
+  <div class="eyebrow">05 自我验证</div>
+  <h2>一条链会错，多数票来兜底。</h2>
+  <p>贪心解码只取概率最高的链，一步算错就全错。自洽性换个做法：同一题用较高温度采样很多条推理链，每条链各自算出答案，最后数票——出现次数最多的答案胜出。Wang 等人测下来，GSM8K 在 CoT 基础上又涨了 17.9 个点。</p>
+  <p>为什么有效：随机错误在各条链里不相关，正确答案是唯一的收敛点，多数票把偶然的错压下去。代价也直白：采 40 条链就是 40 倍 token，成本线性涨。还有个边界：系统性的错——模型每次都同样误解题意——投票纠不掉，只会把错票投得更集中。</p>
+  <ul>
+    <li>采样多条链，多数投票定答案。</li>
+    <li>随机错不相关，正确答案是收敛点。</li>
+    <li>代价：token 线性涨；系统性错投票纠不掉。</li>
+  </ul>
+  <div class="anim"><h3>动画：自洽性：五条链投票，多数说了算</h3><div class="cap">机制示意，不是真实模型行为：票数为举例，非真实采样结果。</div><div class="step"><div class="n">1</div><div><div class="lab">同一题</div><div class="txt">同一道苹果题，用较高温度采样 5 条推理链。</div><div class="ro">同一题，采样 5 条链</div></div></div><div class="step"><div class="n">2</div><div><div class="lab">链 1</div><div class="txt">链 1：23-5=18，18+12=30，答案 30。</div><div class="ro">链 1：答案 30</div></div></div><div class="step"><div class="n">3</div><div><div class="lab">链 2</div><div class="txt">链 2：换种算法，先算 12-5=7，再算 23+7=30，答案 30。</div><div class="ro">链 2：答案 30</div></div></div><div class="step"><div class="n">4</div><div><div class="lab">链 3</div><div class="txt">链 3：第一步算错了，23-5=17，最后答案 26。</div><div class="ro">链 3：算错一步，答案 26</div></div></div><div class="step"><div class="n">5</div><div><div class="lab">链 4</div><div class="txt">链 4：23-5=18，18+12=30，答案 30。</div><div class="ro">链 4：答案 30</div></div></div><div class="step"><div class="n">6</div><div><div class="lab">链 5</div><div class="txt">链 5：第二步算错了，18+12=28，答案 28。</div><div class="ro">链 5：算错一步，答案 28</div></div></div><div class="step"><div class="n">7</div><div><div class="lab">数票</div><div class="txt">30 得 3 票，26 与 28 各 1 票，多数胜出：答案 30。</div><div class="ro">多数票：30 胜出</div></div></div><div class="step"><div class="n">8</div><div><div class="lab">代价</div><div class="txt">随机错被多数压住，但 5 条链就是 5 倍 token，算力照单全付。</div><div class="ro">随机错被压住，代价是算力</div></div></div></div>
+</section>
+
+<section class="card c6">
+  <div class="eyebrow">06 搜索与验证器</div>
+  <h2>不只多想，还要会挑、会回头。</h2>
+  <p>采样是并行多想，搜索是边想边挑：每一步生成几个候选，验证器打分，好的继续展开、差的剪掉，像走迷宫时每条岔路都先探一眼。验证器分两种：结果验证器只看最终答案对不对，过程验证器给每一步打分——后者更贵，但能更早发现走偏。</p>
+  <p>搜索的代价是分支数乘链长，算力烧得更快，所以只用在值得的题上：答案可验证的（数学、代码能跑测试），搜索才有意义；开放式问题没有可靠验证器，搜了也不知道挑哪个对。Agent 里的工具调用结果，其实就是一种外部验证器——第 9 天 ReAct 会再讲。</p>
+  <ul>
+    <li>搜索等于每步多候选加验证器打分加剪枝。</li>
+    <li>过程验证器贵但早发现走偏；结果验证器只看终点。</li>
+    <li>答案可验证的题才值得搜；开放题缺验证器。</li>
+  </ul>
+</section>
+
+<section class="card c7">
+  <div class="eyebrow">07 常见坑</div>
+  <h2>写出来的推理，不等于真推理。</h2>
+  <p>第一，CoT 的步骤是模型编出来的流畅文本，步骤对不代表真懂，步骤错也可能蒙对答案——不能把“写得像推理”当成“推理对了”。第二，自我纠错没有外部信号时会把对答案改错：模型自己检查自己，等于用同一套概率分布复核自己，错的地方大概率还是错。</p>
+  <p>第三，CoT 只对足够大的模型有效：Wei 等人发现，100 亿参数以下的模型用 CoT 常常更差——小模型写出的步骤本身就是错的，错步骤还会带偏答案。第四，长链放大错误：链越长，某一步出错的概率越高，还烧更多 token——这就是第 7 天推理优化要解决的问题。</p>
+  <ul>
+    <li>流畅的步骤也可能是错的，步骤对不等于真懂。</li>
+    <li>无外部信号的自我纠错会把对答案改错。</li>
+    <li>小模型用 CoT 可能更差；链越长，出错面越大。</li>
+  </ul>
+</section>
+
+<section class="card">
+  <div class="eyebrow">08 后端类比与落地</div>
+  <h2>Agent 里的 CoT：Thought 就是草稿纸。</h2>
+  <p>后端类比：CoT 是把一次大计算拆成带中间状态的小步流水线，像把复杂 SQL 拆成 CTE 一步步算、每步结果落临时表。Agent 里 ReAct 的 Thought 字段就是这张草稿纸：模型先写“这一步要查什么、为什么”，再调工具，观察结果再写下一步。</p>
+  <p>落地清单：给推理设预算（最大步数、最大 token），步数到了就停；关键数字别只信模型复述，用工具重算一遍；可验证的任务配验证器或自洽采样，不可验证的别假装能验；最后记住：CoT 治“想不明白”，第 3 天的幻觉是“不知道还硬编”——分开治。</p>
+  <ul>
+    <li>ReAct 的 Thought 就是 CoT 的草稿纸。</li>
+    <li>设步数与 token 预算；关键数字用工具重算。</li>
+    <li>可验证的任务才配验证器；CoT 治想不明白，不治硬编。</li>
+  </ul>
+</section>
+
+<section class="card takeaways">
+  <div class="eyebrow">要点回顾</div>
+  <h2>这课记住什么</h2>
+  <ul>
+    <li>一次前向只算一个 token 的概率分布，多步推理塞不进去——模型缺的是放中间结果的地方，不是知识。</li>
+    <li>CoT：先写步骤再给答案，把难题拆成一串简单预测；步骤是模型自己生成的 token，写进上下文继续用。</li>
+    <li>草稿纸三作用：拆解、记忆（中间结果可回看）、算力（每多一个 token 就多一次前向）。</li>
+    <li>推理时计算等于更长思考链加更多采样加更深搜索；按难度分配最划算，比 best-of-N 效率高 4 倍以上。</li>
+    <li>自洽性：同一题采样多条链，多数投票定答案；GSM8K 在 CoT 基础上再涨 17.9 个点，代价是 token 线性涨。</li>
+    <li>搜索等于每步多候选加验证器打分加剪枝；答案可验证的题才值得搜，开放题缺验证器。</li>
+    <li>坑：步骤流畅不等于真懂；无外部信号的自我纠错会改对为错；小模型用 CoT 可能更差；链越长出错面越大。</li>
+    <li>落地：ReAct 的 Thought 就是草稿纸；设步数与 token 预算，关键数字用工具重算；CoT 治想不明白，不治硬编。</li>
+  </ul>
+</section>
+
+<section class="card quiz">
+  <div class="eyebrow">自测</div>
+  <h2>Agent 里一道多步算账题，模型直接给答案总错，偶尔还错得不一样。按本课讲的机制，最符合的做法是？</h2>
+  <div class="opt">A. 让模型一次直接出答案，并把温度调高多试几次取最顺的一条</div>
+  <div class="opt right">B. 要求模型先写出每一步计算再汇总答案，关键数字用工具重算，重要题多采样几条链取多数答案 ✓</div>
+  <div class="opt">C. 把问题拆成更小的 prompt，但每步不留中间结果，各自独立回答</div>
+  <div class="opt">D. 采样 40 条链，取其中最长的一条链的答案</div>
+  <div class="exp"><b>解析：</b>CoT 把难推理拆成简单预测，中间结果进上下文；自洽性靠多数投票压随机错；但关键数字仍要工具重算——投票纠不掉系统性错，链的长度更不代表对错。</div>
+</section>
+
+<section class="card sources">
+  <div class="eyebrow">证据</div>
+  <h2>论文与文章</h2>
+  <ul>
+    <li><a href="https://arxiv.org/abs/2201.11903">Chain-of-Thought Prompting Elicits Reasoning in Large Language Models</a>（Jason Wei 等，NeurIPS 2022 2022）<br>支持：8 条带步骤的范例让 PaLM 540B 在 GSM8K 上从 17.9% 涨到 56.9%，超过微调 GPT-3 加验证器的成绩；CoT 是规模涌现的能力，100 亿参数以下模型常更差。<br><span class="b">边界：只证明提示方式有效，不改模型；链的步骤是模型生成的流畅文本，步骤对不等于真懂，步骤错也可能蒙对答案。</span></li>
+    <li><a href="https://arxiv.org/abs/2203.11171">Self-Consistency Improves Chain of Thought Reasoning in Language Models</a>（Xuezhi Wang 等，ICLR 2023 2022）<br>支持：同一题采样多条推理链、多数投票定答案；GSM8K 在 CoT 基础上再涨 17.9 个点，SVAMP 加 11.0、AQuA 加 12.2；不需要训练与额外标注，是纯推理时解码策略。<br><span class="b">边界：代价是 token 随采样数线性涨；多数投票只压随机错，系统性误解投票纠不掉。</span></li>
+    <li><a href="https://arxiv.org/abs/2408.03314">Scaling LLM Test-Time Compute Optimally can be More Effective than Scaling Model Parameters</a>（Charlie Snell 等，arXiv 2024）<br>支持：按题目难度自适应分配推理计算，比 best-of-N 基线效率高 4 倍以上；总计算量相当时，小模型配足推理计算可超过 14 倍大的模型。<br><span class="b">边界：14 倍的前提是小模型本身有一定成功率、且在 FLOPs 相当的比较下；最优分配方式随题目难度变化，没有放之四海皆准的固定配比。</span></li>
+  </ul>
+</section>
+</main>
+<footer>归档自学习应用 · 第 6 天 · 2026-11-06</footer>
+</div>
+<button class="navbtn" id="navbtn" aria-label="打开课程目录">☰</button>
+<div class="navoverlay" id="navoverlay"></div>
+<aside class="navdrawer" id="navdrawer" aria-label="课程目录">
+  <button class="nd-close" id="ndclose" aria-label="关闭目录">×</button>
+  <h3>课程目录</h3>
+  <div id="ndlist"></div>
+  <a class="nd-home" id="ndhome" href="../index.html">← 回到首页</a>
+</aside>
+<script>
+(function(){
+  var btn = document.getElementById('navbtn');
+  var overlay = document.getElementById('navoverlay');
+  var drawer = document.getElementById('navdrawer');
+  var list = document.getElementById('ndlist');
+  var home = document.getElementById('ndhome');
+  var inLessons = /\/lessons\//.test(location.pathname);
+  var jsonUrl = inLessons ? '../lessons.json' : 'lessons.json';
+  var prefix = inLessons ? '' : 'lessons/';
+  home.href = inLessons ? '../index.html' : 'index.html';
+  function open(){ drawer.classList.add('open'); overlay.classList.add('open'); }
+  function close(){ drawer.classList.remove('open'); overlay.classList.remove('open'); }
+  btn.addEventListener('click', open);
+  document.getElementById('ndclose').addEventListener('click', close);
+  overlay.addEventListener('click', close);
+  var cur = location.pathname.split('/').pop();
+  fetch(jsonUrl).then(function(r){ return r.json(); }).then(function(items){
+    list.innerHTML = '';
+    items.forEach(function(it){
+      var a = document.createElement('a');
+      a.className = 'nd-item' + (it.file === cur ? ' cur' : '');
+      a.href = prefix + it.file;
+      a.innerHTML = '<div class="nd-day">第 ' + it.day + ' 天</div><div class="nd-title">' + it.title + '</div><div class="nd-meta">' + it.date + ' · 约 ' + it.minutes + ' 分钟</div>';
+      list.appendChild(a);
+    });
+  }).catch(function(){
+    list.innerHTML = '<p style="font-size:14px;color:#666;">目录加载失败，请点“回到首页”查看全部课程。</p>';
+  });
+})();
+</script>
+</body>
+</html>

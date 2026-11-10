@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 7 天：推理优化：让模型跑得更快、更便宜的四把刀</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f4f2ec; color: #222; line-height: 1.75; }
+  .wrap { max-width: 780px; margin: 0 auto; padding: 32px 20px 60px; }
+  header { background: linear-gradient(135deg, #1e1b4b, #4c1d95); color: #fff; border-radius: 16px; padding: 28px 26px; }
+  .kicker { font-size: 13px; letter-spacing: 2px; opacity: .85; }
+  header h1 { margin: 10px 0 12px; font-size: 26px; line-height: 1.4; }
+  .thesis { font-size: 16px; opacity: .95; margin: 0 0 14px; }
+  .meta { font-size: 13px; opacity: .75; }
+  section.card { background: #fff; border-radius: 14px; padding: 22px 24px; margin-top: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.06); border-left: 5px solid #2563eb; }
+  section.card.c2 { border-left-color: #7c3aed; }
+  section.card.c3 { border-left-color: #0891b2; }
+  section.card.c4 { border-left-color: #d97706; }
+  section.card.c5 { border-left-color: #dc2626; }
+  section.card.c6 { border-left-color: #059669; }
+  section.card.c7 { border-left-color: #4f46e5; }
+  .eyebrow { font-size: 12px; letter-spacing: 2px; font-weight: 700; color: #6b7280; }
+  h2 { margin: 6px 0 12px; font-size: 20px; line-height: 1.5; }
+  p { margin: 0 0 12px; }
+  ul { margin: 0 0 12px; padding-left: 20px; }
+  li { margin-bottom: 6px; }
+  pre { background: #1e1e2e; color: #e8e8f0; border-radius: 10px; padding: 14px 16px; overflow-x: auto; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+  .anim { background: #f8f7ff; border: 1px solid #e4e1f5; border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .anim h3 { margin: 0 0 4px; font-size: 16px; }
+  .anim .cap { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+  .step { display: flex; gap: 12px; background: #fff; border: 1px solid #e8e6f2; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
+  .step .n { flex: 0 0 26px; height: 26px; border-radius: 50%; background: #4c1d95; color: #fff; text-align: center; line-height: 26px; font-size: 13px; font-weight: 700; }
+  .step .lab { font-weight: 700; font-size: 14px; }
+  .step .txt { font-size: 14px; color: #333; }
+  .step .ro { display: inline-block; margin-top: 4px; font-family: monospace; font-size: 12px; background: #f1f0f8; border-radius: 6px; padding: 1px 8px; color: #4c1d95; }
+  .takeaways { background: #fffbeb; border: 1px solid #f5d98b; }
+  .quiz { background: #eff6ff; border: 1px solid #bfdbfe; }
+  .quiz .opt { background: #fff; border: 1px solid #dbeafe; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: 14px; }
+  .quiz .opt.right { border-color: #22c55e; background: #f0fdf4; }
+  .quiz .exp { margin-top: 10px; font-size: 14px; background: #fff; border-radius: 8px; padding: 10px 12px; }
+  .sources { font-size: 14px; }
+  .sources li { margin-bottom: 14px; }
+  .sources a { color: #1d4ed8; }
+  .sources .b { color: #6b7280; font-size: 13px; }
+  footer { margin-top: 28px; text-align: center; font-size: 12px; color: #9ca3af; }
+  header { padding-right: 66px; }
+  .navbtn { position: fixed; top: 14px; right: 14px; z-index: 100; width: 40px; height: 40px; border-radius: 50%; border: none; background: #fff; color: #1e1b4b; font-size: 20px; line-height: 1; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+  .navoverlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 101; display: none; }
+  .navoverlay.open { display: block; }
+  .navdrawer { position: fixed; top: 0; right: 0; width: min(320px, 85vw); height: 100%; background: #fff; z-index: 102; transform: translateX(100%); transition: transform .25s ease; overflow-y: auto; padding: 20px; box-shadow: -2px 0 12px rgba(0,0,0,.2); }
+  .navdrawer.open { transform: translateX(0); }
+  .navdrawer h3 { margin: 0 0 4px; font-size: 17px; }
+  .nd-close { position: absolute; top: 12px; right: 14px; border: none; background: none; font-size: 22px; cursor: pointer; color: #666; }
+  .nd-item { display: block; text-decoration: none; color: inherit; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 12px; margin-top: 10px; }
+  .nd-item.cur { border-color: #4c1d95; background: #f5f3ff; }
+  .nd-day { font-size: 12px; color: #6b7280; font-weight: 700; letter-spacing: 1px; }
+  .nd-title { font-size: 14px; line-height: 1.5; margin-top: 2px; }
+  .nd-meta { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+  .nd-home { display: block; margin-top: 14px; font-size: 14px; color: #1d4ed8; text-decoration: none; }
+
+  .visual { background: #f8f7ff; border: 1px solid #e4e1f5; border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .visual h3 { margin: 0 0 4px; font-size: 16px; }
+  .visual .cap { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+  .vbar { margin-bottom: 10px; }
+  .vbar .vlab { font-size: 14px; font-weight: 700; }
+  .vbar .vval { font-size: 13px; color: #4c1d95; font-weight: 700; }
+  .vbar .vtrack { background: #e8e6f2; border-radius: 6px; height: 14px; margin-top: 4px; }
+  .vbar .vfill { background: linear-gradient(90deg, #1e1b4b, #7c3aed); border-radius: 6px; height: 14px; }
+  .vflow { list-style: none; margin: 0; padding: 0; }
+  .vflow li { background: #fff; border: 1px solid #e8e6f2; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: 14px; }
+  .vflow li + .varrow { text-align: center; color: #9ca3af; font-size: 14px; margin: -2px 0 6px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="kicker">AI AGENTS 深入学习 · 第 7 天</div>
+  <h1>推理优化：让模型跑得更快、更便宜的四把刀</h1>
+  <p class="thesis">生成一个 token，模型要把全部权重从显存读一遍——推理的瓶颈是显存带宽，不是算力。KV Cache 用显存换重复计算，量化把权重变小、读得更快，连续批处理让一次读权重服务更多请求，推测解码让一次前向多出几个 token。四把刀都不改模型本身，只改系统怎么排布计算与内存；但每把刀都有代价：缓存吃显存、量化丢精度、批处理抬延迟，优化前要先量出瓶颈在哪。</p>
+  <div class="meta">2026-11-07 · 约 18 分钟</div>
+</header>
+
+<main>
+<section class="card">
+  <div class="eyebrow">01 为什么推理慢</div>
+  <h2>一次前向只出一个 token，瓶颈在显存带宽。</h2>
+  <p>模型生成文本是逐 token 的：第 1 天讲过，自回归一次前向只出一个 token。回答 100 个词，就是 100 次前向；每次前向都要把全部权重从显存读进计算单元——70B 的 FP16 模型约 140GB，读一遍就是一次大搬运。</p>
+  <p>训练时一次前向算几千个 token，矩阵乘法把算力吃满；推理时一次只算一个新 token，变成矩阵乘向量，算力大量空转，等的是显存把权重搬过来。所以推理优化的第一性原理就三句：少读权重、少重复算、一次读多服务几个请求。</p>
+  <ul>
+    <li>一次前向只出一个 token，100 词就是 100 次前向。</li>
+    <li>每次前向读全部权重：70B FP16 模型约 140GB。</li>
+    <li>解码是显存带宽瓶颈，不是算力瓶颈。</li>
+  </ul>
+</section>
+
+<section class="card c2">
+  <div class="eyebrow">02 KV Cache 是什么</div>
+  <h2>K、V 只算一次，存下来复用。</h2>
+  <p>第 2 天讲过注意力：每个新 token 都要和前面所有 token 算分数。如果每步都从头算，生成第 100 个词要把前面 99 个词的 K、V 全算一遍，越往后越慢。KV Cache 就是把每个 token 算过的 K、V 存下来：新 token 只算自己的 K、V，再和缓存里的拼起来算注意力。</p>
+  <p>代价是显存：每个 token 的 K、V 大小 = 2（K 和 V）× 层数 × 隐藏维度 × 每个数的字节数。vLLM 论文的例子：OPT-13B 每个 token 约 0.8MB，2048 个 token 的请求要 1.6GB 缓存。序列越长、并发越高，缓存越大——省了计算，账单换了个地方记。</p>
+  <ul>
+    <li>KV Cache：每个 token 的 K、V 只算一次，存下来复用。</li>
+    <li>缓存随序列长度线性涨：2 × 层数 × 隐藏维 × 字节数。</li>
+    <li>省了重复算，但显存成了新瓶颈。</li>
+  </ul>
+</section>
+
+<section class="card c3">
+  <div class="eyebrow">03 KV Cache 的浪费</div>
+  <h2>分页：缓存像操作系统分内存那样管。</h2>
+  <p>旧系统给每个请求预留一整块连续显存，按最大长度算：留 2048 个位置，实际只生成 600 个，剩下 1448 个位置在整个生命周期里都空占着；不同长度的请求拼在一起还会产生碎片。vLLM 论文实测：旧系统只有 20.4%–38.2% 的 KV 显存真正在存 token，六七成被浪费。</p>
+  <p>PagedAttention 借操作系统的虚拟内存：把缓存切成固定大小的块（比如 16 个 token 一块），用块表映射逻辑块到物理块，用多少拿多少；系统提示等公共前缀只存一份、多请求共享；采样分支用写时复制。实测利用率升到 96.3%，同等延迟下吞吐提高 2–4 倍。缓存总量没变，只是管好了。</p>
+  <ul>
+    <li>旧办法按最大长度预留整块：空占 + 碎片，只用 20–38%。</li>
+    <li>分页：固定块 + 块表映射，用多少拿多少，浪费不到一块。</li>
+    <li>前缀共享 + 写时复制：公共提示只存一份。</li>
+  </ul>
+  <div class="anim"><h3>动画：分页：KV 缓存像操作系统分内存</h3><div class="cap">机制示意，不是真实模型行为：数字来自 vLLM 论文的 OPT-13B 例子，块大小为示意。</div><div class="step"><div class="n">1</div><div><div class="lab">旧办法：整块预留</div><div class="txt">请求 A：按最大长度预留 2048 个位置，实际只生成 600 个。</div><div class="ro">只用 20–38%</div></div></div><div class="step"><div class="n">2</div><div><div class="lab">浪费：空占着</div><div class="txt">剩下 1448 个位置整个生命周期都空占着，别的请求进不来。</div><div class="ro">六七成被浪费</div></div></div><div class="step"><div class="n">3</div><div><div class="lab">分页：切成小块</div><div class="txt">把缓存切成 16 个 token 一块的小块，用多少拿多少。</div><div class="ro">浪费不到一块</div></div></div><div class="step"><div class="n">4</div><div><div class="lab">块表：逻辑到物理</div><div class="txt">块表把逻辑块映射到散落的物理块，不用连续内存。</div><div class="ro">不用连续内存</div></div></div><div class="step"><div class="n">5</div><div><div class="lab">前缀共享</div><div class="txt">系统提示只存一份，所有请求共享，少算一遍。</div><div class="ro">少算一遍</div></div></div><div class="step"><div class="n">6</div><div><div class="lab">写时复制</div><div class="txt">采样分支先共享同一份缓存，改动时才复制。</div><div class="ro">分支不重复存</div></div></div><div class="step"><div class="n">7</div><div><div class="lab">结论</div><div class="txt">利用率从 20–38% 升到 96.3%，同等延迟下吞吐提高 2–4 倍。</div><div class="ro">缓存没变小，管好了</div></div></div></div>
+</section>
+
+<section class="card c4">
+  <div class="eyebrow">04 量化</div>
+  <h2>权重变小，读得更快。</h2>
+  <p>权重从 FP16（2 字节）压到 INT4（半字节），70B 模型从 140GB 变成约 35GB，每次前向读的数据减到四分之一，解码变快。GPTQ 用二阶信息逐层量化、把误差补到未量化的权重上，175B 模型 4 个 GPU 小时压到 3–4 bit，精度几乎不掉，A100 上实测提速约 2 倍。</p>
+  <p>难在离群值：少数权重和激活特别大，粗暴取整会把误差放大。AWQ 的思路是保护约 1% 的关键权重通道——先放大再量化，推理时再除回来，等价于给关键通道更高精度。取舍很直白：INT8 几乎无损、INT4 是生产甜点、再往下是精度悬崖；量化后一定要用自己的评测集重测，不能只看困惑度。</p>
+  <ul>
+    <li>FP16→INT4：70B 从约 140GB 压到约 35GB，读权重更快。</li>
+    <li>GPTQ：3–4 bit、175B 约 4 GPU 小时，精度几乎不掉。</li>
+    <li>AWQ：保护约 1% 关键通道；INT4 是甜点，再低是悬崖。</li>
+  </ul>
+</section>
+
+<section class="card c5">
+  <div class="eyebrow">05 批处理</div>
+  <h2>每出一个 token，batch 就重组一次。</h2>
+  <p>批处理是摊薄读权重成本的办法：一次前向读一遍权重，同时给 32 个请求各出一个 token。但静态批处理要等整批都跑完：10 个词的请求要等 1000 个词的邻居跑完才释放位置，短请求被长请求拖死，GPU 大量时间在等。</p>
+  <p>Orca 把调度粒度从“请求”改成“一次迭代”：每生成一个 token，调度器就重组 batch——跑完的出队、新到的进队，权重只读一遍、服务整批。实测同等延迟下吞吐比 FasterTransformer 高 36.9 倍。代价：批越大，单个请求的词间延迟越高；长请求还会拖慢整批的节奏。</p>
+  <ul>
+    <li>静态批处理：等最慢的跑完，短请求被长请求拖死。</li>
+    <li>Orca：每出一个 token 就重组 batch，新到的随时进。</li>
+    <li>代价：批越大，单个请求的词间延迟越高。</li>
+  </ul>
+  <div class="anim"><h3>动画：连续批处理：每出一个 token 就重组</h3><div class="cap">机制示意，不是真实模型行为：请求长度与倍数为举例，非真实流量。</div><div class="step"><div class="n">1</div><div><div class="lab">静态批：一起等</div><div class="txt">A 要 10 个词，B 要 1000 个词：静态批处理里 A 跑完也得等 B 跑完。</div><div class="ro">短请求被拖死</div></div></div><div class="step"><div class="n">2</div><div><div class="lab">迭代级调度</div><div class="txt">Orca 每生成一个 token 就重组 batch：跑完的出队，新到的进队。</div><div class="ro">调度粒度是一次迭代</div></div></div><div class="step"><div class="n">3</div><div><div class="lab">新请求随时进</div><div class="txt">C 到达时不用等整批跑完，下一轮迭代就进队。</div><div class="ro">不用等整批</div></div></div><div class="step"><div class="n">4</div><div><div class="lab">权重只读一遍</div><div class="txt">一次前向读一遍权重，同时给整批请求各出一个 token。</div><div class="ro">读权重成本被摊薄</div></div></div><div class="step"><div class="n">5</div><div><div class="lab">代价：长请求拖节奏</div><div class="txt">B 太长会拖慢整批的词间延迟，批越大单个请求越卡。</div><div class="ro">批越大延迟越高</div></div></div><div class="step"><div class="n">6</div><div><div class="lab">结论</div><div class="txt">同等延迟下吞吐比 FasterTransformer 高 36.9 倍，代价是延迟要看住。</div><div class="ro">吞吐换延迟</div></div></div></div>
+</section>
+
+<section class="card c6">
+  <div class="eyebrow">06 两段延迟</div>
+  <h2>Prefill 吃算力，Decode 吃带宽。</h2>
+  <p>一次请求分两段：Prefill 把整个提示一次性算完，是矩阵乘矩阵、算力密集，决定首词延迟（TTFT）；Decode 一次一个 token，是矩阵乘向量、带宽密集，决定词间延迟（TPOT）。两段瓶颈不一样，混在一个队列会互相拖：一个超长提示的 prefill 会堵住后面所有人的 decode。</p>
+  <p>所以现代引擎把两段拆开：chunked prefill 把长提示切成小块、插进 decode 的间隙里；更进一步做 PD 分离，让 prefill 和 decode 跑在不同的 GPU 上。看延迟要看两个数：TTFT 决定用户多久看到第一个字，TPOT 决定读起来卡不卡——只看总时长会把问题藏起来。</p>
+  <ul>
+    <li>Prefill：一次算完提示，算力密集，决定首词延迟 TTFT。</li>
+    <li>Decode：一次一个 token，带宽密集，决定词间延迟 TPOT。</li>
+    <li>长提示的 prefill 会堵住 decode：切块或 PD 分离。</li>
+  </ul>
+  <div class="visual"><h3>一次请求，两段延迟</h3><div class="cap">Prefill 与 Decode 瓶颈不同：一个吃算力、一个吃带宽；只看总时长会把问题藏起来。</div><ol class="vflow"><li>Prefill：提示一次算完</li><div class="varrow">↓</div><li>Decode：一次出一个 token</li><div class="varrow">↓</div><li>TTFT：等到第一个词</li><div class="varrow">↓</div><li>TPOT：词与词的间隔</li></ol></div>
+</section>
+
+<section class="card c7">
+  <div class="eyebrow">07 第四把刀与成本账</div>
+  <h2>小模型猜、大模型验；先算账再动手。</h2>
+  <p>还有一把刀不碰内存、改的是串行本身：推测解码让小模型先猜接下来几个 token，大模型一次前向全部验算——猜对的白拿、猜错的从第一个错处重算，输出分布和原来完全一样。Leviathan 等人在 T5-XXL 上实测提速 2–3 倍。猜对率决定一切：小模型猜不准的任务，这招不赚反亏。</p>
+  <p>最后算总账：Agent 的成本不是价目表，是 token 数 × 单价 × 循环次数。长思考链、多采样、工具调用，每一步都在乘 token。先量瓶颈再动手：首词慢看 prefill，词间卡看 decode 与 batch，账单高看缓存命中与 token 总量——没量就动手，等于没看火焰图就调优。</p>
+  <ul>
+    <li>推测解码：小模型猜、大模型验，输出不变，T5-XXL 提速 2–3 倍。</li>
+    <li>Agent 成本 = token 数 × 单价 × 循环次数，优化直接省账单。</li>
+    <li>先量瓶颈再动手：首词、词间、账单各有各的指标。</li>
+  </ul>
+</section>
+
+<section class="card">
+  <div class="eyebrow">08 常见坑与落地</div>
+  <h2>四把刀，四条红线。</h2>
+  <p>第一，量化不是免费午餐：代码、数学这类精度敏感的任务对量化更敏感，换了量化模型必须重跑自己的评测集，只看困惑度会漏掉。第二，KV Cache 不是无限的：长上下文加高并发，缓存会先爆，超了就排队或驱逐——第 1 天的窗口满了会丢内容，在服务端就是请求被顶掉。</p>
+  <p>第三，批处理越大不一定越好：吞吐上去了，单个用户词间延迟也上去了，交互场景要设上限。第四，缓存共享有隐私边界：不同用户的前缀缓存不能混用，只在同一系统提示、同一租户内共享。后端类比：这就是后端性能优化——缓存、压缩、批量、拆分，同一套打法，对象从 SQL 和 HTTP 换成 token 和显存。</p>
+  <ul>
+    <li>量化后重跑自己的评测集，别只看困惑度。</li>
+    <li>KV Cache 会爆：长上下文 + 高并发先算缓存账。</li>
+    <li>批处理抬延迟、缓存共享有隐私边界，先定上限再上线。</li>
+  </ul>
+</section>
+
+<section class="card takeaways">
+  <div class="eyebrow">要点回顾</div>
+  <h2>这课记住什么</h2>
+  <ul>
+    <li>推理的瓶颈是显存带宽：一次前向只出一个 token，每步都要把全部权重读一遍。</li>
+    <li>KV Cache：每个 token 的 K、V 只算一次存下来复用，大小随序列长度线性涨，OPT-13B 每 token 约 0.8MB。</li>
+    <li>PagedAttention：分页 + 块表 + 前缀共享 + 写时复制，利用率从 20–38% 升到 96.3%，吞吐 2–4 倍。</li>
+    <li>量化：FP16→INT4，70B 从约 140GB 到约 35GB；GPTQ 压到 3–4 bit 精度几乎不掉，AWQ 保护约 1% 关键通道。</li>
+    <li>连续批处理：Orca 把调度粒度改成一次迭代，跑完出队、新到进队，吞吐比 FasterTransformer 高 36.9 倍。</li>
+    <li>Prefill 吃算力、Decode 吃带宽：TTFT 与 TPOT 是两个延迟指标，长提示 prefill 会堵 decode。</li>
+    <li>推测解码：小模型猜、大模型一次验算，输出不变，T5-XXL 提速 2–3 倍；猜对率决定收益。</li>
+    <li>先量瓶颈再动手：首词慢看 prefill、词间卡看 decode 与 batch、账单高看 token 总量；量化后重跑自己的评测集。</li>
+  </ul>
+</section>
+
+<section class="card quiz">
+  <div class="eyebrow">自测</div>
+  <h2>线上 Agent 服务高峰期，用户抱怨回答出得慢、词与词之间还卡。按本课讲的机制，最优先做的事是？</h2>
+  <div class="opt">A. 把模型换成更大的参数版本，提高单次回答质量</div>
+  <div class="opt right">B. 先分清是首词慢还是词间卡，再看 prefill、KV 缓存与 batch 哪一段是瓶颈 ✓</div>
+  <div class="opt">C. 把 batch 调到最大，吞吐越高用户体感一定越好</div>
+  <div class="opt">D. 直接把所有权重压到 2 bit，显存越小一定越快</div>
+  <div class="exp"><b>解析：</b>慢有两种：首词慢是 prefill 的问题，词间卡是 decode 带宽或 batch 的问题；没分清就动手等于没看火焰图调优。换大模型更慢、batch 拉满抬延迟、2 bit 精度悬崖，都踩了本课讲的坑。</div>
+</section>
+
+<section class="card sources">
+  <div class="eyebrow">证据</div>
+  <h2>论文与文章</h2>
+  <ul>
+    <li><a href="https://arxiv.org/abs/2309.06180">Efficient Memory Management for Large Language Model Serving with PagedAttention</a>（Woosuk Kwon 等，SOSP 2023 2023）<br>支持：旧系统只有 20.4%–38.2% 的 KV 显存真正在存 token，OPT-13B 每 token 约 0.8MB、2048 token 的请求约 1.6GB；PagedAttention 用分页与块表把利用率提到 96.3%，同等延迟下吞吐提高 2–4 倍。<br><span class="b">边界：只解决缓存管理问题，不缩小缓存总量；收益随负载与基线变化，块大小要调。</span></li>
+    <li><a href="https://arxiv.org/abs/2210.17323v1">GPTQ: Accurate Post-Training Quantization for Generative Pre-trained Transformers</a>（Elias Frantar 等，arXiv 2022）<br>支持：用近似二阶信息逐层量化并补偿误差，175B 模型约 4 个 GPU 小时压到 3–4 bit，精度几乎不掉；A100 上端到端推理提速约 2 倍。<br><span class="b">边界：只压权重、不压激活；量化本身不减少计算量，只减少内存搬运，2 bit 以下精度会明显掉。</span></li>
+    <li><a href="https://www.usenix.org/system/files/osdi22-yu.pdf">Orca: A Distributed Serving System for Transformer-Based Generative Models</a>（Gyeong-In Yu 等，OSDI 2022 2022）<br>支持：迭代级调度把调度粒度从请求改成一次解码迭代，配选择性批处理；同等延迟下吞吐比 FasterTransformer 高出 36.9 倍。<br><span class="b">边界：实验用合成流量 trace；收益来自调度与批处理，模型本身的输出与精度不变。</span></li>
+  </ul>
+</section>
+</main>
+<footer>归档自学习应用 · 第 7 天 · 2026-11-07</footer>
+</div>
+<button class="navbtn" id="navbtn" aria-label="打开课程目录">☰</button>
+<div class="navoverlay" id="navoverlay"></div>
+<aside class="navdrawer" id="navdrawer" aria-label="课程目录">
+  <button class="nd-close" id="ndclose" aria-label="关闭目录">×</button>
+  <h3>课程目录</h3>
+  <div id="ndlist"></div>
+  <a class="nd-home" id="ndhome" href="../index.html">← 回到首页</a>
+</aside>
+<script>
+(function(){
+  var btn = document.getElementById('navbtn');
+  var overlay = document.getElementById('navoverlay');
+  var drawer = document.getElementById('navdrawer');
+  var list = document.getElementById('ndlist');
+  var home = document.getElementById('ndhome');
+  var inLessons = /\/lessons\//.test(location.pathname);
+  var jsonUrl = inLessons ? '../lessons.json' : 'lessons.json';
+  var prefix = inLessons ? '' : 'lessons/';
+  home.href = inLessons ? '../index.html' : 'index.html';
+  function open(){ drawer.classList.add('open'); overlay.classList.add('open'); }
+  function close(){ drawer.classList.remove('open'); overlay.classList.remove('open'); }
+  btn.addEventListener('click', open);
+  document.getElementById('ndclose').addEventListener('click', close);
+  overlay.addEventListener('click', close);
+  var cur = location.pathname.split('/').pop();
+  fetch(jsonUrl).then(function(r){ return r.json(); }).then(function(items){
+    list.innerHTML = '';
+    items.forEach(function(it){
+      var a = document.createElement('a');
+      a.className = 'nd-item' + (it.file === cur ? ' cur' : '');
+      a.href = prefix + it.file;
+      a.innerHTML = '<div class="nd-day">第 ' + it.day + ' 天</div><div class="nd-title">' + it.title + '</div><div class="nd-meta">' + it.date + ' · 约 ' + it.minutes + ' 分钟</div>';
+      list.appendChild(a);
+    });
+  }).catch(function(){
+    list.innerHTML = '<p style="font-size:14px;color:#666;">目录加载失败，请点“回到首页”查看全部课程。</p>';
+  });
+})();
+</script>
+</body>
+</html>
