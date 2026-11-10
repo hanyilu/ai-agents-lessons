@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 3 天：幻觉：模型为什么一本正经地编造，怎么把它关进笼子</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f4f2ec; color: #222; line-height: 1.75; }
+  .wrap { max-width: 780px; margin: 0 auto; padding: 32px 20px 60px; }
+  header { background: linear-gradient(135deg, #1e1b4b, #4c1d95); color: #fff; border-radius: 16px; padding: 28px 26px; }
+  .kicker { font-size: 13px; letter-spacing: 2px; opacity: .85; }
+  header h1 { margin: 10px 0 12px; font-size: 26px; line-height: 1.4; }
+  .thesis { font-size: 16px; opacity: .95; margin: 0 0 14px; }
+  .meta { font-size: 13px; opacity: .75; }
+  section.card { background: #fff; border-radius: 14px; padding: 22px 24px; margin-top: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.06); border-left: 5px solid #2563eb; }
+  section.card.c2 { border-left-color: #7c3aed; }
+  section.card.c3 { border-left-color: #0891b2; }
+  section.card.c4 { border-left-color: #d97706; }
+  section.card.c5 { border-left-color: #dc2626; }
+  section.card.c6 { border-left-color: #059669; }
+  section.card.c7 { border-left-color: #4f46e5; }
+  .eyebrow { font-size: 12px; letter-spacing: 2px; font-weight: 700; color: #6b7280; }
+  h2 { margin: 6px 0 12px; font-size: 20px; line-height: 1.5; }
+  p { margin: 0 0 12px; }
+  ul { margin: 0 0 12px; padding-left: 20px; }
+  li { margin-bottom: 6px; }
+  pre { background: #1e1e2e; color: #e8e8f0; border-radius: 10px; padding: 14px 16px; overflow-x: auto; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+  .anim { background: #f8f7ff; border: 1px solid #e4e1f5; border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .anim h3 { margin: 0 0 4px; font-size: 16px; }
+  .anim .cap { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+  .step { display: flex; gap: 12px; background: #fff; border: 1px solid #e8e6f2; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
+  .step .n { flex: 0 0 26px; height: 26px; border-radius: 50%; background: #4c1d95; color: #fff; text-align: center; line-height: 26px; font-size: 13px; font-weight: 700; }
+  .step .lab { font-weight: 700; font-size: 14px; }
+  .step .txt { font-size: 14px; color: #333; }
+  .step .ro { display: inline-block; margin-top: 4px; font-family: monospace; font-size: 12px; background: #f1f0f8; border-radius: 6px; padding: 1px 8px; color: #4c1d95; }
+  .takeaways { background: #fffbeb; border: 1px solid #f5d98b; }
+  .quiz { background: #eff6ff; border: 1px solid #bfdbfe; }
+  .quiz .opt { background: #fff; border: 1px solid #dbeafe; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: 14px; }
+  .quiz .opt.right { border-color: #22c55e; background: #f0fdf4; }
+  .quiz .exp { margin-top: 10px; font-size: 14px; background: #fff; border-radius: 8px; padding: 10px 12px; }
+  .sources { font-size: 14px; }
+  .sources li { margin-bottom: 14px; }
+  .sources a { color: #1d4ed8; }
+  .sources .b { color: #6b7280; font-size: 13px; }
+  footer { margin-top: 28px; text-align: center; font-size: 12px; color: #9ca3af; }
+  header { padding-right: 66px; }
+  .navbtn { position: fixed; top: 14px; right: 14px; z-index: 100; width: 40px; height: 40px; border-radius: 50%; border: none; background: #fff; color: #1e1b4b; font-size: 20px; line-height: 1; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+  .navoverlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 101; display: none; }
+  .navoverlay.open { display: block; }
+  .navdrawer { position: fixed; top: 0; right: 0; width: min(320px, 85vw); height: 100%; background: #fff; z-index: 102; transform: translateX(100%); transition: transform .25s ease; overflow-y: auto; padding: 20px; box-shadow: -2px 0 12px rgba(0,0,0,.2); }
+  .navdrawer.open { transform: translateX(0); }
+  .navdrawer h3 { margin: 0 0 4px; font-size: 17px; }
+  .nd-close { position: absolute; top: 12px; right: 14px; border: none; background: none; font-size: 22px; cursor: pointer; color: #666; }
+  .nd-item { display: block; text-decoration: none; color: inherit; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 12px; margin-top: 10px; }
+  .nd-item.cur { border-color: #4c1d95; background: #f5f3ff; }
+  .nd-day { font-size: 12px; color: #6b7280; font-weight: 700; letter-spacing: 1px; }
+  .nd-title { font-size: 14px; line-height: 1.5; margin-top: 2px; }
+  .nd-meta { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+  .nd-home { display: block; margin-top: 14px; font-size: 14px; color: #1d4ed8; text-decoration: none; }
+
+  .visual { background: #f8f7ff; border: 1px solid #e4e1f5; border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .visual h3 { margin: 0 0 4px; font-size: 16px; }
+  .visual .cap { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+  .vbar { margin-bottom: 10px; }
+  .vbar .vlab { font-size: 14px; font-weight: 700; }
+  .vbar .vval { font-size: 13px; color: #4c1d95; font-weight: 700; }
+  .vbar .vtrack { background: #e8e6f2; border-radius: 6px; height: 14px; margin-top: 4px; }
+  .vbar .vfill { background: linear-gradient(90deg, #1e1b4b, #7c3aed); border-radius: 6px; height: 14px; }
+  .vflow { list-style: none; margin: 0; padding: 0; }
+  .vflow li { background: #fff; border: 1px solid #e8e6f2; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: 14px; }
+  .vflow li + .varrow { text-align: center; color: #9ca3af; font-size: 14px; margin: -2px 0 6px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="kicker">AI AGENTS 深入学习 · 第 3 天</div>
+  <h1>幻觉：模型为什么一本正经地编造，怎么把它关进笼子</h1>
+  <p class="thesis">幻觉的根不在模型变坏了，而在生成机制本身：模型没有一张可查的事实表，它只有从语料里压出来的概率分布。不知道答案时，它不会停下来查表，只会按概率挑一个最像答案的词接下去，而这个过程天生就是流畅的。所以治理幻觉不是调一个参数，而是把不知道变成可检测、可兜底的系统行为。</p>
+  <div class="meta">2026-11-03 · 约 16 分钟</div>
+</header>
+
+<main>
+<section class="card">
+  <div class="eyebrow">先定义</div>
+  <h2>幻觉分两种，别混在一起治</h2>
+  <p>事实性幻觉：说的内容和真实世界不符，比如编一个不存在的论文、说错年份。忠实性幻觉：说的内容和给定的输入不符，比如让你总结一篇文章，它总结出了原文没有的结论。</p>
+  <p>两种幻觉的病灶不同：前者是知识缺了或记错了，后者是生成时没守住输入的边界。分不清，就会用错药。</p>
+  <ul>
+    <li>事实性：与真实世界不符。</li>
+    <li>忠实性：与给定输入不符。</li>
+    <li>流畅从来不是可信的证据。</li>
+  </ul>
+</section>
+
+<section class="card c2">
+  <div class="eyebrow">第一层成因</div>
+  <h2>不知道也要选一个词，这是机制决定的</h2>
+  <p>第 1 天讲过：生成是逐词算概率、选一个、再算下一个。概率分布里永远有最高的一项，哪怕所有选项的概率都很低、模型其实并不确定，解码也必须交出一个词。没有我不知道这个默认出口，猜测就成了默认行为。</p>
+  <p>更麻烦的是，猜出来的词同样流畅：它符合语言习惯、接得上上下文，于是读起来像真话。幻觉的可怕之处不在错误本身，而在错误穿着正确的语言外衣。</p>
+  <ul>
+    <li>没有真值表，只有概率分布。</li>
+    <li>低置信不等于停下来，解码仍要输出。</li>
+    <li>流畅度与正确性是两条线。</li>
+  </ul>
+  <div class="anim"><h3>动画：不知道时，模型在干什么</h3><div class="cap">机制示意，不是真实模型行为：概率数字为举例，非真实模型输出。</div><div class="step"><div class="n">1</div><div><div class="lab">提问</div><div class="txt">问一个冷门事实：某位小众作家的第三本书叫什么？</div><div class="ro">问题：冷门事实</div></div></div><div class="step"><div class="n">2</div><div><div class="lab">算概率</div><div class="txt">模型算出候选词的概率：每个都不高，没有明显胜出的答案。</div><div class="ro">候选概率都很低</div></div></div><div class="step"><div class="n">3</div><div><div class="lab">被迫选词</div><div class="txt">没有不知道可交，解码只能挑概率最高的那一个接下去。</div><div class="ro">被迫选了书名A</div></div></div><div class="step"><div class="n">4</div><div><div class="lab">越编越顺</div><div class="txt">一旦接上，后面的词会顺着这个开头继续编，越编越像真话。</div><div class="ro">后续顺着开头编</div></div></div><div class="step"><div class="n">5</div><div><div class="lab">结论</div><div class="txt">幻觉不是故意说谎，是必须输出加输出很流畅叠加的结果。</div><div class="ro">机制：必须输出</div></div></div></div>
+</section>
+
+<section class="card c3">
+  <div class="eyebrow">第二层成因</div>
+  <h2>参数里的知识是压缩过的近似记忆</h2>
+  <p>训练是把海量文本压进参数：高频、反复出现的知识压得结实，低频、长尾的知识压得模糊。问到长尾事实时，模型不是去查原文，而是从模糊的压缩表示里还原一个大概像的答案，还原错了就是编造。</p>
+  <p>语料本身也会埋雷：过时信息、互相矛盾的说法、网上流传的错误，都会被一起压进去。模型分不清哪条更新、哪条更可信，生成时只能按概率拼一个最常见的版本。</p>
+  <ul>
+    <li>高频知识记得牢，长尾知识记得糊。</li>
+    <li>过时与矛盾语料都会被压进参数。</li>
+    <li>记忆是还原，不是查表。</li>
+  </ul>
+</section>
+
+<section class="card c4">
+  <div class="eyebrow">第三层成因</div>
+  <h2>训练奖励流畅，解码放大随机</h2>
+  <p>训练和对齐都在奖励像个好答案的输出：完整、自信、格式漂亮。一个坦承不知道的回答，在很多评测里和答错一样拿不到分，猜对了反而有分，猜测于是被系统性地鼓励。第 4 天会细讲这套奖励是怎么塑造概率分布的。</p>
+  <p>解码再放大一层：temperature 越高、top-p 越宽，低概率的词越有机会被选中。采样本意是让表达多样，但它同时也让编一个新词更容易发生。调低温度能压住随机，不能补上缺失的知识。</p>
+  <ul>
+    <li>自信完整的回答更容易被奖励。</li>
+    <li>温度只改随机性，不补知识缺口。</li>
+    <li>猜对有分、拒答零分时，猜测会被鼓励。</li>
+  </ul>
+</section>
+
+<section class="card c5">
+  <div class="eyebrow">怎么缓解</div>
+  <h2>先从源头和生成侧设防</h2>
+  <p>数据与训练层：清洗矛盾与过时语料、给模型补领域数据、教它在不确定时说不知道或给置信度。这是最贵的一层，但能减少病灶本身。</p>
+  <p>检索与解码层：问答时先检索可信资料、要求只按资料回答并标出引用；解码上用低温度、约束输出格式、禁止编造引用。检索错了也会传错，所以资料质量和引用校验同样重要。</p>
+  <ul>
+    <li>数据层：清洗、补领域数据、教拒答。</li>
+    <li>生成层：检索 grounding、引用约束、低温度。</li>
+  </ul>
+  <div class="anim"><h3>动画：同样的提问，有资料和没资料的区别</h3><div class="cap">机制示意，不是真实模型行为：对话内容为示意，非真实模型输出。</div><div class="step"><div class="n">1</div><div><div class="lab">提问</div><div class="txt">问：这份合同的违约金条款怎么写的？</div><div class="ro">问题：合同条款</div></div></div><div class="step"><div class="n">2</div><div><div class="lab">没资料</div><div class="txt">没有资料时，模型凭参数记忆编一个看起来合理的条款。</div><div class="ro">凭记忆编造</div></div></div><div class="step"><div class="n">3</div><div><div class="lab">先检索</div><div class="txt">有资料时，先从合同原文里检索到对应条款。</div><div class="ro">检索到原文条款</div></div></div><div class="step"><div class="n">4</div><div><div class="lab">按资料答</div><div class="txt">回答只用检索到的内容，并标出引用出处。</div><div class="ro">按资料回答</div></div></div><div class="step"><div class="n">5</div><div><div class="lab">再校验</div><div class="txt">校验：答案里的每个数字和条款，都能在原文里找到。</div><div class="ro">逐条核对通过</div></div></div><div class="step"><div class="n">6</div><div><div class="lab">结论</div><div class="txt">资料没有消除幻觉，但把它从无法发现变成了可以核查。</div><div class="ro">可核查才是关键</div></div></div></div>
+</section>
+
+<section class="card c6">
+  <div class="eyebrow">怎么缓解</div>
+  <h2>校验层是最后一道门，要长在写侧</h2>
+  <p>同一问题多采几次、看答案是否自洽，是 SelfCheckGPT 的思路：熟悉的概念多次回答趋于一致，不熟悉的概念多次回答容易互相矛盾。一致性不是真值判定，但它是便宜的疑点信号。</p>
+  <p>更彻底的是把关键事实拆成可核查的断言、逐条对照资料或工具；高风险操作先人工确认。校验要长在写侧，生成完再查，比事后道歉便宜得多。</p>
+  <ul>
+    <li>多次采样一致性：便宜的疑点信号。</li>
+    <li>逐条核查：把事实拆成可验证的断言。</li>
+    <li>高风险操作：人工确认不是可选项。</li>
+  </ul>
+</section>
+
+<section class="card c7">
+  <div class="eyebrow">后端类比与坑</div>
+  <h2>别把模型当数据库查，把它当不可信的输入源</h2>
+  <p>后端类比：模型输出不是数据库查询结果，而是上游一个不可信服务返回的 JSON。格式可能对，内容必须校验。你不会把第三方接口的返回值直接写进生产库而不做校验，对模型输出也一样。</p>
+  <p>常见坑有三个：以为换更大模型就没幻觉，其实大模型只是编得更像；以为调低温度就安全，其实知识缺口还在；以为接了 RAG 就万事大吉，其实检索错、资料旧、引用没校验时，幻觉只是换了个出处。</p>
+  <ul>
+    <li>模型输出等于不可信上游返回，先校验再写入。</li>
+    <li>更大、更低温度、接 RAG 都不能单独根治。</li>
+    <li>高风险场景：人工确认是最后一道护栏。</li>
+  </ul>
+</section>
+
+<section class="card takeaways">
+  <div class="eyebrow">要点回顾</div>
+  <h2>这课记住什么</h2>
+  <ul>
+    <li>幻觉分事实性与忠实性两种，病灶不同，治法不同。</li>
+    <li>生成必须输出一个词：低置信时猜测是默认行为，且猜出来很流畅。</li>
+    <li>参数知识是压缩的近似记忆：长尾记得糊，过时与矛盾语料都会被压进去。</li>
+    <li>训练奖励自信完整的回答，解码采样再放大随机；调低温度不补知识。</li>
+    <li>缓解要分层：数据、检索 grounding、解码约束、事后校验，缺一层就漏一层。</li>
+    <li>工程原则：把模型输出当不可信输入，校验长在写侧，高风险操作人工确认。</li>
+  </ul>
+</section>
+
+<section class="card quiz">
+  <div class="eyebrow">自测</div>
+  <h2>以下哪种做法最能降低事实性幻觉？</h2>
+  <div class="opt">A. 把 temperature 调到最低</div>
+  <div class="opt right">B. 先检索可信资料，要求模型只按资料回答并标出引用，再逐条校验 ✓</div>
+  <div class="opt">C. 换一个参数量更大的模型</div>
+  <div class="opt">D. 让模型用更自信的语气回答</div>
+  <div class="exp"><b>解析：</b>低温度只压随机、不补知识；更大模型只是编得更像；自信语气与正确性无关。只有检索 grounding 加引用约束加逐条校验，把答案变成可核查的，才真正压住了事实性幻觉的出口。</div>
+</section>
+
+<section class="card sources">
+  <div class="eyebrow">证据</div>
+  <h2>论文与文章</h2>
+  <ul>
+    <li><a href="https://ar5iv.labs.arxiv.org/html/2305.11747">HaluEval: A Large-Scale Hallucination Evaluation Benchmark for Large Language Models</a>（Junyi Li 等，arXiv 2023）<br>支持：幻觉定义为与来源冲突或无法被事实知识验证的内容；实验发现模型会编造无法验证的信息，约 19.5% 的回复涉及此类编造。<br><span class="b">边界：该基准针对当时模型的问答与对话等任务，不直接给出今天各家模型的幻觉率，本课只取其定义与编造机制。</span></li>
+    <li><a href="https://arxiv.org/abs/2303.08896v3">SelfCheckGPT: Zero-Resource Black-Box Hallucination Detection for Generative Large Language Models</a>（Potsawee Manakul, Adian Liusie, Mark J. F. Gales，EMNLP 2023）<br>支持：多次采样一致性可用于检测幻觉：模型熟悉的概念多次回答趋于一致，不熟悉的概念多次回答容易互相矛盾。<br><span class="b">边界：该方法需要额外采样、增加延迟与成本，且一致性只是幻觉信号，不是真值判定；本课只取其多次采样校验的思路。</span></li>
+  </ul>
+</section>
+</main>
+<footer>归档自学习应用 · 第 3 天 · 2026-11-03</footer>
+</div>
+<button class="navbtn" id="navbtn" aria-label="打开课程目录">☰</button>
+<div class="navoverlay" id="navoverlay"></div>
+<aside class="navdrawer" id="navdrawer" aria-label="课程目录">
+  <button class="nd-close" id="ndclose" aria-label="关闭目录">×</button>
+  <h3>课程目录</h3>
+  <div id="ndlist"></div>
+  <a class="nd-home" id="ndhome" href="../index.html">← 回到首页</a>
+</aside>
+<script>
+(function(){
+  var btn = document.getElementById('navbtn');
+  var overlay = document.getElementById('navoverlay');
+  var drawer = document.getElementById('navdrawer');
+  var list = document.getElementById('ndlist');
+  var home = document.getElementById('ndhome');
+  var inLessons = /\/lessons\//.test(location.pathname);
+  var jsonUrl = inLessons ? '../lessons.json' : 'lessons.json';
+  var prefix = inLessons ? '' : 'lessons/';
+  home.href = inLessons ? '../index.html' : 'index.html';
+  function open(){ drawer.classList.add('open'); overlay.classList.add('open'); }
+  function close(){ drawer.classList.remove('open'); overlay.classList.remove('open'); }
+  btn.addEventListener('click', open);
+  document.getElementById('ndclose').addEventListener('click', close);
+  overlay.addEventListener('click', close);
+  var cur = location.pathname.split('/').pop();
+  fetch(jsonUrl).then(function(r){ return r.json(); }).then(function(items){
+    list.innerHTML = '';
+    items.forEach(function(it){
+      var a = document.createElement('a');
+      a.className = 'nd-item' + (it.file === cur ? ' cur' : '');
+      a.href = prefix + it.file;
+      a.innerHTML = '<div class="nd-day">第 ' + it.day + ' 天</div><div class="nd-title">' + it.title + '</div><div class="nd-meta">' + it.date + ' · 约 ' + it.minutes + ' 分钟</div>';
+      list.appendChild(a);
+    });
+  }).catch(function(){
+    list.innerHTML = '<p style="font-size:14px;color:#666;">目录加载失败，请点“回到首页”查看全部课程。</p>';
+  });
+})();
+</script>
+</body>
+</html>

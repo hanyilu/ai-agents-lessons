@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 2 天：多头注意力：Q/K/V 怎么算，位置怎么进模型</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f4f2ec; color: #222; line-height: 1.75; }
+  .wrap { max-width: 780px; margin: 0 auto; padding: 32px 20px 60px; }
+  header { background: linear-gradient(135deg, #1e1b4b, #4c1d95); color: #fff; border-radius: 16px; padding: 28px 26px; }
+  .kicker { font-size: 13px; letter-spacing: 2px; opacity: .85; }
+  header h1 { margin: 10px 0 12px; font-size: 26px; line-height: 1.4; }
+  .thesis { font-size: 16px; opacity: .95; margin: 0 0 14px; }
+  .meta { font-size: 13px; opacity: .75; }
+  section.card { background: #fff; border-radius: 14px; padding: 22px 24px; margin-top: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.06); border-left: 5px solid #2563eb; }
+  section.card.c2 { border-left-color: #7c3aed; }
+  section.card.c3 { border-left-color: #0891b2; }
+  section.card.c4 { border-left-color: #d97706; }
+  section.card.c5 { border-left-color: #dc2626; }
+  section.card.c6 { border-left-color: #059669; }
+  section.card.c7 { border-left-color: #4f46e5; }
+  .eyebrow { font-size: 12px; letter-spacing: 2px; font-weight: 700; color: #6b7280; }
+  h2 { margin: 6px 0 12px; font-size: 20px; line-height: 1.5; }
+  p { margin: 0 0 12px; }
+  ul { margin: 0 0 12px; padding-left: 20px; }
+  li { margin-bottom: 6px; }
+  pre { background: #1e1e2e; color: #e8e8f0; border-radius: 10px; padding: 14px 16px; overflow-x: auto; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+  .anim { background: #f8f7ff; border: 1px solid #e4e1f5; border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .anim h3 { margin: 0 0 4px; font-size: 16px; }
+  .anim .cap { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+  .step { display: flex; gap: 12px; background: #fff; border: 1px solid #e8e6f2; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
+  .step .n { flex: 0 0 26px; height: 26px; border-radius: 50%; background: #4c1d95; color: #fff; text-align: center; line-height: 26px; font-size: 13px; font-weight: 700; }
+  .step .lab { font-weight: 700; font-size: 14px; }
+  .step .txt { font-size: 14px; color: #333; }
+  .step .ro { display: inline-block; margin-top: 4px; font-family: monospace; font-size: 12px; background: #f1f0f8; border-radius: 6px; padding: 1px 8px; color: #4c1d95; }
+  .takeaways { background: #fffbeb; border: 1px solid #f5d98b; }
+  .quiz { background: #eff6ff; border: 1px solid #bfdbfe; }
+  .quiz .opt { background: #fff; border: 1px solid #dbeafe; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: 14px; }
+  .quiz .opt.right { border-color: #22c55e; background: #f0fdf4; }
+  .quiz .exp { margin-top: 10px; font-size: 14px; background: #fff; border-radius: 8px; padding: 10px 12px; }
+  .sources { font-size: 14px; }
+  .sources li { margin-bottom: 14px; }
+  .sources a { color: #1d4ed8; }
+  .sources .b { color: #6b7280; font-size: 13px; }
+  footer { margin-top: 28px; text-align: center; font-size: 12px; color: #9ca3af; }
+  header { padding-right: 66px; }
+  .navbtn { position: fixed; top: 14px; right: 14px; z-index: 100; width: 40px; height: 40px; border-radius: 50%; border: none; background: #fff; color: #1e1b4b; font-size: 20px; line-height: 1; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+  .navoverlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 101; display: none; }
+  .navoverlay.open { display: block; }
+  .navdrawer { position: fixed; top: 0; right: 0; width: min(320px, 85vw); height: 100%; background: #fff; z-index: 102; transform: translateX(100%); transition: transform .25s ease; overflow-y: auto; padding: 20px; box-shadow: -2px 0 12px rgba(0,0,0,.2); }
+  .navdrawer.open { transform: translateX(0); }
+  .navdrawer h3 { margin: 0 0 4px; font-size: 17px; }
+  .nd-close { position: absolute; top: 12px; right: 14px; border: none; background: none; font-size: 22px; cursor: pointer; color: #666; }
+  .nd-item { display: block; text-decoration: none; color: inherit; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 12px; margin-top: 10px; }
+  .nd-item.cur { border-color: #4c1d95; background: #f5f3ff; }
+  .nd-day { font-size: 12px; color: #6b7280; font-weight: 700; letter-spacing: 1px; }
+  .nd-title { font-size: 14px; line-height: 1.5; margin-top: 2px; }
+  .nd-meta { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+  .nd-home { display: block; margin-top: 14px; font-size: 14px; color: #1d4ed8; text-decoration: none; }
+
+  .visual { background: #f8f7ff; border: 1px solid #e4e1f5; border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .visual h3 { margin: 0 0 4px; font-size: 16px; }
+  .visual .cap { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+  .vbar { margin-bottom: 10px; }
+  .vbar .vlab { font-size: 14px; font-weight: 700; }
+  .vbar .vval { font-size: 13px; color: #4c1d95; font-weight: 700; }
+  .vbar .vtrack { background: #e8e6f2; border-radius: 6px; height: 14px; margin-top: 4px; }
+  .vbar .vfill { background: linear-gradient(90deg, #1e1b4b, #7c3aed); border-radius: 6px; height: 14px; }
+  .vflow { list-style: none; margin: 0; padding: 0; }
+  .vflow li { background: #fff; border: 1px solid #e8e6f2; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: 14px; }
+  .vflow li + .varrow { text-align: center; color: #9ca3af; font-size: 14px; margin: -2px 0 6px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="kicker">AI AGENTS 深入学习 · 第 2 天</div>
+  <h1>多头注意力：Q/K/V 怎么算，位置怎么进模型</h1>
+  <p class="thesis">理解 Transformer，先理解注意力这一层：它用 Q、K、V 把“找什么、凭什么匹配、拿什么内容”拆成三个角色，再用分数加权混合出每个位置的新表示。多头不是把同一件事重复 h 遍，而是让不同头在不同子空间里各看一种关系；位置也不是天生就有的，RoPE 把它变成旋转角，相对距离于是直接写进点积里。</p>
+  <div class="meta">2026-11-02 · 约 18 分钟</div>
+</header>
+
+<main>
+<section class="card">
+  <div class="eyebrow">Q/K/V 分工</div>
+  <h2>Q、K、V 是三个角色，不是三个词</h2>
+  <p>每个 token 进入注意力层时，会先被三个不同的线性投影分别变成 Q、K、V。Q 是当前 token 的提问：我在找什么样的信息；K 是每个候选 token 的标签：我能提供什么；V 是候选真正要交出来的内容。</p>
+  <p>三者不是词本身，而是同一向量经不同矩阵算出的三个角色。训练会调这些矩阵，让 Q 和相关的 K 更容易对上。角色分开，才有“按相关性取内容”这件事。</p>
+  <ul>
+    <li>Q 只负责提问，不直接给出内容；内容在 V 里。</li>
+    <li>K 决定被选中的概率，V 决定被拿走的是什么。</li>
+  </ul>
+</section>
+
+<section class="card c2">
+  <div class="eyebrow">分数怎么算</div>
+  <h2>点积、缩放、softmax、掩码，四步出权重</h2>
+  <p>分数是 Q 与每个 K 的点积：越对得上，分数越高。再除以根号 dk 缩放：维度高了点积天然变大，不缩放 softmax 会被推向极端，梯度变小、学习变难。</p>
+  <p>分数过 softmax 变成权重，和为 1，再按权重把各 V 加权求和。生成时还要加掩码：后面的 token 分数直接屏蔽，模型算下一个词时看不到未来。</p>
+  <ul>
+    <li>点积大只说明学到的匹配强，不等于语义上一定对。</li>
+    <li>掩码是防泄漏，不是可选项；没有它，生成就偷看了答案。</li>
+  </ul>
+  <div class="anim"><h3>动画：它指谁？一次注意力是怎么算的</h3><div class="cap">机制示意，不是真实模型行为：分数数字为举例，非真实模型输出。</div><div class="step"><div class="n">1</div><div><div class="lab">问题</div><div class="txt">“它”指谁？模型要先回答这个问题，才能写对下一句。</div><div class="ro">它，指谁？</div></div></div><div class="step"><div class="n">2</div><div><div class="lab">提问</div><div class="txt">当前 token“它”生成 Q：我在找主语、找动作的发出者。</div><div class="ro">Q：它在找主语</div></div></div><div class="step"><div class="n">3</div><div><div class="lab">贴标签</div><div class="txt">每个旧词生成 K，相当于贴标签：我能提供什么信息。</div><div class="ro">K：每个旧词贴标签</div></div></div><div class="step"><div class="n">4</div><div><div class="lab">算分</div><div class="txt">Q 和每个 K 做点积、缩放、softmax，得到权重。</div><div class="ro">猫 75% · 蝴蝶 20% · 追 5%</div></div></div><div class="step"><div class="n">5</div><div><div class="lab">取内容</div><div class="txt">按权重把各词的 V 加权求和：猫的信息占大头。</div><div class="ro">V 按权重混合：猫占大头</div></div></div><div class="step"><div class="n">6</div><div><div class="lab">结论</div><div class="txt">输出不是复制某个词，而是按权重混合出来的新表示。</div><div class="ro">不是复制，是加权混合</div></div></div></div>
+</section>
+
+<section class="card c3">
+  <div class="eyebrow">为什么多头</div>
+  <h2>单头一张表不够用，多头各看一种关系</h2>
+  <p>单头只有一个权重分布：语法、指代、语义全挤在一张表里，容易互相平均掉。多头把 Q、K、V 各投影 h 次，每头在更小的子空间里独立算一次注意力。</p>
+  <p>各头结果拼回原维度，再经一次输出投影融合。原论文 base 模型是 8 头、每头 64 维，拼回 512 维：总计算量与单头全维接近，表达却更丰富，因为每头可以专看一种关系。</p>
+  <ul>
+    <li>头数多不等于自动分工，分工是训练学出来的，不是人工指定的。</li>
+    <li>头不是越多越好：维度切太碎，每头能看到的信息就变薄。</li>
+  </ul>
+</section>
+
+<section class="card c4">
+  <div class="eyebrow">位置从哪来</div>
+  <h2>注意力本身不看顺序，顺序必须从外面给</h2>
+  <p>注意力本身不看顺序：把 token 打乱重排，点积结果的集合不变，只是位置跟着变。没有位置信息，模型分不清“猫追狗”和“狗追猫”，因为它只看到一袋 token。</p>
+  <p>原始方案是给每个位置加一段正弦编码：不同频率的正弦波组合，让每个位置有唯一签名。加法简单，但位置与内容混在同一向量里，模型要自己把两者拆开。</p>
+  <ul>
+    <li>顺序必须从外面给进去，注意力层自己不会发明顺序。</li>
+    <li>绝对位置签名能区分位置，但远近关系不直接体现在点积里。</li>
+  </ul>
+</section>
+
+<section class="card c5">
+  <div class="eyebrow">RoPE</div>
+  <h2>RoPE：把位置变成旋转角，距离写进点积</h2>
+  <p>RoPE 不改加法，改 Q 和 K 本身：按 token 所在位置，把 Q、K 的向量对旋转一定角度。角度随位置变化，不同维度用不同频率，相当于把位置编进方向里。</p>
+  <p>关键在点积：两个被旋转过的向量做点积，结果只依赖它们的位置差，不依赖绝对位置。模型于是直接从分数里读到相对距离：近的、远的，在计算层面就有了区别。</p>
+  <ul>
+    <li>绝对位置仍在旋转角里，相对关系自然出现在点积中。</li>
+    <li>旋转只改变方向、不改变向量长度，内容幅度不受位置干扰。</li>
+    <li>位置差进分数不等于无限外推，长序列仍要另外验证。</li>
+  </ul>
+  <div class="anim"><h3>动画：位置是怎么进点积的</h3><div class="cap">机制示意，不是真实模型行为：旋转角度与向量为示意，非真实模型内部表示。</div><div class="step"><div class="n">1</div><div><div class="lab">问题</div><div class="txt">没有位置信息，“猫追狗”和“狗追猫”看起来是一样的。</div><div class="ro">打乱顺序，注意力分不清</div></div></div><div class="step"><div class="n">2</div><div><div class="lab">旧法</div><div class="txt">旧法是给每个位置加一段签名：位置与内容混在同一向量里。</div><div class="ro">旧法：位置加进向量</div></div></div><div class="step"><div class="n">3</div><div><div class="lab">旋转</div><div class="txt">RoPE 改成旋转：按所在位置，把 Q 和 K 各转一定角度。</div><div class="ro">RoPE：按位置旋转 Q、K</div></div></div><div class="step"><div class="n">4</div><div><div class="lab">点积</div><div class="txt">两个转过的向量做点积，结果只依赖它们的位置差。</div><div class="ro">点积只依赖位置差</div></div></div><div class="step"><div class="n">5</div><div><div class="lab">结论</div><div class="txt">相对距离直接进了分数：近的和远的，计算层面就已不同。</div><div class="ro">相对距离直接进分数</div></div></div></div>
+</section>
+
+<section class="card c6">
+  <div class="eyebrow">后端类比与代价</div>
+  <h2>像一次全表加权查询，但成本是平方级</h2>
+  <p>后端类比：Q 像查询条件，K 像索引键，V 像行数据。注意力是一次对全表做的加权查询：先按键匹配打分，再按分数取行。区别是这里的键和查询都是学出来的，不是人工建的索引。</p>
+  <p>代价也要算清：每个 token 都要和前面所有 token 算一次分数，序列翻倍，分数表大约翻四倍。长上下文里注意力是平方级成本，这正是第 7 天要讲 KV Cache 与优化的动机。</p>
+  <ul>
+    <li>注意力权重高不等于模型“理解”或“引用”，只是加权混合。</li>
+    <li>调试先看头与分数分布，不要只看最终输出猜原因。</li>
+    <li>长序列先算平方成本，再谈窗口大小。</li>
+  </ul>
+</section>
+
+<section class="card takeaways">
+  <div class="eyebrow">要点回顾</div>
+  <h2>这课记住什么</h2>
+  <ul>
+    <li>Q 提问、K 贴标签、V 交内容，三者是同一向量的三种投影。</li>
+    <li>分数 = Q 与 K 的点积，经 √dk 缩放、softmax 成权重，再加权求和 V。</li>
+    <li>生成必须掩码未来，否则就是偷看答案。</li>
+    <li>多头是 h 次并行注意力、拼回再融合：计算量接近单头，表达更丰富。</li>
+    <li>注意力本身无顺序；RoPE 把位置变成旋转角，让位置差直接进入点积。</li>
+    <li>注意力成本随序列平方增长，长上下文先算这笔账。</li>
+  </ul>
+</section>
+
+<section class="card quiz">
+  <div class="eyebrow">自测</div>
+  <h2>注意力分数里，为什么要除以 √dk？</h2>
+  <div class="opt">A. 让权重和恰好为 1</div>
+  <div class="opt right">B. 防止高维点积过大，把 softmax 推向极端 ✓</div>
+  <div class="opt">C. 让多头维度彼此相等</div>
+  <div class="opt">D. 屏蔽生成时的未来 token</div>
+  <div class="exp"><b>解析：</b>维度高了，点积天然变大；不缩放，softmax 会趋向 0 或 1 的极端，梯度变小、学习变难。权重和为 1 是 softmax 本身保证的，屏蔽未来靠掩码，不是缩放。</div>
+</section>
+
+<section class="card sources">
+  <div class="eyebrow">证据</div>
+  <h2>论文与文章</h2>
+  <ul>
+    <li><a href="https://arxiv.org/abs/1706.03762">Attention Is All You Need</a>（Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, Illia Polosukhin，NeurIPS 2017）<br>支持：多头注意力与缩放点积注意力的定义：Q、K、V 经不同线性投影、并行算注意力再拼接融合；缩放因子为 1/√dk。<br><span class="b">边界：原论文的主要实验是机器翻译；现代 decoder-only LLM 在掩码、规模和实现上已变化，本课只取其注意力机制定义。</span></li>
+    <li><a href="https://arxiv.org/abs/2104.09864">RoFormer: Enhanced Transformer with Rotary Position Embedding</a>（Jianlin Su, Yu Lu, Shengfeng Pan, Ahmed Murtadha, Bo Wen, Yunfeng Liu，arXiv 2021）<br>支持：RoPE 用旋转矩阵编码绝对位置，同时在自注意力公式中引入显式的相对位置依赖。<br><span class="b">边界：原论文实验主要在长文本分类等基准上；本课只取其旋转编码机制，不直接断言所有 LLM 的长序列外推表现。</span></li>
+  </ul>
+</section>
+</main>
+<footer>归档自学习应用 · 第 2 天 · 2026-11-02</footer>
+</div>
+<button class="navbtn" id="navbtn" aria-label="打开课程目录">☰</button>
+<div class="navoverlay" id="navoverlay"></div>
+<aside class="navdrawer" id="navdrawer" aria-label="课程目录">
+  <button class="nd-close" id="ndclose" aria-label="关闭目录">×</button>
+  <h3>课程目录</h3>
+  <div id="ndlist"></div>
+  <a class="nd-home" id="ndhome" href="../index.html">← 回到首页</a>
+</aside>
+<script>
+(function(){
+  var btn = document.getElementById('navbtn');
+  var overlay = document.getElementById('navoverlay');
+  var drawer = document.getElementById('navdrawer');
+  var list = document.getElementById('ndlist');
+  var home = document.getElementById('ndhome');
+  var inLessons = /\/lessons\//.test(location.pathname);
+  var jsonUrl = inLessons ? '../lessons.json' : 'lessons.json';
+  var prefix = inLessons ? '' : 'lessons/';
+  home.href = inLessons ? '../index.html' : 'index.html';
+  function open(){ drawer.classList.add('open'); overlay.classList.add('open'); }
+  function close(){ drawer.classList.remove('open'); overlay.classList.remove('open'); }
+  btn.addEventListener('click', open);
+  document.getElementById('ndclose').addEventListener('click', close);
+  overlay.addEventListener('click', close);
+  var cur = location.pathname.split('/').pop();
+  fetch(jsonUrl).then(function(r){ return r.json(); }).then(function(items){
+    list.innerHTML = '';
+    items.forEach(function(it){
+      var a = document.createElement('a');
+      a.className = 'nd-item' + (it.file === cur ? ' cur' : '');
+      a.href = prefix + it.file;
+      a.innerHTML = '<div class="nd-day">第 ' + it.day + ' 天</div><div class="nd-title">' + it.title + '</div><div class="nd-meta">' + it.date + ' · 约 ' + it.minutes + ' 分钟</div>';
+      list.appendChild(a);
+    });
+  }).catch(function(){
+    list.innerHTML = '<p style="font-size:14px;color:#666;">目录加载失败，请点“回到首页”查看全部课程。</p>';
+  });
+})();
+</script>
+</body>
+</html>

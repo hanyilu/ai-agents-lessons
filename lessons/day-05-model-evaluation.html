@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 5 天：模型评测方法：分数是怎么来的，又会在哪骗你</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f4f2ec; color: #222; line-height: 1.75; }
+  .wrap { max-width: 780px; margin: 0 auto; padding: 32px 20px 60px; }
+  header { background: linear-gradient(135deg, #1e1b4b, #4c1d95); color: #fff; border-radius: 16px; padding: 28px 26px; }
+  .kicker { font-size: 13px; letter-spacing: 2px; opacity: .85; }
+  header h1 { margin: 10px 0 12px; font-size: 26px; line-height: 1.4; }
+  .thesis { font-size: 16px; opacity: .95; margin: 0 0 14px; }
+  .meta { font-size: 13px; opacity: .75; }
+  section.card { background: #fff; border-radius: 14px; padding: 22px 24px; margin-top: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.06); border-left: 5px solid #2563eb; }
+  section.card.c2 { border-left-color: #7c3aed; }
+  section.card.c3 { border-left-color: #0891b2; }
+  section.card.c4 { border-left-color: #d97706; }
+  section.card.c5 { border-left-color: #dc2626; }
+  section.card.c6 { border-left-color: #059669; }
+  section.card.c7 { border-left-color: #4f46e5; }
+  .eyebrow { font-size: 12px; letter-spacing: 2px; font-weight: 700; color: #6b7280; }
+  h2 { margin: 6px 0 12px; font-size: 20px; line-height: 1.5; }
+  p { margin: 0 0 12px; }
+  ul { margin: 0 0 12px; padding-left: 20px; }
+  li { margin-bottom: 6px; }
+  pre { background: #1e1e2e; color: #e8e8f0; border-radius: 10px; padding: 14px 16px; overflow-x: auto; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+  .anim { background: #f8f7ff; border: 1px solid #e4e1f5; border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .anim h3 { margin: 0 0 4px; font-size: 16px; }
+  .anim .cap { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+  .step { display: flex; gap: 12px; background: #fff; border: 1px solid #e8e6f2; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
+  .step .n { flex: 0 0 26px; height: 26px; border-radius: 50%; background: #4c1d95; color: #fff; text-align: center; line-height: 26px; font-size: 13px; font-weight: 700; }
+  .step .lab { font-weight: 700; font-size: 14px; }
+  .step .txt { font-size: 14px; color: #333; }
+  .step .ro { display: inline-block; margin-top: 4px; font-family: monospace; font-size: 12px; background: #f1f0f8; border-radius: 6px; padding: 1px 8px; color: #4c1d95; }
+  .takeaways { background: #fffbeb; border: 1px solid #f5d98b; }
+  .quiz { background: #eff6ff; border: 1px solid #bfdbfe; }
+  .quiz .opt { background: #fff; border: 1px solid #dbeafe; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: 14px; }
+  .quiz .opt.right { border-color: #22c55e; background: #f0fdf4; }
+  .quiz .exp { margin-top: 10px; font-size: 14px; background: #fff; border-radius: 8px; padding: 10px 12px; }
+  .sources { font-size: 14px; }
+  .sources li { margin-bottom: 14px; }
+  .sources a { color: #1d4ed8; }
+  .sources .b { color: #6b7280; font-size: 13px; }
+  footer { margin-top: 28px; text-align: center; font-size: 12px; color: #9ca3af; }
+  header { padding-right: 66px; }
+  .navbtn { position: fixed; top: 14px; right: 14px; z-index: 100; width: 40px; height: 40px; border-radius: 50%; border: none; background: #fff; color: #1e1b4b; font-size: 20px; line-height: 1; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+  .navoverlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 101; display: none; }
+  .navoverlay.open { display: block; }
+  .navdrawer { position: fixed; top: 0; right: 0; width: min(320px, 85vw); height: 100%; background: #fff; z-index: 102; transform: translateX(100%); transition: transform .25s ease; overflow-y: auto; padding: 20px; box-shadow: -2px 0 12px rgba(0,0,0,.2); }
+  .navdrawer.open { transform: translateX(0); }
+  .navdrawer h3 { margin: 0 0 4px; font-size: 17px; }
+  .nd-close { position: absolute; top: 12px; right: 14px; border: none; background: none; font-size: 22px; cursor: pointer; color: #666; }
+  .nd-item { display: block; text-decoration: none; color: inherit; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 12px; margin-top: 10px; }
+  .nd-item.cur { border-color: #4c1d95; background: #f5f3ff; }
+  .nd-day { font-size: 12px; color: #6b7280; font-weight: 700; letter-spacing: 1px; }
+  .nd-title { font-size: 14px; line-height: 1.5; margin-top: 2px; }
+  .nd-meta { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+  .nd-home { display: block; margin-top: 14px; font-size: 14px; color: #1d4ed8; text-decoration: none; }
+
+  .visual { background: #f8f7ff; border: 1px solid #e4e1f5; border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .visual h3 { margin: 0 0 4px; font-size: 16px; }
+  .visual .cap { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+  .vbar { margin-bottom: 10px; }
+  .vbar .vlab { font-size: 14px; font-weight: 700; }
+  .vbar .vval { font-size: 13px; color: #4c1d95; font-weight: 700; }
+  .vbar .vtrack { background: #e8e6f2; border-radius: 6px; height: 14px; margin-top: 4px; }
+  .vbar .vfill { background: linear-gradient(90deg, #1e1b4b, #7c3aed); border-radius: 6px; height: 14px; }
+  .vflow { list-style: none; margin: 0; padding: 0; }
+  .vflow li { background: #fff; border: 1px solid #e8e6f2; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: 14px; }
+  .vflow li + .varrow { text-align: center; color: #9ca3af; font-size: 14px; margin: -2px 0 6px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="kicker">AI AGENTS 深入学习 · 第 5 天</div>
+  <h1>模型评测方法：分数是怎么来的，又会在哪骗你</h1>
+  <p class="thesis">评测的本质是把“模型行不行”变成一个可以比较、可以回归的数。但任何分数都只是能力的代理：题目决定了测什么、评分规则决定了什么算对、采样方式决定了分数有多稳。看懂一张分数榜，先要问三个问题：这套题测的是不是我要的能力？测试题有没有可能被模型提前见过？这个分数的误差棒有多大？答不上来这三个问题，分数越高越危险——因为它可能只是在精确地量错东西。</p>
+  <div class="meta">2026-11-05 · 约 18 分钟</div>
+</header>
+
+<main>
+<section class="card">
+  <div class="eyebrow">先定测什么</div>
+  <h2>评测的本质：把能力压缩成一个数</h2>
+  <p>评测就是给模型出一套题、按规则打分、得到一个数。数的好处是能比较、能回归：新版本上线前跑一遍，分数掉了就知道改坏了。后端类比就是压测与回归测试——没人靠感觉说系统变快了，都看指标。</p>
+  <p>但分数只是代理指标：它量的是“在这套题上按这套规则的表现”，不是“能力本身”。题目、评分规则、采样方式三者决定了分数的含义，换一套就换一个故事。指标一旦变成优化目标，就会失效，这是 Goodhart 定律。</p>
+  <ul>
+    <li>分数是代理指标，不是能力本身。</li>
+    <li>三要素决定分数含义：题目、评分规则、采样方式。</li>
+    <li>评测的工程价值是可比较、可回归。</li>
+  </ul>
+</section>
+
+<section class="card c2">
+  <div class="eyebrow">Benchmark</div>
+  <h2>MMLU：选择题为什么是主流测法</h2>
+  <p>选择题的最大好处是评分客观、便宜、可复现：答案固定，机器就能判分，不用请人。MMLU 是 57 个学科、15908 道选择题，从小学数学到专业法律医学都有，考的是预训练阶段攒下的知识与解题能力。GPT-3 175B 首发时只有 43.9%，随机猜是 25%，领域专家约 89.8%。</p>
+  <p>但选择题测的是“认得正确答案”，不是“自己写出答案”。会选不等于会做：数学推理、写代码这类生成式能力，要用别的判法——GSM8K 看最终答案对不对，HumanEval 直接跑单元测试。选 benchmark 先问：它测的，是不是我要的能力？</p>
+  <ul>
+    <li>选择题：评分客观、便宜、可复现。</li>
+    <li>MMLU：57 学科、15908 题，GPT-3 175B 首发 43.9%。</li>
+    <li>认得答案不等于写得出答案，生成任务要换判法。</li>
+  </ul>
+</section>
+
+<section class="card c3">
+  <div class="eyebrow">分数的坑</div>
+  <h2>平均分、抖动与饱和：分数会骗人的三种方式</h2>
+  <p>第一，平均分掩盖偏科：MMLU 总分 85% 的模型，某几个科目可能只有 60%。看总分等于只看平均延迟，不看 p99。第二，分数会抖动：换一句 prompt 措辞、改一个随机种子、温度不同，分数能差几个点——小数点后一位的差距常常在噪声里。</p>
+  <p>第三，分数会饱和：顶级模型在 MMLU 上已接近 90%，大家挤在天花板附近，分数拉不开差距，就失去区分能力。MMLU-Pro 的做法是把选项从 4 个扩到 10 个、题目加难，重新把差距拉开。benchmark 也有寿命，饱和了就要换更难的。</p>
+  <ul>
+    <li>平均分掩盖偏科，要看分科分布。</li>
+    <li>prompt、种子、温度都会让分数抖动几个点。</li>
+    <li>分数饱和后失去区分度，要换更难的题。</li>
+  </ul>
+</section>
+
+<section class="card c4">
+  <div class="eyebrow">数据污染</div>
+  <h2>数据污染：测试题混进训练集，考的是记忆</h2>
+  <p>训练语料是爬全网得来的，而测试题也是公开在网上的。两者一撞，模型可能在训练时就见过原题和答案——这就是数据污染。污染后分数测的不再是能力，是记忆：模型不是推理出答案，是背出来了。</p>
+  <p>检测有三招：算 n-gram 重叠，看测试题的字串在训练语料里出现过没有；按时间切分，只用训练截止日期之后出的新题；完形填空测试，把答案挖掉看模型能不能猜中原题。缓解靠制度：保留私有测试集、动态生成新题、定期换题。看到一份分数，先问测试集的发布时间是不是晚于模型的训练截止日期。</p>
+  <ul>
+    <li>污染 = 测记忆，不测能力。</li>
+    <li>检测：n-gram 重叠、时间切分、完形填空。</li>
+    <li>缓解：私有测试集、动态出题、定期换题。</li>
+  </ul>
+  <div class="anim"><h3>动画：数据污染：测试题怎么混进训练集</h3><div class="cap">机制示意，不是真实模型行为：分数数字为举例，非真实评测结果。</div><div class="step"><div class="n">1</div><div><div class="lab">公开测试题</div><div class="txt">MMLU 的题目和答案都公开在网上，任何人都能下载。</div><div class="ro">测试题公开在网上</div></div></div><div class="step"><div class="n">2</div><div><div class="lab">爬进训练集</div><div class="txt">训练语料是爬全网得来的，爬虫不分青红皂白，把测试题也爬进去了。</div><div class="ro">爬虫把题目也爬进去了</div></div></div><div class="step"><div class="n">3</div><div><div class="lab">记住答案</div><div class="txt">训练时模型反复见过这道题，答案被压进参数，记住比学会更容易。</div><div class="ro">参数记住答案，不是学会推理</div></div></div><div class="step"><div class="n">4</div><div><div class="lab">考试默写</div><div class="txt">评测时遇到同一道原题，模型不用推理，直接把背过的答案默写出来。</div><div class="ro">遇到原题，直接默写</div></div></div><div class="step"><div class="n">5</div><div><div class="lab">虚高分数</div><div class="txt">分数看着很高，但量的是记忆不是能力，换一道新题就可能露馅。</div><div class="ro">分数虚高，能力被高估</div></div></div><div class="step"><div class="n">6</div><div><div class="lab">结论</div><div class="txt">被污染的分数不可信：要换训练截止日期之后出的新题重测。</div><div class="ro">污染后分数不可信，要换新题</div></div></div></div>
+</section>
+
+<section class="card c5">
+  <div class="eyebrow">人工评估</div>
+  <h2>人工评估：最真的标准，也最贵最慢</h2>
+  <p>对开放式回答，没有标准答案可对，人才是最终标准：请人盲测、成对比较、按胜率排 Elo 分——Chatbot Arena 就是这么排的。但人工评估贵、慢，而且人之间也不总一致：同一对回答，不同的人可能选不同，GPT-4 裁判与人的一致性超过 80%，这个水平和人人之间的一致性相当。</p>
+  <p>人工评估也要讲方法：评分标准要写清、标注员要培训、同一题多人打分取多数，否则分数里混进的是标注员的个人口味。工程取舍很直白：人工评估是线上 A/B——最真，但跑不起高频；它适合做发布前的最终裁决，不适合每天跑回归。</p>
+  <ul>
+    <li>人工是开放式回答的最终标准：盲测、成对比较、Elo。</li>
+    <li>贵、慢，人与人之间也不总一致。</li>
+    <li>适合做发布前裁决，不适合高频回归。</li>
+  </ul>
+</section>
+
+<section class="card c6">
+  <div class="eyebrow">LLM-as-judge</div>
+  <h2>LLM-as-judge：快，但裁判自己也有偏见</h2>
+  <p>请人太贵，请强模型当裁判就成了折中：让 GPT-4 这类模型给两个回答打分或排先后。Zheng 等人的实验里，GPT-4 裁判与人类偏好的一致性超过 80%，与人人一致性相当，成本却低得多。这就是它流行的原因：开放式回答终于有了可自动化的打分器。</p>
+  <p>但裁判不是中立的：位置偏见——先看到的答案占优，交换顺序结果可能翻转；啰嗦偏见——写得长的显得更好；自我偏爱——裁判给自己的输出打高分。缓解办法是成对出现：交换位置判两次取平均、控制回答长度、不用被评的模型自己当裁判。LLM-as-judge 是自动化回归：快，但系统误差要先校准。</p>
+  <ul>
+    <li>GPT-4 裁判与人一致性超 80%，与人人一致性相当。</li>
+    <li>三类偏差：位置、啰嗦、自我偏爱。</li>
+    <li>缓解：换位重判、控长度、裁判与选手分离。</li>
+  </ul>
+  <div class="anim"><h3>动画：位置偏见：交换顺序，结果会翻转</h3><div class="cap">机制示意，不是真实模型行为：步骤为示意流程，非真实裁判过程。</div><div class="step"><div class="n">1</div><div><div class="lab">同一对答案</div><div class="txt">A、B 两份回答质量相同，裁判要排个先后。</div><div class="ro">A、B 质量相同</div></div></div><div class="step"><div class="n">2</div><div><div class="lab">A 在前</div><div class="txt">A 放前面先被看到，裁判选了 A。</div><div class="ro">A 在前，裁判选 A</div></div></div><div class="step"><div class="n">3</div><div><div class="lab">交换位置</div><div class="txt">把顺序换过来：B 在前、A 在后，再让同一个裁判判一次。</div><div class="ro">位置互换，再判一次</div></div></div><div class="step"><div class="n">4</div><div><div class="lab">B 胜</div><div class="txt">答案没变，只换了顺序，裁判改选了 B。</div><div class="ro">B 在前，裁判改选 B</div></div></div><div class="step"><div class="n">5</div><div><div class="lab">结论</div><div class="txt">裁判偏爱先看到的答案：位置本身就能左右胜负。</div><div class="ro">裁判偏爱先看到的答案</div></div></div><div class="step"><div class="n">6</div><div><div class="lab">缓解</div><div class="txt">两个顺序各判一次、结果取平均，位置的影响就被抵消了。</div><div class="ro">双向判 + 取平均</div></div></div></div>
+</section>
+
+<section class="card c7">
+  <div class="eyebrow">后端类比与落地</div>
+  <h2>选模型的三张表，与你自己的评测集</h2>
+  <p>后端类比：benchmark 是单元测试——快、便宜、窄；人工评估是线上灰度——慢、贵、真；LLM-as-judge 是自动化回归——快，但有系统误差。三张表各有盲区，合起来才可信。选模型时只看一张榜，就是只看一个指标做发布决策。</p>
+  <p>落地清单有四条：三类分数都要看，缺一类就补一类；问清测试集发布时间与训练截止日期，防污染；看分科分布不看总平均；最重要的是留一套自己的评测集——从真实业务里抽题、答案由业务方定，作为回归门禁，任何换模型、上线前都先跑它。最后注意边界：本课评的是模型本身——知识与推理能力；第 13 天的 Agent 评估评的是整个系统——成功率、成本、延迟与工具调用，两套指标别混用。</p>
+  <ul>
+    <li>三类分数合起来才可信，缺一类就补一类。</li>
+    <li>问清测试集发布时间，防数据污染。</li>
+    <li>留自己的业务评测集，做换模型与上线的回归门禁。</li>
+  </ul>
+</section>
+
+<section class="card takeaways">
+  <div class="eyebrow">要点回顾</div>
+  <h2>这课记住什么</h2>
+  <ul>
+    <li>评测是把能力压缩成可比较、可回归的数；分数是代理指标，题目、评分规则、采样方式决定它的含义。</li>
+    <li>MMLU：57 学科、15908 道选择题，GPT-3 175B 首发 43.9%，专家约 89.8%；选择题测认得答案，不测写出答案。</li>
+    <li>平均分掩盖偏科；prompt、种子、温度会让分数抖动几个点；分数饱和后失去区分度。</li>
+    <li>数据污染：测试题混进训练集，测的是记忆不是能力；检测靠重叠、时间切分、完形填空，缓解靠私有题库与动态出题。</li>
+    <li>人工评估最真但最贵最慢；LLM-as-judge 与人一致性超 80%，但有位置、啰嗦、自我偏爱三类偏差，要换位重判与校准。</li>
+    <li>落地：三类分数都要看，留自己的业务评测集做回归门禁；模型评测与第 13 天的 Agent 系统评估是两套指标。</li>
+  </ul>
+</section>
+
+<section class="card quiz">
+  <div class="eyebrow">自测</div>
+  <h2>两个模型在 MMLU 上分别是 86.2% 和 86.8%，团队据此选了后者。按本课讲的机制，这个决策最可能的问题是什么？</h2>
+  <div class="opt">A. 差距太小，应直接看参数量更大的那个</div>
+  <div class="opt right">B. 0.6 个点的差距很可能落在 prompt 与随机种子的抖动噪声里，应看分科分布、污染情况与自己的业务评测集 ✓</div>
+  <div class="opt">C. 选择题分数不可信，应只看人工评估</div>
+  <div class="opt">D. MMLU 已经饱和，两个模型的能力一定完全相同</div>
+  <div class="exp"><b>解析：</b>MMLU 这类分数会随 prompt 措辞、随机种子、温度抖动几个点，0.6 个点基本在噪声里；而且总平均掩盖偏科，公开题还可能已被污染。正确做法是看分科分布、核对测试集发布时间与训练截止日期，再用自己的业务评测集裁决。</div>
+</section>
+
+<section class="card sources">
+  <div class="eyebrow">证据</div>
+  <h2>论文与文章</h2>
+  <ul>
+    <li><a href="https://arxiv.org/abs/2009.03300">Measuring Massive Multitask Language Understanding</a>（Dan Hendrycks 等，ICLR 2021 2020）<br>支持：57 个学科、15908 道选择题的评测集；GPT-3 175B 首发 43.9%，随机猜 25%，领域专家约 89.8%。<br><span class="b">边界：测的是选择题上的知识与解题能力，不等于开放式对话或工具使用能力；顶级模型分数已近天花板，区分度在下降。</span></li>
+    <li><a href="https://arxiv.org/abs/2306.05685">Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena</a>（Lianmin Zheng 等，NeurIPS 2023 2023）<br>支持：GPT-4 裁判与人类偏好的一致性超过 80%，与人人一致性相当；揭示位置、啰嗦、自我偏爱三类偏差及缓解方法。<br><span class="b">边界：一致性在 MT-bench 与 Chatbot Arena 的开放式对话场景下测得；裁判能力受限于裁判模型自身的推理能力，偏差需校准后才能用。</span></li>
+    <li><a href="https://arxiv.org/abs/2406.04244">Benchmark Data Contamination of Large Language Models: A Survey</a>（Cheng Xu 等，arXiv 2024）<br>支持：数据污染的定义：评测基准信息混入训练数据，导致分数虚高不可靠；系统整理检测技术与缓解策略两类工作。<br><span class="b">边界：这是综述，整理已有检测与缓解方法，不直接测量某个具体模型的污染率；本课的检测三招取自其整理的思路。</span></li>
+  </ul>
+</section>
+</main>
+<footer>归档自学习应用 · 第 5 天 · 2026-11-05</footer>
+</div>
+<button class="navbtn" id="navbtn" aria-label="打开课程目录">☰</button>
+<div class="navoverlay" id="navoverlay"></div>
+<aside class="navdrawer" id="navdrawer" aria-label="课程目录">
+  <button class="nd-close" id="ndclose" aria-label="关闭目录">×</button>
+  <h3>课程目录</h3>
+  <div id="ndlist"></div>
+  <a class="nd-home" id="ndhome" href="../index.html">← 回到首页</a>
+</aside>
+<script>
+(function(){
+  var btn = document.getElementById('navbtn');
+  var overlay = document.getElementById('navoverlay');
+  var drawer = document.getElementById('navdrawer');
+  var list = document.getElementById('ndlist');
+  var home = document.getElementById('ndhome');
+  var inLessons = /\/lessons\//.test(location.pathname);
+  var jsonUrl = inLessons ? '../lessons.json' : 'lessons.json';
+  var prefix = inLessons ? '' : 'lessons/';
+  home.href = inLessons ? '../index.html' : 'index.html';
+  function open(){ drawer.classList.add('open'); overlay.classList.add('open'); }
+  function close(){ drawer.classList.remove('open'); overlay.classList.remove('open'); }
+  btn.addEventListener('click', open);
+  document.getElementById('ndclose').addEventListener('click', close);
+  overlay.addEventListener('click', close);
+  var cur = location.pathname.split('/').pop();
+  fetch(jsonUrl).then(function(r){ return r.json(); }).then(function(items){
+    list.innerHTML = '';
+    items.forEach(function(it){
+      var a = document.createElement('a');
+      a.className = 'nd-item' + (it.file === cur ? ' cur' : '');
+      a.href = prefix + it.file;
+      a.innerHTML = '<div class="nd-day">第 ' + it.day + ' 天</div><div class="nd-title">' + it.title + '</div><div class="nd-meta">' + it.date + ' · 约 ' + it.minutes + ' 分钟</div>';
+      list.appendChild(a);
+    });
+  }).catch(function(){
+    list.innerHTML = '<p style="font-size:14px;color:#666;">目录加载失败，请点“回到首页”查看全部课程。</p>';
+  });
+})();
+</script>
+</body>
+</html>

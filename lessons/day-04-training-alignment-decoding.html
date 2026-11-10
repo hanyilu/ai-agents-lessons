@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 4 天：训练与对齐、解码策略：概率分布是怎么被练出来、又怎么被调出来的</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f4f2ec; color: #222; line-height: 1.75; }
+  .wrap { max-width: 780px; margin: 0 auto; padding: 32px 20px 60px; }
+  header { background: linear-gradient(135deg, #1e1b4b, #4c1d95); color: #fff; border-radius: 16px; padding: 28px 26px; }
+  .kicker { font-size: 13px; letter-spacing: 2px; opacity: .85; }
+  header h1 { margin: 10px 0 12px; font-size: 26px; line-height: 1.4; }
+  .thesis { font-size: 16px; opacity: .95; margin: 0 0 14px; }
+  .meta { font-size: 13px; opacity: .75; }
+  section.card { background: #fff; border-radius: 14px; padding: 22px 24px; margin-top: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.06); border-left: 5px solid #2563eb; }
+  section.card.c2 { border-left-color: #7c3aed; }
+  section.card.c3 { border-left-color: #0891b2; }
+  section.card.c4 { border-left-color: #d97706; }
+  section.card.c5 { border-left-color: #dc2626; }
+  section.card.c6 { border-left-color: #059669; }
+  section.card.c7 { border-left-color: #4f46e5; }
+  .eyebrow { font-size: 12px; letter-spacing: 2px; font-weight: 700; color: #6b7280; }
+  h2 { margin: 6px 0 12px; font-size: 20px; line-height: 1.5; }
+  p { margin: 0 0 12px; }
+  ul { margin: 0 0 12px; padding-left: 20px; }
+  li { margin-bottom: 6px; }
+  pre { background: #1e1e2e; color: #e8e8f0; border-radius: 10px; padding: 14px 16px; overflow-x: auto; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+  .anim { background: #f8f7ff; border: 1px solid #e4e1f5; border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .anim h3 { margin: 0 0 4px; font-size: 16px; }
+  .anim .cap { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+  .step { display: flex; gap: 12px; background: #fff; border: 1px solid #e8e6f2; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
+  .step .n { flex: 0 0 26px; height: 26px; border-radius: 50%; background: #4c1d95; color: #fff; text-align: center; line-height: 26px; font-size: 13px; font-weight: 700; }
+  .step .lab { font-weight: 700; font-size: 14px; }
+  .step .txt { font-size: 14px; color: #333; }
+  .step .ro { display: inline-block; margin-top: 4px; font-family: monospace; font-size: 12px; background: #f1f0f8; border-radius: 6px; padding: 1px 8px; color: #4c1d95; }
+  .takeaways { background: #fffbeb; border: 1px solid #f5d98b; }
+  .quiz { background: #eff6ff; border: 1px solid #bfdbfe; }
+  .quiz .opt { background: #fff; border: 1px solid #dbeafe; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: 14px; }
+  .quiz .opt.right { border-color: #22c55e; background: #f0fdf4; }
+  .quiz .exp { margin-top: 10px; font-size: 14px; background: #fff; border-radius: 8px; padding: 10px 12px; }
+  .sources { font-size: 14px; }
+  .sources li { margin-bottom: 14px; }
+  .sources a { color: #1d4ed8; }
+  .sources .b { color: #6b7280; font-size: 13px; }
+  footer { margin-top: 28px; text-align: center; font-size: 12px; color: #9ca3af; }
+  header { padding-right: 66px; }
+  .navbtn { position: fixed; top: 14px; right: 14px; z-index: 100; width: 40px; height: 40px; border-radius: 50%; border: none; background: #fff; color: #1e1b4b; font-size: 20px; line-height: 1; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+  .navoverlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 101; display: none; }
+  .navoverlay.open { display: block; }
+  .navdrawer { position: fixed; top: 0; right: 0; width: min(320px, 85vw); height: 100%; background: #fff; z-index: 102; transform: translateX(100%); transition: transform .25s ease; overflow-y: auto; padding: 20px; box-shadow: -2px 0 12px rgba(0,0,0,.2); }
+  .navdrawer.open { transform: translateX(0); }
+  .navdrawer h3 { margin: 0 0 4px; font-size: 17px; }
+  .nd-close { position: absolute; top: 12px; right: 14px; border: none; background: none; font-size: 22px; cursor: pointer; color: #666; }
+  .nd-item { display: block; text-decoration: none; color: inherit; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 12px; margin-top: 10px; }
+  .nd-item.cur { border-color: #4c1d95; background: #f5f3ff; }
+  .nd-day { font-size: 12px; color: #6b7280; font-weight: 700; letter-spacing: 1px; }
+  .nd-title { font-size: 14px; line-height: 1.5; margin-top: 2px; }
+  .nd-meta { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+  .nd-home { display: block; margin-top: 14px; font-size: 14px; color: #1d4ed8; text-decoration: none; }
+
+  .visual { background: #f8f7ff; border: 1px solid #e4e1f5; border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .visual h3 { margin: 0 0 4px; font-size: 16px; }
+  .visual .cap { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+  .vbar { margin-bottom: 10px; }
+  .vbar .vlab { font-size: 14px; font-weight: 700; }
+  .vbar .vval { font-size: 13px; color: #4c1d95; font-weight: 700; }
+  .vbar .vtrack { background: #e8e6f2; border-radius: 6px; height: 14px; margin-top: 4px; }
+  .vbar .vfill { background: linear-gradient(90deg, #1e1b4b, #7c3aed); border-radius: 6px; height: 14px; }
+  .vflow { list-style: none; margin: 0; padding: 0; }
+  .vflow li { background: #fff; border: 1px solid #e8e6f2; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: 14px; }
+  .vflow li + .varrow { text-align: center; color: #9ca3af; font-size: 14px; margin: -2px 0 6px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="kicker">AI AGENTS 深入学习 · 第 4 天</div>
+  <h1>训练与对齐、解码策略：概率分布是怎么被练出来、又怎么被调出来的</h1>
+  <p class="thesis">模型的能力不在某一个参数里，而在两张表里：一张是训练压出来的概率分布，另一张是解码时怎么从分布里取词。前者决定它会什么、偏向什么，后者决定它在一次调用里表现成什么样。训练、对齐、解码不是三个独立旋钮，它们依次塑造同一张分布：预训练定底色，SFT 定格式，对齐定偏好，解码定随机性。</p>
+  <div class="meta">2026-11-04 · 约 18 分钟</div>
+</header>
+
+<main>
+<section class="card">
+  <div class="eyebrow">第一步</div>
+  <h2>预训练：只学一件事，猜下一个词</h2>
+  <p>预训练的目标函数只有一个：给定前文，预测下一个 token 的概率，猜错就调参数。海量文本跑下来，参数里压进的是语料的统计规律：语法、事实搭配、文体、推理套路。模型没有学到一张事实表，学到的是在什么上下文后，哪个词更可能出现。</p>
+  <p>这解释了第 3 天的幻觉：压进去的是近似记忆，不是查表。知识越常出现压得越实，长尾越模糊。而且预训练的模型是个续写器，不是助手：你给它指令，它可能续写出更多指令，而不是照做。跟指令的能力，是后面两步加上的。</p>
+  <ul>
+    <li>目标函数：下一个词的交叉熵损失，别无其他。</li>
+    <li>压进参数的是统计规律，不是真值表。</li>
+    <li>续写器不等于助手：会续写，不等于会跟指令。</li>
+  </ul>
+</section>
+
+<section class="card c2">
+  <div class="eyebrow">第二步</div>
+  <h2>SFT：用少量示范，把续写器改成助手</h2>
+  <p>监督微调（SFT）给模型看成千上万条“指令—好回答”示范，用同样的下一个词损失训练，只不过训练文本换成了想要的回答格式。数据量比预训练小几个数量级，作用却很大：它把概率质量从“继续写下去”挪向“按指令格式回答”。</p>
+  <p>关键取舍：SFT 教的是格式与行为模式，不是新知识。示范里没有的知识，SFT 变不出来；示范质量差，模型会学到差的风格。工程上常犯的错，是指望微调补知识——补知识要靠预训练阶段的数据或检索，微调只能决定怎么用已有的知识。</p>
+  <ul>
+    <li>SFT 改的是行为分布，不是知识存量。</li>
+    <li>示范质量决定风格上限，量小但影响大。</li>
+    <li>想补知识：靠数据或检索，别只靠微调。</li>
+  </ul>
+</section>
+
+<section class="card c3">
+  <div class="eyebrow">第三步</div>
+  <h2>对齐：人类偏好怎么变成梯度</h2>
+  <p>RLHF 分三步：先 SFT，再让人给同一提示的多个回答排序，训一个奖励模型来预测“人会更喜欢哪个”，最后用 PPO 等强化学习算法调模型，让它输出奖励模型打分高的回答。奖励不是真理，是人类偏好的近似器，偏好里的毛病会被一起学进去。</p>
+  <p>为防模型为骗分走偏，通常加 KL 约束：不许新分布离 SFT 模型太远。代价是两类常见失真：奖励黑客（钻评分空子，如答得长而空洞）和讨好倾向（顺着用户说）。所以对齐不是一劳永逸，偏好数据、奖励模型、约束强度都要一起调。</p>
+  <ul>
+    <li>三步：SFT → 奖励模型 → PPO 调参。</li>
+    <li>KL 约束防走偏，但也会限制改进幅度。</li>
+    <li>奖励黑客与讨好，是偏好近似带来的固有代价。</li>
+  </ul>
+  <div class="anim"><h3>动画：RLHF 三步：偏好怎么变成参数变化</h3><div class="cap">机制示意，不是真实模型行为：步骤为示意流程，非真实训练过程。</div><div class="step"><div class="n">1</div><div><div class="lab">示范</div><div class="txt">人写出想要的回答，SFT 先把模型改成会跟指令的助手。</div><div class="ro">SFT：学格式与行为</div></div></div><div class="step"><div class="n">2</div><div><div class="lab">排序</div><div class="txt">同一提示出多个回答，人排序哪个更好、哪个更差。</div><div class="ro">人类偏好排序：A 第一</div></div></div><div class="step"><div class="n">3</div><div><div class="lab">奖励模型</div><div class="txt">奖励模型学会预测偏好：给每个回答打一个分数。</div><div class="ro">奖励模型：偏好的近似器</div></div></div><div class="step"><div class="n">4</div><div><div class="lab">调参</div><div class="txt">PPO 朝高分方向调参数，同时用 KL 约束不让分布跑太远。</div><div class="ro">调高好回答的概率</div></div></div><div class="step"><div class="n">5</div><div><div class="lab">结论</div><div class="txt">对齐改的是概率偏好，不是知识本身；偏好错了，模型跟着错。</div><div class="ro">对齐 = 重塑分布的偏好</div></div></div></div>
+</section>
+
+<section class="card c4">
+  <div class="eyebrow">解码其一</div>
+  <h2>Temperature：改分布的形状，不改模型</h2>
+  <p>解码时模型先输出每个词的 logit，再除以温度 T 做 softmax 得到概率。T 小于 1 时差距被放大，分布变尖，高概率词更占优；T 大于 1 时差距被压平，分布变坦，低概率词也有机会。T 趋近 0 就是贪心：永远取概率最高的那一个。</p>
+  <p>所以温度不是“创造力开关”，它是随机性旋钮。写代码、查事实要低温度，因为你要的是最可能的答案；写文案、头脑风暴可调高，因为你要多样性。但低温度不补知识：分布本身错了，取最可能的词也一样错，这正是第 3 天说的坑。</p>
+  <ul>
+    <li>公式：p = softmax(logits / T)，T 在 softmax 之前起作用。</li>
+    <li>T &lt; 1 变尖、T &gt; 1 变坦、T → 0 等于贪心。</li>
+    <li>低温度压随机、不补知识；高温度给多样、也给幻觉留口子。</li>
+  </ul>
+</section>
+
+<section class="card c5">
+  <div class="eyebrow">解码其二</div>
+  <h2>top-p：按累计概率砍尾巴，候选数随信心伸缩</h2>
+  <p>top-p 又叫 nucleus sampling：把候选词按概率从高到低排，累加到 p 就停，这组词叫 nucleus，只从里面采样。模型自信时一两个词就凑够 p，候选很少；不确定时要凑很多词，候选自动变多。top-k 是固定取前 k 个，不自信时 k 可能不够用，自信时又把不靠谱的词也放进来。</p>
+  <p>为什么砍尾巴？分布的尾部最不可靠：低概率词大多是训练里罕见的搭配，采样到它们最容易跑偏、重复或编造。温度改形状、top-p 砍尾巴，两者常一起用；但调参时只动一个更容易定位问题，两个一起动，出问题不知道是谁的锅。</p>
+  <ul>
+    <li>top-p：取累计概率达 p 的最小词集，再在里面采样。</li>
+    <li>候选数随信心伸缩，这是它优于固定 top-k 的地方。</li>
+    <li>温度与 top-p 分工不同：一个改形状，一个截尾巴。</li>
+  </ul>
+  <div class="anim"><h3>动画：同一个分布，top-p 怎么砍出不同的候选集</h3><div class="cap">机制示意，不是真实模型行为：概率数字为举例，非真实模型输出。</div><div class="step"><div class="n">1</div><div><div class="lab">自信时</div><div class="txt">分布很尖：首选词占 85%，再加一个就凑够 90%，候选只有 2 个。</div><div class="ro">p=0.9，候选 2 个</div></div></div><div class="step"><div class="n">2</div><div><div class="lab">不确定时</div><div class="txt">分布很平：每个词概率都不高，要凑 8 个词才够 90%，候选自动变多。</div><div class="ro">p=0.9，候选 8 个</div></div></div><div class="step"><div class="n">3</div><div><div class="lab">尾巴</div><div class="txt">剩下的低概率词被整段砍掉：它们最容易跑偏，不进采样池。</div><div class="ro">尾部被截断，不参与采样</div></div></div><div class="step"><div class="n">4</div><div><div class="lab">结论</div><div class="txt">top-p 不是固定个数，是按信心伸缩的口袋；温度先改形状，它再按形状砍。</div><div class="ro">形状定了，口袋大小跟着变</div></div></div></div>
+</section>
+
+<section class="card c6">
+  <div class="eyebrow">预算怎么分</div>
+  <h2>Scaling Law：参数和数据要一起涨，单涨一边是浪费</h2>
+  <p>训练算力大约是 C ≈ 6ND（N 是参数量，D 是训练 token 数）。固定算力时，损失随 N 和 D 呈幂律下降，但最优分配不是只堆参数：Chinchilla 的结论是两者大致等比增长，经验法则是约 20 个 token 配一个参数。GPT-3 时代只堆参数、数据跟不上，就是在预算上走了弯路。</p>
+  <p>这个最优只算训练账，不算推理账。推理量大的服务反而愿意“超训”小模型：训练时多花算力、推理时每个请求都便宜。选模型时别只看参数量，要问它训了多少 token、推理成本摊到多少请求上——总账比单项指标重要。</p>
+  <ul>
+    <li>C ≈ 6ND：算力、参数、数据三者绑在一起。</li>
+    <li>经验法则：约 20 token 配 1 参数，单堆参数是浪费。</li>
+    <li>Chinchilla 最优只管训练；推理量大时，超训小模型更划算。</li>
+  </ul>
+</section>
+
+<section class="card c7">
+  <div class="eyebrow">后端类比与坑</div>
+  <h2>把解码参数当运行时配置，把对齐当偏好补丁</h2>
+  <p>后端类比：预训练像建了一个巨大的默认配置库，SFT 与对齐像往上打了两层补丁，解码参数则是每次请求的运行时配置——改配置不改代码，改配置也不改知识。线上出问题先分层：是分布本身错了（训练/数据问题），还是取词方式错了（解码问题），两层修法完全不同。</p>
+  <p>常见坑有三个：把 temperature 当质量旋钮，来回拧却不查数据与检索；temperature 和 top-p 两个一起大改，出了问题无法归因；以为对齐后的模型更懂了，其实它只是更会按人的偏好说话，知识缺口与幻觉机制原封不动，第 3 天的校验层仍然不能省。</p>
+  <ul>
+    <li>分层定位：分布错了修训练，取词错了修解码。</li>
+    <li>一次只动一个解码参数，否则无法归因。</li>
+    <li>对齐改偏好不补知识，校验层不能因对齐而撤掉。</li>
+  </ul>
+</section>
+
+<section class="card takeaways">
+  <div class="eyebrow">要点回顾</div>
+  <h2>这课记住什么</h2>
+  <ul>
+    <li>预训练只优化猜下一个词：压进参数的是统计规律，不是真值表。</li>
+    <li>SFT 用少量示范把续写器改成助手，改行为不补知识。</li>
+    <li>RLHF：人类排序训奖励模型，PPO 朝高分调参，KL 约束防跑偏；奖励黑客与讨好是固有代价。</li>
+    <li>Temperature 改分布形状（logits / T 再 softmax），top-p 按累计概率砍尾巴、候选数随信心伸缩。</li>
+    <li>Scaling Law：C ≈ 6ND，参数与数据等比增长，约 20 token 配 1 参数；该最优只管训练账。</li>
+    <li>工程原则：解码参数是运行时配置，一次只动一个；对齐不撤校验层。</li>
+  </ul>
+</section>
+
+<section class="card quiz">
+  <div class="eyebrow">自测</div>
+  <h2>一个问答服务总编造低频事实，工程师把 temperature 从 1.0 调到 0.2 后仍编造。按本课讲的机制，最可能的原因和下一步分别是什么？</h2>
+  <div class="opt">A. 温度还不够低，应调到 0 并换更大模型</div>
+  <div class="opt right">B. 温度只改取词随机性、不补知识缺口；应加检索 grounding 与逐条校验 ✓</div>
+  <div class="opt">C. top-p 设得太高，应同时把 temperature 和 top-p 都调到最低</div>
+  <div class="opt">D. SFT 数据太少，应立刻重训一个更大的预训练模型</div>
+  <div class="exp"><b>解析：</b>低温度只压随机、不补知识：分布本身在低频事实上就是糊的，取最可能的词也一样错。正确分层是先承认知识缺口在分布里，再用检索 grounding 补输入、用逐条校验守出口，而不是继续拧解码旋钮。</div>
+</section>
+
+<section class="card sources">
+  <div class="eyebrow">证据</div>
+  <h2>论文与文章</h2>
+  <ul>
+    <li><a href="https://arxiv.org/abs/2203.02155">Training Language Models to Follow Instructions with Human Feedback</a>（Long Ouyang 等，arXiv 2022）<br>支持：SFT 示范微调、人类排序训奖励模型、PPO 优化的三步 RLHF；1.3B 的 InstructGPT 在人类评估中胜过 175B 的 GPT-3。<br><span class="b">边界：结论来自该论文 API 提示分布上的人类评估，不等于通用能力全面胜过更大模型；本课只取其三步流程与偏好塑造机制。</span></li>
+    <li><a href="https://arxiv.org/abs/2203.15556">Training Compute-Optimal Large Language Models</a>（Jordan Hoffmann 等，arXiv 2022）<br>支持：固定算力下参数与训练 token 应等比增长；70B、1.4T token 的 Chinchilla 在相同算力下全面胜过 280B 的 Gopher，MMLU 约 67.5%。<br><span class="b">边界：该最优只针对训练算力，不含推理成本；本课的超训小模型取舍是基于该边界的工程推论，不属论文原结论。</span></li>
+    <li><a href="https://arxiv.org/pdf/1904.09751">The Curious Case of Neural Text Degeneration</a>（Ari Holtzman 等，ICLR 2020）<br>支持：提出 nucleus（top-p）采样：取累计概率达 p 的最小词集再采样；分布尾部不可靠，应在解码时截断。<br><span class="b">边界：实验基于 GPT-2 的长文本生成，不是今天的指令微调聊天模型；本课只取其截尾与动态候选集的机制。</span></li>
+  </ul>
+</section>
+</main>
+<footer>归档自学习应用 · 第 4 天 · 2026-11-04</footer>
+</div>
+<button class="navbtn" id="navbtn" aria-label="打开课程目录">☰</button>
+<div class="navoverlay" id="navoverlay"></div>
+<aside class="navdrawer" id="navdrawer" aria-label="课程目录">
+  <button class="nd-close" id="ndclose" aria-label="关闭目录">×</button>
+  <h3>课程目录</h3>
+  <div id="ndlist"></div>
+  <a class="nd-home" id="ndhome" href="../index.html">← 回到首页</a>
+</aside>
+<script>
+(function(){
+  var btn = document.getElementById('navbtn');
+  var overlay = document.getElementById('navoverlay');
+  var drawer = document.getElementById('navdrawer');
+  var list = document.getElementById('ndlist');
+  var home = document.getElementById('ndhome');
+  var inLessons = /\/lessons\//.test(location.pathname);
+  var jsonUrl = inLessons ? '../lessons.json' : 'lessons.json';
+  var prefix = inLessons ? '' : 'lessons/';
+  home.href = inLessons ? '../index.html' : 'index.html';
+  function open(){ drawer.classList.add('open'); overlay.classList.add('open'); }
+  function close(){ drawer.classList.remove('open'); overlay.classList.remove('open'); }
+  btn.addEventListener('click', open);
+  document.getElementById('ndclose').addEventListener('click', close);
+  overlay.addEventListener('click', close);
+  var cur = location.pathname.split('/').pop();
+  fetch(jsonUrl).then(function(r){ return r.json(); }).then(function(items){
+    list.innerHTML = '';
+    items.forEach(function(it){
+      var a = document.createElement('a');
+      a.className = 'nd-item' + (it.file === cur ? ' cur' : '');
+      a.href = prefix + it.file;
+      a.innerHTML = '<div class="nd-day">第 ' + it.day + ' 天</div><div class="nd-title">' + it.title + '</div><div class="nd-meta">' + it.date + ' · 约 ' + it.minutes + ' 分钟</div>';
+      list.appendChild(a);
+    });
+  }).catch(function(){
+    list.innerHTML = '<p style="font-size:14px;color:#666;">目录加载失败，请点“回到首页”查看全部课程。</p>';
+  });
+})();
+</script>
+</body>
+</html>
