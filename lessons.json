@@ -1,5 +1,12 @@
 [
   {
+    "day": 11,
+    "file": "day-11-orchestration.html",
+    "title": "编排框架：把 Agent 循环写成一张可恢复的状态图",
+    "date": "2026-11-11",
+    "minutes": 18
+  },
+  {
     "day": 10,
     "file": "day-10-memory-rag.html",
     "title": "记忆与 RAG：给 Agent 装一个会忘、会找的外脑",
