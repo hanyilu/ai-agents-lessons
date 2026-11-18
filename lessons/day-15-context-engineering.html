@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 15 天：上下文工程：模型只看得到你给它的 token，窗口越大越要省着用</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f4f2ec; color: #222; line-height: 1.75; }
+  .wrap { max-width: 780px; margin: 0 auto; padding: 32px 20px 60px; }
+  header { background: linear-gradient(135deg, #1e1b4b, #4c1d95); color: #fff; border-radius: 16px; padding: 28px 26px; }
+  .kicker { font-size: 13px; letter-spacing: 2px; opacity: .85; }
+  header h1 { margin: 10px 0 12px; font-size: 26px; line-height: 1.4; }
+  .thesis { font-size: 16px; opacity: .95; margin: 0 0 14px; }
+  .meta { font-size: 13px; opacity: .75; }
+  section.card { background: #fff; border-radius: 14px; padding: 22px 24px; margin-top: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.06); border-left: 5px solid #2563eb; }
+  section.card.c2 { border-left-color: #7c3aed; }
+  section.card.c3 { border-left-color: #0891b2; }
+  section.card.c4 { border-left-color: #d97706; }
+  section.card.c5 { border-left-color: #dc2626; }
+  section.card.c6 { border-left-color: #059669; }
+  section.card.c7 { border-left-color: #4f46e5; }
+  .eyebrow { font-size: 12px; letter-spacing: 2px; font-weight: 700; color: #6b7280; }
+  h2 { margin: 6px 0 12px; font-size: 20px; line-height: 1.5; }
+  p { margin: 0 0 12px; }
+  ul { margin: 0 0 12px; padding-left: 20px; }
+  li { margin-bottom: 6px; }
+  pre { background: #1e1e2e; color: #e8e8f0; border-radius: 10px; padding: 14px 16px; overflow-x: auto; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+  .anim { background: #f8f7ff; border: 1px solid #e4e1f5; border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .anim h3 { margin: 0 0 4px; font-size: 16px; }
+  .anim .cap { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+  .step { display: flex; gap: 12px; background: #fff; border: 1px solid #e8e6f2; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
+  .step .n { flex: 0 0 26px; height: 26px; border-radius: 50%; background: #4c1d95; color: #fff; text-align: center; line-height: 26px; font-size: 13px; font-weight: 700; }
+  .step .lab { font-weight: 700; font-size: 14px; }
+  .step .txt { font-size: 14px; color: #333; }
+  .step .ro { display: inline-block; margin-top: 4px; font-family: monospace; font-size: 12px; background: #f1f0f8; border-radius: 6px; padding: 1px 8px; color: #4c1d95; }
+  .takeaways { background: #fffbeb; border: 1px solid #f5d98b; }
+  .quiz { background: #eff6ff; border: 1px solid #bfdbfe; }
+  .quiz .opt { background: #fff; border: 1px solid #dbeafe; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: 14px; }
+  .quiz .opt.right { border-color: #22c55e; background: #f0fdf4; }
+  .quiz .exp { margin-top: 10px; font-size: 14px; background: #fff; border-radius: 8px; padding: 10px 12px; }
+  .sources { font-size: 14px; }
+  .sources li { margin-bottom: 14px; }
+  .sources a { color: #1d4ed8; }
+  .sources .b { color: #6b7280; font-size: 13px; }
+  footer { margin-top: 28px; text-align: center; font-size: 12px; color: #9ca3af; }
+  header { padding-right: 66px; }
+  .navbtn { position: fixed; top: 14px; right: 14px; z-index: 100; width: 40px; height: 40px; border-radius: 50%; border: none; background: #fff; color: #1e1b4b; font-size: 20px; line-height: 1; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+  .navoverlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 101; display: none; }
+  .navoverlay.open { display: block; }
+  .navdrawer { position: fixed; top: 0; right: 0; width: min(320px, 85vw); height: 100%; background: #fff; z-index: 102; transform: translateX(100%); transition: transform .25s ease; overflow-y: auto; padding: 20px; box-shadow: -2px 0 12px rgba(0,0,0,.2); }
+  .navdrawer.open { transform: translateX(0); }
+  .navdrawer h3 { margin: 0 0 4px; font-size: 17px; }
+  .nd-close { position: absolute; top: 12px; right: 14px; border: none; background: none; font-size: 22px; cursor: pointer; color: #666; }
+  .nd-item { display: block; text-decoration: none; color: inherit; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 12px; margin-top: 10px; }
+  .nd-item.cur { border-color: #4c1d95; background: #f5f3ff; }
+  .nd-day { font-size: 12px; color: #6b7280; font-weight: 700; letter-spacing: 1px; }
+  .nd-title { font-size: 14px; line-height: 1.5; margin-top: 2px; }
+  .nd-meta { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+  .nd-home { display: block; margin-top: 14px; font-size: 14px; color: #1d4ed8; text-decoration: none; }
+
+  .visual { background: #f8f7ff; border: 1px solid #e4e1f5; border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .visual h3 { margin: 0 0 4px; font-size: 16px; }
+  .visual .cap { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+  .vbar { margin-bottom: 10px; }
+  .vbar .vlab { font-size: 14px; font-weight: 700; }
+  .vbar .vval { font-size: 13px; color: #4c1d95; font-weight: 700; }
+  .vbar .vtrack { background: #e8e6f2; border-radius: 6px; height: 14px; margin-top: 4px; }
+  .vbar .vfill { background: linear-gradient(90deg, #1e1b4b, #7c3aed); border-radius: 6px; height: 14px; }
+  .vflow { list-style: none; margin: 0; padding: 0; }
+  .vflow li { background: #fff; border: 1px solid #e8e6f2; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: 14px; }
+  .vflow li + .varrow { text-align: center; color: #9ca3af; font-size: 14px; margin: -2px 0 6px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="kicker">AI AGENTS 深入学习 · 第 15 天</div>
+  <h1>上下文工程：模型只看得到你给它的 token，窗口越大越要省着用</h1>
+  <p class="thesis">Prompt 工程问的是提示词怎么写，上下文工程问的是每次调用模型该看到哪组 token。Agent 每步都在往上下文里加东西——历史、工具返回、检索结果——窗口再大也会满，塞得越多模型记得越差、越贵、越慢。所以这课的核心只有一个判断：上下文是稀缺的工作内存，不是无限的硬盘，写、选、压、隔四件事，决定 Agent 能走多远。</p>
+  <div class="meta">2026-11-15 · 约 18 分钟</div>
+</header>
+
+<main>
+<section class="card">
+  <div class="eyebrow">01 为什么是上下文工程</div>
+  <h2>从写提示词到管上下文</h2>
+  <p>Prompt 是一次写好的静态文本，上下文是每轮调用都会变的状态。第 1 天讲过，窗口是容量不是记忆；Agent 跑起来后，系统提示、工具定义、对话历史、工具返回、检索结果全拼进同一份预算，而且每步都在涨。</p>
+  <p>Anthropic 在 2025 年 9 月给了定义：上下文就是采样时包含的那组 token，工程问题是让这组 token 的效用最大。Prompt 工程只管指令怎么写，是它的子集；上下文工程管全部——什么进、什么留、什么丢、什么时候进。</p>
+  <ul>
+    <li>模型没有后台：没进上下文的东西，对模型等于不存在。</li>
+    <li>上下文是模型唯一的世界输入：给错了，再强的模型也答不对。</li>
+    <li>第 8 天的工具定义、第 10 天的记忆，都是上下文工程的零件。</li>
+  </ul>
+</section>
+
+<section class="card c2">
+  <div class="eyebrow">02 Context Rot</div>
+  <h2>窗口越大，记得越差</h2>
+  <p>原理在第 2 天就埋下了：Transformer 里每个 token 都要跟其他所有 token 算注意力，n 个 token 就是 n² 组关系。训练数据里短序列占多数，模型本来就不擅长超长依赖；窗口一变大，关系就被摊薄，recall 先掉。</p>
+  <p>实测也一样。RULER 测了 17 个模型、13 项任务：纯找针几乎满分，但难度一加、长度一涨就大跌，宣称 32K 以上的模型只有一半在 32K 还达标。Chroma 2025 年测 18 个模型、8 种长度：任务难度不变、只加长度，表现一致下滑。这就是 context rot。</p>
+  <ul>
+    <li>宣称长度 ≠ 有效长度：能装 1M token，不等于能用好 1M token。</li>
+    <li>针能找到 ≠ 推理还准：检索满分，照样可以在多跳推理上翻车。</li>
+    <li>Lost in the Middle（第 1 天）：关键信息放中间，最容易被漏掉。</li>
+  </ul>
+  <div class="anim"><h3>动画：塞得越多，记得越差</h3><div class="cap">机制示意，不是真实模型行为：长度只涨不跌，准确率一路下滑。</div><div class="step"><div class="n">1</div><div><div class="lab">短上下文</div><div class="txt">任务和关键数字都在窗口里，模型几乎全对。</div><div class="ro">几乎全对</div></div></div><div class="step"><div class="n">2</div><div><div class="lab">加上历史</div><div class="txt">几轮 ReAct 的历史与工具返回进来，窗口开始变挤。</div><div class="ro">开始走神</div></div></div><div class="step"><div class="n">3</div><div><div class="lab">塞到 32K</div><div class="txt">RULER 的结论：宣称 32K 以上的模型，只有一半这时还达标。</div><div class="ro">一半模型不达标</div></div></div><div class="step"><div class="n">4</div><div><div class="lab">塞到上限</div><div class="txt">针还能找到，但多跳推理已经错了——装得下不等于记得住。</div><div class="ro">针在，推理错了</div></div></div><div class="step"><div class="n">5</div><div><div class="lab">结论</div><div class="txt">窗口是容量，不是能力。解法不是换更大的窗，是少塞、塞对。</div><div class="ro">少塞、塞对</div></div></div></div>
+</section>
+
+<section class="card c3">
+  <div class="eyebrow">03 上下文的解剖</div>
+  <h2>四块拼图抢一份预算</h2>
+  <p>每轮调用的上下文由四块拼成：系统提示（身份、规则、格式）；工具定义（名字、描述、参数表）；对话历史（用户消息，加上模型自己的 Thought 与工具调用）；外部数据（RAG 片段、文件内容、工具返回）。四块抢同一份注意力预算。</p>
+  <p>其中历史是唯一会自己长大的。一次 ReAct 循环（第 9 天）就加一轮 Thought、一次工具调用、一条 Observation；跑 30 步，历史能吃掉大半窗口。不管理，它就是默认的最大头。</p>
+  <ul>
+    <li>工具定义常被低估：第 8 天讲过，工具越多、描述越长，选错的概率越高。</li>
+    <li>外部数据最不可控：RAG 塞 10 个片段，可能 9 个都是噪音。</li>
+    <li>系统提示是地基：写错一次，每轮调用都跟着错。</li>
+  </ul>
+</section>
+
+<section class="card c4">
+  <div class="eyebrow">04 写</div>
+  <h2>先把每块写瘦</h2>
+  <p>系统提示要找正确高度：太细，是把业务逻辑硬编码进提示词，又脆又难维护；太粗，是假设模型跟你有共享语境。Anthropic 的建议是分节加 XML 标签或 Markdown 标题，信息最小但完整——最小不是最短，是够用为止。</p>
+  <p>工具返回也要省 token：只返回模型下一步需要的字段，别返整张表；工具之间去重叠，描述写清什么时候用，别写这是什么。Few-shot 别堆边角案例，挑几个能代表行为的典型例子就够了。</p>
+  <ul>
+    <li>先测最小提示词：用最强模型跑，失败了再按失败模式加指令。</li>
+    <li>边角案例进评测集，不进提示词；提示词越长，重点越抓不住。</li>
+    <li>工具返回先截断、再摘要，最后才考虑给全文。</li>
+  </ul>
+</section>
+
+<section class="card c5">
+  <div class="eyebrow">05 选</div>
+  <h2>按需加载，别预加载</h2>
+  <p>旧做法是预检索：调用前先把可能用到的文档全塞进上下文。Agent 的做法是 JIT：上下文里只留轻量索引——文件路径、查询语句、链接——模型需要时自己调工具去取。Claude Code 对付大代码库就是这么干的：写查询、存结果、用 head、tail 抽查，从不把整个库塞进去。</p>
+  <p>这就像人查资料：你不会背整本手册，你记的是手册在书架第几层。代价是慢：运行时探索比预取多几步；没给好工具和启发式，模型会逛死胡同、浪费上下文。所以最常见的是混合：高频必备的上来就给，低频的现用现取。</p>
+  <ul>
+    <li>渐进披露：文件大小、命名、时间戳本身就是信号，模型能一层层摸清结构。</li>
+    <li>索引即上下文：路径和文件名会说话，别急着把内容也塞进来。</li>
+    <li>探索要配护栏：步数上限、去重、失败回退，用第 9 天的刹车。</li>
+  </ul>
+</section>
+
+<section class="card c6">
+  <div class="eyebrow">06 压</div>
+  <h2>长任务的三招：压</h2>
+  <p>任务长到 token 数超过窗口时，有三招。第一是压缩：窗口快满时让模型把历史摘要成要点，开新窗口继续跑，Claude Code 还会保留最近访问的 5 个文件。第二是结构化笔记：Agent 定期把进展写进外部文件，跨窗口不断线。第三是子 Agent，见下一节。</p>
+  <p>压缩的取舍在留什么：先求召回，把所有相关信息都抓进摘要，再求精确，删掉多余内容。最轻量的一招是清工具结果：几十步前的原始返回，模型其实再也不需要。但压得太狠会丢当时不重要、后来很关键的细节。</p>
+  <ul>
+    <li>压缩是高保真摘要，不是删帖：决策、未解问题、关键数字必须留。</li>
+    <li>笔记是外部记忆（第 10 天），摘要是窗口内重启，两件事别混了。</li>
+    <li>三招可叠加：笔记 + 压缩 + 子 Agent，各管一段。</li>
+  </ul>
+  <div class="anim"><h3>动画：压缩：把一窗口历史换成一张摘要</h3><div class="cap">机制示意，不是真实模型行为：摘要进新窗口，原始记录出窗。</div><div class="step"><div class="n">1</div><div><div class="lab">窗口快满了</div><div class="txt">30 步历史塞满窗口，新 token 再也进不来。</div><div class="ro">快满了</div></div></div><div class="step"><div class="n">2</div><div><div class="lab">模型写摘要</div><div class="txt">模型把历史压成要点：做了什么决定、还有什么没解决。</div><div class="ro">只留关键</div></div></div><div class="step"><div class="n">3</div><div><div class="lab">旧历史出窗</div><div class="txt">30 步原始记录出窗，窗口空出来了。</div><div class="ro">原始记录出窗</div></div></div><div class="step"><div class="n">4</div><div><div class="lab">新窗口继续</div><div class="txt">摘要加最近访问的文件进新窗口，任务不断线。</div><div class="ro">继续跑</div></div></div><div class="step"><div class="n">5</div><div><div class="lab">结论</div><div class="txt">压缩是续命，不是存档：摘要丢了的东西，下一窗口找不回来。</div><div class="ro">先保召回，再求精确</div></div></div></div>
+</section>
+
+<section class="card c7">
+  <div class="eyebrow">07 隔</div>
+  <h2>子 Agent：隔离换清晰</h2>
+  <p>不让一个 Agent 背全项目：主 Agent 拿计划、做协调，子 Agent 各领一个干净的小窗口去深挖——查代码、跑分析、找资料。子 Agent 可能啃掉几万 token，但只回主 Agent 一份 1,000–2,000 token 的浓缩摘要，细节留在自己的窗口里。</p>
+  <p>这就是进程隔离、微服务的思想：隔离换清晰，代价是交接。每次交接都可能丢信息、放大幻觉（第 11 天讲过），所以摘要要结构化：结论、证据、未解决项三段，缺一不可。并行探索赚得到速度，也付得出账单。</p>
+  <ul>
+    <li>主 Agent 只做综合与判断，不直接碰原始材料。</li>
+    <li>子 Agent 之间不共享上下文，互不干扰，各查各的。</li>
+    <li>选型看任务：长对话用压缩，里程碑清晰用笔记，并行探索用子 Agent。</li>
+  </ul>
+</section>
+
+<section class="card">
+  <div class="eyebrow">08 落地</div>
+  <h2>落地：给上下文立预算</h2>
+  <p>上下文工程落到工程上，就是一张预算表：给每部分定上限，超了就触发压缩或丢弃；每步记 token 数、每类来源的占比，跑评测集看砍掉哪块最不伤分。预算不是拍脑袋：先量（第 13 天的观测），再定。</p>
+  <p>常见坑三件：全量历史原样追加——默认行为就是默认灾难；把边角案例全塞进提示词——提示词越长，重点越抓不住；压缩丢关键事实——摘要里没写已确认的决策，下一窗口就会推翻重来。</p>
+  <pre>def build_context(parts, budget=100_000):
+    ctx, used = [], 0
+    for part in sorted(parts, key=priority):
+        if used + part.tokens &gt; budget:
+            part = compact(part)  # 摘要或截断，禁止静默丢弃关键项
+        ctx.append(part); used += part.tokens
+    if used &gt; budget * 0.9:
+        trigger_compaction()
+    return ctx</pre>
+  <ul>
+    <li>预算要写进代码，不是写进文档：超了自动触发，别靠人盯着。</li>
+    <li>压缩触发点设在 80%–90%，别等满了再动手。</li>
+    <li>模型升级后预算也要重测：新模型的有效长度和旧模型不一样。</li>
+  </ul>
+  <div class="visual"><h3>一份 100K 上下文预算的示例分配</h3><div class="cap">示例比例，不是标准答案：历史是最大头，永远留 10% 给新输出；按任务调，调完要跑评测集验证。</div><div class="vbar"><div class="vlab">系统提示</div><div class="vtrack"><div class="vfill" style="width:10%"></div></div><div class="vval">10%</div></div><div class="vbar"><div class="vlab">工具定义</div><div class="vtrack"><div class="vfill" style="width:15%"></div></div><div class="vval">15%</div></div><div class="vbar"><div class="vlab">对话历史</div><div class="vtrack"><div class="vfill" style="width:40%"></div></div><div class="vval">40%</div></div><div class="vbar"><div class="vlab">检索结果</div><div class="vtrack"><div class="vfill" style="width:25%"></div></div><div class="vval">25%</div></div><div class="vbar"><div class="vlab">预留</div><div class="vtrack"><div class="vfill" style="width:10%"></div></div><div class="vval">10%</div></div></div>
+</section>
+
+<section class="card takeaways">
+  <div class="eyebrow">要点回顾</div>
+  <h2>这课记住什么</h2>
+  <ul>
+    <li>上下文是采样时包含的那组 token——模型只看得到你给它的，别的等于不存在。</li>
+    <li>窗口越大越要省：context rot 让 recall 随长度下滑，RULER 只有一半模型在 32K 还达标。</li>
+    <li>好上下文的标准：最小的高信号 token 集——够用为止，不是越全越好。</li>
+    <li>写瘦：系统提示找正确高度，工具返回只给下一步需要的字段。</li>
+    <li>按需加载：上下文里留索引不留全文，模型现用现取（JIT），混合策略最常见。</li>
+    <li>长任务三招：压缩、结构化笔记、子 Agent——子 Agent 只回 1,000–2,000 token 摘要。</li>
+    <li>隔离换清晰：主 Agent 只看摘要做综合，交接处要结构化摘要防信息丢失。</li>
+    <li>落地靠预算：每部分定上限、超了触发压缩，80%–90% 就动手，别等满。</li>
+  </ul>
+</section>
+
+<section class="card quiz">
+  <div class="eyebrow">自测</div>
+  <h2>你的 Agent 跑 40 步长任务，上下文快满了，历史里有 30 步工具调用记录。按本课的做法，第一步最该做什么？</h2>
+  <div class="opt">A. 把窗口换成更大的模型，直接硬扛</div>
+  <div class="opt right">B. 让模型把历史压缩成摘要，只留关键决策与未解问题，再开新窗口继续 ✓</div>
+  <div class="opt">C. 把全部 30 步记录原样保留，删掉系统提示腾地方</div>
+  <div class="opt">D. 把任务拆成 40 个独立调用，每次从头开始</div>
+  <div class="exp"><b>解析：</b>窗口再大也有 context rot，硬扛又贵又不准；系统提示是地基不能删；拆成独立调用会丢连续性。压缩是第一杠杆：摘要先保召回再求精确，关键决策与未解问题必须留下来。</div>
+</section>
+
+<section class="card sources">
+  <div class="eyebrow">证据</div>
+  <h2>论文与文章</h2>
+  <ul>
+    <li><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">Effective context engineering for AI agents</a>（Prithvi Rajasekaran, Ethan Dixon, Carly Ryan, Jeremy Hadfield (Anthropic Applied AI team)，Anthropic Engineering 2025）<br>支持：定义上下文为采样时包含的 token 集合，提出最小高信号 token 集原则；解释 context rot 与 n² 注意力成因；给出 JIT 检索与渐进披露做法；长任务三招：压缩、结构化笔记、子 Agent。<br><span class="b">边界：工程博客，非同行评审论文；结论来自 Claude Code 等生产实践；子 Agent 回 1,000–2,000 token 是其经验值，不同任务会变。</span></li>
+    <li><a href="https://arxiv.org/abs/2404.06654">RULER: What&#x27;s the Real Context Size of Your Long-Context Language Models?</a>（Cheng-Ping Hsieh, Simeng Sun, Samuel Kriman, Shantanu Acharya, Dima Rekesh, Fei Jia, Yang Zhang, Boris Ginsburg，COLM 2024 2024）<br>支持：17 个长上下文模型、13 项任务；纯找针几乎满分，但难度与长度一涨就大跌；宣称 32K 以上的模型只有一半在 32K 还能达标。<br><span class="b">边界：合成基准，真实 Agent 任务的衰减形态可能不同；测的是 2024 年的模型，新模型的有效长度已有变化。</span></li>
+    <li><a href="https://research.trychroma.com/context-rot">Context Rot: How Increasing Input Tokens Impacts LLM Performance</a>（Chroma Research Team，Chroma Research 2025）<br>支持：18 个模型、8 种输入长度；任务难度固定、只加长度，表现一致下滑；干扰项与问答相似度会加速下滑。<br><span class="b">边界：技术报告，非同行评审论文；用 GPT-4.1 当裁判打分，结论依赖裁判质量；测的是 2025 年中的模型。</span></li>
+  </ul>
+</section>
+</main>
+<footer>归档自学习应用 · 第 15 天 · 2026-11-15</footer>
+</div>
+<button class="navbtn" id="navbtn" aria-label="打开课程目录">☰</button>
+<div class="navoverlay" id="navoverlay"></div>
+<aside class="navdrawer" id="navdrawer" aria-label="课程目录">
+  <button class="nd-close" id="ndclose" aria-label="关闭目录">×</button>
+  <h3>课程目录</h3>
+  <div id="ndlist"></div>
+  <a class="nd-home" id="ndhome" href="../index.html">← 回到首页</a>
+</aside>
+<script>
+(function(){
+  var btn = document.getElementById('navbtn');
+  var overlay = document.getElementById('navoverlay');
+  var drawer = document.getElementById('navdrawer');
+  var list = document.getElementById('ndlist');
+  var home = document.getElementById('ndhome');
+  var inLessons = /\/lessons\//.test(location.pathname);
+  var jsonUrl = inLessons ? '../lessons.json' : 'lessons.json';
+  var prefix = inLessons ? '' : 'lessons/';
+  home.href = inLessons ? '../index.html' : 'index.html';
+  function open(){ drawer.classList.add('open'); overlay.classList.add('open'); }
+  function close(){ drawer.classList.remove('open'); overlay.classList.remove('open'); }
+  btn.addEventListener('click', open);
+  document.getElementById('ndclose').addEventListener('click', close);
+  overlay.addEventListener('click', close);
+  var cur = location.pathname.split('/').pop();
+  fetch(jsonUrl).then(function(r){ return r.json(); }).then(function(items){
+    list.innerHTML = '';
+    items.forEach(function(it){
+      var a = document.createElement('a');
+      a.className = 'nd-item' + (it.file === cur ? ' cur' : '');
+      a.href = prefix + it.file;
+      a.innerHTML = '<div class="nd-day">第 ' + it.day + ' 天</div><div class="nd-title">' + it.title + '</div><div class="nd-meta">' + it.date + ' · 约 ' + it.minutes + ' 分钟</div>';
+      list.appendChild(a);
+    });
+  }).catch(function(){
+    list.innerHTML = '<p style="font-size:14px;color:#666;">目录加载失败，请点“回到首页”查看全部课程。</p>';
+  });
+})();
+</script>
+</body>
+</html>

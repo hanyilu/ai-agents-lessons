@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 12 天：后端工程：流式、异步与韧性五件套，让 Agent 在真实流量里活下来</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f4f2ec; color: #222; line-height: 1.75; }
+  .wrap { max-width: 780px; margin: 0 auto; padding: 32px 20px 60px; }
+  header { background: linear-gradient(135deg, #1e1b4b, #4c1d95); color: #fff; border-radius: 16px; padding: 28px 26px; }
+  .kicker { font-size: 13px; letter-spacing: 2px; opacity: .85; }
+  header h1 { margin: 10px 0 12px; font-size: 26px; line-height: 1.4; }
+  .thesis { font-size: 16px; opacity: .95; margin: 0 0 14px; }
+  .meta { font-size: 13px; opacity: .75; }
+  section.card { background: #fff; border-radius: 14px; padding: 22px 24px; margin-top: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.06); border-left: 5px solid #2563eb; }
+  section.card.c2 { border-left-color: #7c3aed; }
+  section.card.c3 { border-left-color: #0891b2; }
+  section.card.c4 { border-left-color: #d97706; }
+  section.card.c5 { border-left-color: #dc2626; }
+  section.card.c6 { border-left-color: #059669; }
+  section.card.c7 { border-left-color: #4f46e5; }
+  .eyebrow { font-size: 12px; letter-spacing: 2px; font-weight: 700; color: #6b7280; }
+  h2 { margin: 6px 0 12px; font-size: 20px; line-height: 1.5; }
+  p { margin: 0 0 12px; }
+  ul { margin: 0 0 12px; padding-left: 20px; }
+  li { margin-bottom: 6px; }
+  pre { background: #1e1e2e; color: #e8e8f0; border-radius: 10px; padding: 14px 16px; overflow-x: auto; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+  .anim { background: #f8f7ff; border: 1px solid #e4e1f5; border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .anim h3 { margin: 0 0 4px; font-size: 16px; }
+  .anim .cap { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+  .step { display: flex; gap: 12px; background: #fff; border: 1px solid #e8e6f2; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
+  .step .n { flex: 0 0 26px; height: 26px; border-radius: 50%; background: #4c1d95; color: #fff; text-align: center; line-height: 26px; font-size: 13px; font-weight: 700; }
+  .step .lab { font-weight: 700; font-size: 14px; }
+  .step .txt { font-size: 14px; color: #333; }
+  .step .ro { display: inline-block; margin-top: 4px; font-family: monospace; font-size: 12px; background: #f1f0f8; border-radius: 6px; padding: 1px 8px; color: #4c1d95; }
+  .takeaways { background: #fffbeb; border: 1px solid #f5d98b; }
+  .quiz { background: #eff6ff; border: 1px solid #bfdbfe; }
+  .quiz .opt { background: #fff; border: 1px solid #dbeafe; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: 14px; }
+  .quiz .opt.right { border-color: #22c55e; background: #f0fdf4; }
+  .quiz .exp { margin-top: 10px; font-size: 14px; background: #fff; border-radius: 8px; padding: 10px 12px; }
+  .sources { font-size: 14px; }
+  .sources li { margin-bottom: 14px; }
+  .sources a { color: #1d4ed8; }
+  .sources .b { color: #6b7280; font-size: 13px; }
+  footer { margin-top: 28px; text-align: center; font-size: 12px; color: #9ca3af; }
+  header { padding-right: 66px; }
+  .navbtn { position: fixed; top: 14px; right: 14px; z-index: 100; width: 40px; height: 40px; border-radius: 50%; border: none; background: #fff; color: #1e1b4b; font-size: 20px; line-height: 1; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+  .navoverlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 101; display: none; }
+  .navoverlay.open { display: block; }
+  .navdrawer { position: fixed; top: 0; right: 0; width: min(320px, 85vw); height: 100%; background: #fff; z-index: 102; transform: translateX(100%); transition: transform .25s ease; overflow-y: auto; padding: 20px; box-shadow: -2px 0 12px rgba(0,0,0,.2); }
+  .navdrawer.open { transform: translateX(0); }
+  .navdrawer h3 { margin: 0 0 4px; font-size: 17px; }
+  .nd-close { position: absolute; top: 12px; right: 14px; border: none; background: none; font-size: 22px; cursor: pointer; color: #666; }
+  .nd-item { display: block; text-decoration: none; color: inherit; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 12px; margin-top: 10px; }
+  .nd-item.cur { border-color: #4c1d95; background: #f5f3ff; }
+  .nd-day { font-size: 12px; color: #6b7280; font-weight: 700; letter-spacing: 1px; }
+  .nd-title { font-size: 14px; line-height: 1.5; margin-top: 2px; }
+  .nd-meta { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+  .nd-home { display: block; margin-top: 14px; font-size: 14px; color: #1d4ed8; text-decoration: none; }
+
+  .visual { background: #f8f7ff; border: 1px solid #e4e1f5; border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .visual h3 { margin: 0 0 4px; font-size: 16px; }
+  .visual .cap { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+  .vbar { margin-bottom: 10px; }
+  .vbar .vlab { font-size: 14px; font-weight: 700; }
+  .vbar .vval { font-size: 13px; color: #4c1d95; font-weight: 700; }
+  .vbar .vtrack { background: #e8e6f2; border-radius: 6px; height: 14px; margin-top: 4px; }
+  .vbar .vfill { background: linear-gradient(90deg, #1e1b4b, #7c3aed); border-radius: 6px; height: 14px; }
+  .vflow { list-style: none; margin: 0; padding: 0; }
+  .vflow li { background: #fff; border: 1px solid #e8e6f2; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: 14px; }
+  .vflow li + .varrow { text-align: center; color: #9ca3af; font-size: 14px; margin: -2px 0 6px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="kicker">AI AGENTS 深入学习 · 第 12 天</div>
+  <h1>后端工程：流式、异步与韧性五件套，让 Agent 在真实流量里活下来</h1>
+  <p class="thesis">Agent 循环一旦上线，拼的就不再是 Prompt，而是后端工程：一次任务可能跑几十秒到几分钟、调几十次模型与工具，任何一个环节没有超时、重试、幂等、限流与熔断兜底，都会在真实流量下变成重复扣费、线程耗尽或雪崩。流式是体验，异步是生存，五件套是底线。</p>
+  <div class="meta">2026-11-12 · 约 18 分钟</div>
+</header>
+
+<main>
+<section class="card">
+  <div class="eyebrow">01 为什么是后端工程</div>
+  <h2>Agent 不是一次请求，而是一段长任务。</h2>
+  <p>前 11 天讲的都是 Agent 在一次运行里怎么思考、调工具、记东西。但上线后第一个撞上的问题不是智能，而是时间：一次带工具循环的任务很容易跑几十秒到几分钟，远超一次普通 HTTP 请求的舒适区。浏览器会超时、网关会掐连接、用户会以为卡死了。</p>
+  <p>所以后端工程的第一性原理是：把长任务从请求里拆出来。请求只负责接单与返回任务 ID，真正的工作由后台 Worker 异步执行，进展通过流式推送给前端。第二性原理是：故障是常态。模型服务会 429、会 5xx、会超时；网络会断；用户会重复点提交——超时、重试、幂等、限流、熔断不是锦上添花，是承重墙。</p>
+  <ul>
+    <li>同步请求只接单，Worker 异步执行，SSE 推流反馈进展。</li>
+    <li>故障是常态：429、5xx、超时、断线、重复提交、突发流量都要预先设计。</li>
+    <li>五件套缺一面，系统在真实流量下就会塌一角。</li>
+  </ul>
+</section>
+
+<section class="card c2">
+  <div class="eyebrow">02 SSE 流式</div>
+  <h2>SSE：一条不断的 HTTP 响应，就是全部魔法。</h2>
+  <p>SSE 没有新协议，它就是一个 Content-Type 为 text/event-stream、永不结束的普通 HTTP 响应。服务端按帧写数据：每帧以 data: 开头、空行结尾，还可以带 event: 事件名、id: 事件序号、retry: 重连间隔。浏览器用 EventSource 接，断线后自动重连并带上 Last-Event-ID，服务端据此续传。</p>
+  <p>Agent 场景下，流里不能只推 token。至少分五类事件：token 增量、工具调用开始、工具调用结束、观察结果摘要、完成或错误。前端靠事件类型画进度条、工具卡片与最终结果；只推 token 的流，用户看到的只是一串字在涨，不知道 Agent 在干什么。</p>
+  <pre>Content-Type: text/event-stream
+Cache-Control: no-cache
+X-Accel-Buffering: no
+
+event: tool_call_start
+data: {&quot;id&quot;: 12, &quot;tool&quot;: &quot;search&quot;, &quot;args&quot;: {...}}
+
+event: token
+data: {&quot;id&quot;: 13, &quot;delta&quot;: &quot;结论是&quot;}
+
+event: done
+data: {&quot;id&quot;: 98, &quot;run_id&quot;: &quot;run_01&quot;}</pre>
+  <ul>
+    <li>帧格式：data: + 空行分隔，可带 event:、id:、retry:。</li>
+    <li>EventSource 自动重连并带 Last-Event-ID，服务端据此续传。</li>
+    <li>流可能丢、重、乱序：id 去重 + 续传 + 落盘完整结果，三者缺一不可。</li>
+  </ul>
+</section>
+
+<section class="card c3">
+  <div class="eyebrow">03 异步任务</div>
+  <h2>异步任务：状态机是任务的唯一事实来源。</h2>
+  <p>异步化的标准链路是：接口创建任务行（pending）并返回任务 ID → 入队 → Worker 取任务执行（running）→ 完成落盘（succeeded）或失败（failed）。任务表就是任务的状态机，状态流转只能前进；任何一步崩了，恢复时都从任务表里的状态继续，而不是凭内存猜。</p>
+  <p>Worker 取任务要原子化：多个 Worker 同时抢同一条任务会重复执行，用 FOR UPDATE SKIP LOCKED 或队列的可见性超时保证一次只被一个 Worker 持有。Worker 崩溃或超时后，任务要在可见性超时后回到队列被别人重取；重取意味着可能重复执行，所以执行体必须幂等。</p>
+  <pre>CREATE TABLE runs (
+  id TEXT PRIMARY KEY,
+  status TEXT CHECK (status IN (
+    &#x27;pending&#x27;,&#x27;running&#x27;,&#x27;succeeded&#x27;,&#x27;failed&#x27;,&#x27;cancelled&#x27;)),
+  idempotency_key TEXT UNIQUE,
+  result JSONB, error TEXT,
+  updated_at TIMESTAMPTZ NOT NULL
+);</pre>
+  <ul>
+    <li>任务状态机：pending → running → succeeded / failed / cancelled，只能前进。</li>
+    <li>取任务要原子化：SKIP LOCKED 或可见性超时，避免多 Worker 重复执行。</li>
+    <li>事务发件箱：业务数据与事件同事务提交，中继进程负责投递。</li>
+  </ul>
+</section>
+
+<section class="card c4">
+  <div class="eyebrow">04 超时</div>
+  <h2>超时：没有超时，就没有上限。</h2>
+  <p>超时要分层设，每一层守自己的边界：连接超时（建连多久没通就放弃）、读超时（发完请求多久没回包就放弃）、单步超时（一次模型或工具调用的上限）、总预算（整个任务从接单到结束的上限）。只设客户端超时、不设服务端超时，等于只锁了前门——服务端线程与连接池照样被挂起的调用占满。</p>
+  <p>超时值不要拍脑袋：按可接受的误超时率取下游延迟的分位——比如允许 0.1% 的调用被误杀，就取 p99.9 延迟作超时。总预算要往下游传：入口算出 deadline，每次调下游把剩余时间带上，下游按剩余时间设自己的超时。超时还要联动取消，否则只是前端不等了，后台还在烧钱跑。</p>
+  <ul>
+    <li>分层设：连接、读、单步、总预算，每层守自己的边界。</li>
+    <li>客户端超时 ≠ 服务端超时，两边都要设。</li>
+    <li>Deadline 往下游传：下游按剩余时间设超时，不各设各的。</li>
+  </ul>
+</section>
+
+<section class="card c5">
+  <div class="eyebrow">05 重试</div>
+  <h2>重试：只重试瞬时错，且只在一层重试。</h2>
+  <p>可重试的错只有三类：429（被限流）、408（请求超时）、5xx 与网络异常。4xx 里的其余错误（参数错、鉴权错、校验错）重试一百次也一样错，只会浪费配额。模型返回了内容但内容错了（工具参数非法、格式不对）——那是业务层纠错，靠循环里的校验与重提，不是靠 HTTP 重试。</p>
+  <p>重试是“自私的”：每一次重试都在已经吃力的依赖上再加一份负载。所以退避要用指数退避加抖动：等待时间按 1 秒、2 秒、4 秒指数增长，再加随机抖动打散同步的重试波。还要设上限——最大重试次数、最大退避、总时限，三者至少有两个。最危险的是分层重试放大：五层调用、每层重试 3 次，底层看到的负载最高可达 243 倍。</p>
+  <ul>
+    <li>只重试 429 / 408 / 5xx / 网络异常；其余 4xx 不重试。</li>
+    <li>指数退避 + 抖动 + 上限：次数、退避、总时限缺一不可。</li>
+    <li>分层重试会放大：五层各 3 次，底层最高见 243 倍负载。</li>
+  </ul>
+  <div class="anim"><h3>动画：重试波：抖动把同步的重试打散</h3><div class="cap">机制示意，不是真实模型行为：客户端数与等待时间为举例，退避公式为简化版。</div><div class="step"><div class="n">1</div><div><div class="lab">下游抖了一下</div><div class="txt">下游卡了 500ms，1000 个请求在同一毫秒超时失败。</div><div class="ro">1000 个请求同时失败</div></div></div><div class="step"><div class="n">2</div><div><div class="lab">固定等 1 秒</div><div class="txt">所有客户端都等 1 秒——其实是同一时刻回来，第二波峰值和第一波一样高。</div><div class="ro">都在 1.0 秒回来</div></div></div><div class="step"><div class="n">3</div><div><div class="lab">第二波又撞上</div><div class="txt">下游还没恢复，又被同一时刻的 1000 次重试打中，失败再来一轮。</div><div class="ro">重试波打垮恢复</div></div></div><div class="step"><div class="n">4</div><div><div class="lab">指数退避拉长</div><div class="txt">等待时间按 1 秒、2 秒、4 秒翻倍，峰值变矮、间隔拉大，但同一批客户端还是约在同一时刻回来。</div><div class="ro">峰值变矮但仍同步</div></div></div><div class="step"><div class="n">5</div><div><div class="lab">再加随机抖动</div><div class="txt">每次等待再加一个随机数：有人等 0.3 秒，有人等 1.7 秒，同一批客户端被打散到不同时刻。</div><div class="ro">各自错开时间</div></div></div><div class="step"><div class="n">6</div><div><div class="lab">均匀细流</div><div class="txt">重试到达率被拉平成一条细流：下游有喘息的空隙，慢慢恢复，而不是被一波波打垮。</div><div class="ro">到达率拉平</div></div></div></div>
+</section>
+
+<section class="card c6">
+  <div class="eyebrow">06 幂等</div>
+  <h2>幂等：重试的前提，是重做不产生副作用。</h2>
+  <p>幂等的定义很简单：同一操作执行一次和执行多次，效果一样。GET、PUT、DELETE 天然幂等；POST 一般不幂等——所以 Agent 里所有有副作用的操作（扣费、发消息、写库、调外部 API）都需要显式做幂等，否则一次超时重试就可能扣两次费、发两条消息。</p>
+  <p>标准做法是幂等键：客户端为每一次逻辑操作生成一个唯一键（UUID），随请求带上；服务端用键 + 请求指纹（参数哈希）查表。第一次执行：写 pending 占位 → 执行 → 写 done 与结果；重试带同键同参数：直接返回第一次的结果，不再执行；同键不同参数：报错，拒绝复用。并发靠唯一约束或分布式锁保证只有一个真正执行。</p>
+  <ul>
+    <li>副作用操作必须幂等：扣费、发消息、写库、调外部 API 都算。</li>
+    <li>幂等键 + 请求指纹：同键同参返回旧结果，同键不同参报错。</li>
+    <li>超时歧义时：拿原键查结果，不要发新请求。</li>
+  </ul>
+  <div class="anim"><h3>动画：幂等键：同一笔扣费，重试几次也只扣一次</h3><div class="cap">机制示意，不是真实模型行为：键值与金额为举例，流程为简化版。</div><div class="step"><div class="n">1</div><div><div class="lab">客户端生成键</div><div class="txt">用户点一次扣费，客户端生成唯一键 7f3a…，随请求一起发给服务端。</div><div class="ro">键 7f3a… 扣费 100 元</div></div></div><div class="step"><div class="n">2</div><div><div class="lab">先写 pending</div><div class="txt">服务端按键查表：没见过，先写一行 pending 占位，再真正执行扣费。</div><div class="ro">占位后再执行</div></div></div><div class="step"><div class="n">3</div><div><div class="lab">结果落盘</div><div class="txt">扣费成功，状态改成 done，结果一起存下来——这行记录就是以后所有重试的答案。</div><div class="ro">done，结果已保存</div></div></div><div class="step"><div class="n">4</div><div><div class="lab">超时了，重试</div><div class="txt">响应在路上丢了，客户端以为失败，带同一把键、同一参数再发一次。</div><div class="ro">同键同参再发一次</div></div></div><div class="step"><div class="n">5</div><div><div class="lab">直接返回旧结果</div><div class="txt">服务端按键查到 done，直接返回第一次的结果，不再执行扣费——只扣一次。</div><div class="ro">返回旧结果，不执行</div></div></div><div class="step"><div class="n">6</div><div><div class="lab">同键不同参</div><div class="txt">有人拿同一把键、换了金额再发，服务端直接报错：键不能复用到另一笔操作。</div><div class="ro">报错，拒绝复用</div></div></div></div>
+</section>
+
+<section class="card c7">
+  <div class="eyebrow">07 限流与熔断</div>
+  <h2>限流守入口，熔断治持续故障。</h2>
+  <p>限流算法里，Agent 服务的入口一般选令牌桶：桶里攒令牌、请求消耗令牌，桶满时多余令牌丢弃——允许短时突发、长期守平均速率。公式只有一行：tokens = min(容量, tokens + 速率 × 经过时间)。容量决定能扛多大的突发，速率决定长期平均。分布式下读令牌数与扣令牌数必须是原子操作，用 Redis + Lua 包成一次执行。</p>
+  <p>重试治瞬时故障，熔断治持续故障。熔断器三态：Closed 正常放行并计数失败；失败率越过阈值跳 Open，直接拒绝、不再发请求；冷却后进 Half-Open，只放一个探测请求，成功回 Closed、失败回 Open。熔断打开后必须有降级：便宜模型、缓存答案、跳过非关键工具——没有降级的熔断，只是把慢失败变成了快失败。</p>
+  <pre># 令牌桶：容量定突发，速率定平均
+tokens = min(capacity, tokens + rate * elapsed)
+if tokens &gt;= 1:
+    tokens -= 1  # 原子执行：Redis + Lua
+    allow()
+else:
+    reject(429, Retry-After)</pre>
+  <ul>
+    <li>分层限流：用户、租户、全局、下游四层都要有；429 必须带 Retry-After。</li>
+    <li>熔断打开时不重试；半开只放一个探测请求。</li>
+    <li>Agent 循环内部也要有调用预算，否则限流只限了入口。</li>
+  </ul>
+</section>
+
+<section class="card">
+  <div class="eyebrow">08 组合与落地</div>
+  <h2>把五件套装进一条请求链。</h2>
+  <p>单点机制都懂了，真正的工程在组合。一次典型请求链是：用户请求 → 网关限流（令牌桶）→ 创建任务并入队（发件箱保证不丢）→ Worker 执行循环，每步带超时、带幂等键调工具、可重试错只在 Worker 层重试一次 → 失败率越阈值时熔断打开、走降级 → 进展经 SSE 推流，断线续传靠事件 id → 完成落盘，任务状态机到终态。</p>
+  <p>组合时有两条全局约束。第一，总预算：入口定 deadline，全链路共享，每层按剩余时间设超时；重试消耗的也是总预算的一部分，不能无限重来。第二，可观测：每次重试、熔断跳变、限流拒绝都要打点，否则出问题时连哪一环在挡流量都看不出来。</p>
+  <ul>
+    <li>落地顺序：状态机与幂等键 → SSE + Worker → 超时/重试/限流/熔断 → 降级与可观测。</li>
+    <li>验收四问：可恢复？不重复？降级还是雪崩？突发时哪层先拒绝？</li>
+    <li>面试考场景题：重复提交、断线续传、持续 5xx，每题都是一组机制组合。</li>
+  </ul>
+</section>
+
+<section class="card takeaways">
+  <div class="eyebrow">要点回顾</div>
+  <h2>这课记住什么</h2>
+  <ul>
+    <li>长任务要拆出请求：同步接单、异步执行、流式反馈，三者分工先定。</li>
+    <li>SSE 是不断的 HTTP 响应：事件分类型、带单调 id、断线续传，落盘才是事实。</li>
+    <li>异步任务靠状态机：任务表是唯一事实来源，取任务原子化，执行体必须幂等。</li>
+    <li>超时分层设、deadline 往下游传、超时联动取消，否则只是前端不等了。</li>
+    <li>只重试瞬时错、只在一层重试、带指数退避与抖动，分层重试会把负载放大到 243 倍。</li>
+    <li>幂等键 + 请求指纹 + 唯一约束：同键同参返回旧结果，超时歧义先查结果再重试。</li>
+    <li>限流用令牌桶：容量定突发、速率定平均，分层限流，429 带 Retry-After。</li>
+    <li>熔断治持续故障：Open 期直接拒绝 + 降级接管，没有降级的熔断只是快失败。</li>
+  </ul>
+</section>
+
+<section class="card quiz">
+  <div class="eyebrow">自测</div>
+  <h2>Agent 任务里有一次扣费操作，第一次请求超时、不知道扣没扣。按本课的做法，后端最该怎么做？</h2>
+  <div class="opt">A. 直接发一笔新扣费请求，失败了再人工退款</div>
+  <div class="opt right">B. 拿原来的幂等键先查结果，查不到再按原键重试 ✓</div>
+  <div class="opt">C. 把重试次数调到最大，让请求自己恢复</div>
+  <div class="opt">D. 关闭重试，断线就让用户重新下单</div>
+  <div class="exp"><b>解析：</b>超时只说明响应丢了，不说明没执行。拿原幂等键先查结果：查到了直接返回，查不到按原键重试，服务端凭键去重；发新请求会扣两次，调大重试只会放大重复。</div>
+</section>
+
+<section class="card sources">
+  <div class="eyebrow">证据</div>
+  <h2>论文与文章</h2>
+  <ul>
+    <li><a href="https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/">Timeouts, retries, and backoff with jitter</a>（Marc Brooker，Amazon Builders&#x27; Library 2019）<br>支持：每一次远程调用都要设超时（含连接与读超时），按可接受的误超时率（如 0.1%）取下游延迟的对应分位作超时值；重试是“自私的”——只在依赖看起来健康时重试、重试无改善就停；分层重试放大：五层各重试 3 次，底层负载可达 243 倍；退避要加抖动打散同步重试波；每个客户端用令牌桶限制自己的重试量。<br><span class="b">边界：亚马逊内部实践总结，超时分位与重试预算是方法论而非放之四海的数值，需按自己的依赖延迟与预算调参。</span></li>
+    <li><a href="https://docs.stripe.com/api/idempotent_requests">Idempotent requests</a>（Stripe，Stripe API Reference 2025）<br>支持：幂等键机制：客户端生成唯一键（建议 V4 UUID），服务端保存第一次请求的响应（含 500 错误），同键重试直接返回保存的响应；同键不同参报错；v1 键至少保留 24 小时；GET/DELETE 天然幂等，不用带键。<br><span class="b">边界：这是 Stripe v1 的行为；v2 在窗口内不重复成功操作，细节以文档为准；键保留期与错误语义是 Stripe 实现，不代表所有系统。</span></li>
+    <li><a href="https://html.spec.whatwg.org/multipage/server-sent-events.html">HTML Standard: Server-sent events</a>（WHATWG，WHATWG HTML Standard 2025）<br>支持：SSE 帧格式（data:/event:/id:/retry: 字段、空行分隔）、text/event-stream；客户端断线重连时带 Last-Event-ID，服务端据此续传；事件流始终按 UTF-8 解码。<br><span class="b">边界：规范只定义格式与重连语义，不保证不丢、不重、不乱序；去重与落盘为准仍需应用层实现。</span></li>
+  </ul>
+</section>
+</main>
+<footer>归档自学习应用 · 第 12 天 · 2026-11-12</footer>
+</div>
+<button class="navbtn" id="navbtn" aria-label="打开课程目录">☰</button>
+<div class="navoverlay" id="navoverlay"></div>
+<aside class="navdrawer" id="navdrawer" aria-label="课程目录">
+  <button class="nd-close" id="ndclose" aria-label="关闭目录">×</button>
+  <h3>课程目录</h3>
+  <div id="ndlist"></div>
+  <a class="nd-home" id="ndhome" href="../index.html">← 回到首页</a>
+</aside>
+<script>
+(function(){
+  var btn = document.getElementById('navbtn');
+  var overlay = document.getElementById('navoverlay');
+  var drawer = document.getElementById('navdrawer');
+  var list = document.getElementById('ndlist');
+  var home = document.getElementById('ndhome');
+  var inLessons = /\/lessons\//.test(location.pathname);
+  var jsonUrl = inLessons ? '../lessons.json' : 'lessons.json';
+  var prefix = inLessons ? '' : 'lessons/';
+  home.href = inLessons ? '../index.html' : 'index.html';
+  function open(){ drawer.classList.add('open'); overlay.classList.add('open'); }
+  function close(){ drawer.classList.remove('open'); overlay.classList.remove('open'); }
+  btn.addEventListener('click', open);
+  document.getElementById('ndclose').addEventListener('click', close);
+  overlay.addEventListener('click', close);
+  var cur = location.pathname.split('/').pop();
+  fetch(jsonUrl).then(function(r){ return r.json(); }).then(function(items){
+    list.innerHTML = '';
+    items.forEach(function(it){
+      var a = document.createElement('a');
+      a.className = 'nd-item' + (it.file === cur ? ' cur' : '');
+      a.href = prefix + it.file;
+      a.innerHTML = '<div class="nd-day">第 ' + it.day + ' 天</div><div class="nd-title">' + it.title + '</div><div class="nd-meta">' + it.date + ' · 约 ' + it.minutes + ' 分钟</div>';
+      list.appendChild(a);
+    });
+  }).catch(function(){
+    list.innerHTML = '<p style="font-size:14px;color:#666;">目录加载失败，请点“回到首页”查看全部课程。</p>';
+  });
+})();
+</script>
+</body>
+</html>

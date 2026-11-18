@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 13 天：评估与观测：先把好坏变成数字，再把每次运行变成黑匣子</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f4f2ec; color: #222; line-height: 1.75; }
+  .wrap { max-width: 780px; margin: 0 auto; padding: 32px 20px 60px; }
+  header { background: linear-gradient(135deg, #1e1b4b, #4c1d95); color: #fff; border-radius: 16px; padding: 28px 26px; }
+  .kicker { font-size: 13px; letter-spacing: 2px; opacity: .85; }
+  header h1 { margin: 10px 0 12px; font-size: 26px; line-height: 1.4; }
+  .thesis { font-size: 16px; opacity: .95; margin: 0 0 14px; }
+  .meta { font-size: 13px; opacity: .75; }
+  section.card { background: #fff; border-radius: 14px; padding: 22px 24px; margin-top: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.06); border-left: 5px solid #2563eb; }
+  section.card.c2 { border-left-color: #7c3aed; }
+  section.card.c3 { border-left-color: #0891b2; }
+  section.card.c4 { border-left-color: #d97706; }
+  section.card.c5 { border-left-color: #dc2626; }
+  section.card.c6 { border-left-color: #059669; }
+  section.card.c7 { border-left-color: #4f46e5; }
+  .eyebrow { font-size: 12px; letter-spacing: 2px; font-weight: 700; color: #6b7280; }
+  h2 { margin: 6px 0 12px; font-size: 20px; line-height: 1.5; }
+  p { margin: 0 0 12px; }
+  ul { margin: 0 0 12px; padding-left: 20px; }
+  li { margin-bottom: 6px; }
+  pre { background: #1e1e2e; color: #e8e8f0; border-radius: 10px; padding: 14px 16px; overflow-x: auto; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+  .anim { background: #f8f7ff; border: 1px solid #e4e1f5; border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .anim h3 { margin: 0 0 4px; font-size: 16px; }
+  .anim .cap { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+  .step { display: flex; gap: 12px; background: #fff; border: 1px solid #e8e6f2; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
+  .step .n { flex: 0 0 26px; height: 26px; border-radius: 50%; background: #4c1d95; color: #fff; text-align: center; line-height: 26px; font-size: 13px; font-weight: 700; }
+  .step .lab { font-weight: 700; font-size: 14px; }
+  .step .txt { font-size: 14px; color: #333; }
+  .step .ro { display: inline-block; margin-top: 4px; font-family: monospace; font-size: 12px; background: #f1f0f8; border-radius: 6px; padding: 1px 8px; color: #4c1d95; }
+  .takeaways { background: #fffbeb; border: 1px solid #f5d98b; }
+  .quiz { background: #eff6ff; border: 1px solid #bfdbfe; }
+  .quiz .opt { background: #fff; border: 1px solid #dbeafe; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: 14px; }
+  .quiz .opt.right { border-color: #22c55e; background: #f0fdf4; }
+  .quiz .exp { margin-top: 10px; font-size: 14px; background: #fff; border-radius: 8px; padding: 10px 12px; }
+  .sources { font-size: 14px; }
+  .sources li { margin-bottom: 14px; }
+  .sources a { color: #1d4ed8; }
+  .sources .b { color: #6b7280; font-size: 13px; }
+  footer { margin-top: 28px; text-align: center; font-size: 12px; color: #9ca3af; }
+  header { padding-right: 66px; }
+  .navbtn { position: fixed; top: 14px; right: 14px; z-index: 100; width: 40px; height: 40px; border-radius: 50%; border: none; background: #fff; color: #1e1b4b; font-size: 20px; line-height: 1; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+  .navoverlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 101; display: none; }
+  .navoverlay.open { display: block; }
+  .navdrawer { position: fixed; top: 0; right: 0; width: min(320px, 85vw); height: 100%; background: #fff; z-index: 102; transform: translateX(100%); transition: transform .25s ease; overflow-y: auto; padding: 20px; box-shadow: -2px 0 12px rgba(0,0,0,.2); }
+  .navdrawer.open { transform: translateX(0); }
+  .navdrawer h3 { margin: 0 0 4px; font-size: 17px; }
+  .nd-close { position: absolute; top: 12px; right: 14px; border: none; background: none; font-size: 22px; cursor: pointer; color: #666; }
+  .nd-item { display: block; text-decoration: none; color: inherit; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 12px; margin-top: 10px; }
+  .nd-item.cur { border-color: #4c1d95; background: #f5f3ff; }
+  .nd-day { font-size: 12px; color: #6b7280; font-weight: 700; letter-spacing: 1px; }
+  .nd-title { font-size: 14px; line-height: 1.5; margin-top: 2px; }
+  .nd-meta { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+  .nd-home { display: block; margin-top: 14px; font-size: 14px; color: #1d4ed8; text-decoration: none; }
+
+  .visual { background: #f8f7ff; border: 1px solid #e4e1f5; border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .visual h3 { margin: 0 0 4px; font-size: 16px; }
+  .visual .cap { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+  .vbar { margin-bottom: 10px; }
+  .vbar .vlab { font-size: 14px; font-weight: 700; }
+  .vbar .vval { font-size: 13px; color: #4c1d95; font-weight: 700; }
+  .vbar .vtrack { background: #e8e6f2; border-radius: 6px; height: 14px; margin-top: 4px; }
+  .vbar .vfill { background: linear-gradient(90deg, #1e1b4b, #7c3aed); border-radius: 6px; height: 14px; }
+  .vflow { list-style: none; margin: 0; padding: 0; }
+  .vflow li { background: #fff; border: 1px solid #e8e6f2; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: 14px; }
+  .vflow li + .varrow { text-align: center; color: #9ca3af; font-size: 14px; margin: -2px 0 6px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="kicker">AI AGENTS 深入学习 · 第 13 天</div>
+  <h1>评估与观测：先把好坏变成数字，再把每次运行变成黑匣子</h1>
+  <p class="thesis">Agent 是非确定性系统——同一输入两次运行可能走不同轨迹、得出不同结果。感觉、演示视频、一次成功都不能证明它好。评估是把“好”拆成可重复测量的数（成功率、成本、延迟），观测是把每次运行的每一步都记下来，让失败可复现、可定位。没有这两样，改 prompt 就是蒙着眼睛调参。</p>
+  <div class="meta">2026-11-13 · 约 18 分钟</div>
+</header>
+
+<main>
+<section class="card">
+  <div class="eyebrow">01 为什么是评估与观测</div>
+  <h2>一次成功证明不了什么，十次里成功九次才算。</h2>
+  <p>模型本身是非确定性的：同一 prompt、同一温度，两次采样可能走不同的工具路径；工具返回也随时间变。一次演示成功，证明不了什么；十次里成功九次，才算有点把握。</p>
+  <p>更麻烦的是“好”有三个维度：做对了没有（成功率）、花了多少钱（成本）、等了多久（延迟）。三者互相牵制：多采样提成功率，账单和延迟一起涨。评估就是把这三维同时钉在纸上，观测就是每次运行都留下可查的账。</p>
+  <ul>
+    <li>单次成功 ≠ 系统可靠：同一任务要跑多次，看分布不看单点。</li>
+    <li>成功率、成本、延迟三维一起看，只看一维会被另外两维偷袭。</li>
+    <li>评估回答“现在有多好”，观测回答“坏在哪一步”。</li>
+  </ul>
+</section>
+
+<section class="card c2">
+  <div class="eyebrow">02 三维指标</div>
+  <h2>成功率、成本、延迟：三维一起钉住，才叫好。</h2>
+  <p>成功率是最容易被误读的数：分母是什么？是任务数，还是步数？只统计“跑完没报错”还是“结果真对”？定义不写清，两个 80% 完全不可比。成本要按任务摊：一次任务的成本 = 步数 × 每步 token × 单价，多一步循环就多一份钱。延迟要看分布：p50 漂亮、p99 难看，说明少数任务在死循环里烧钱。</p>
+  <p>三维之间是跷跷板：想提成功率，可以加自我验证、加重试、换大模型——每一招都同时抬成本和延迟。工程决策不是“越高越好”，而是先定预算线（单次任务最多花多少钱、最多等多久），再在线内把成功率推到头。</p>
+  <ul>
+    <li>成功率先写定义：什么算成功、谁来判定、分母是什么。</li>
+    <li>成本按任务摊：步数 × token × 单价，循环次数是最大的乘数。</li>
+    <li>延迟看 p99 不看平均：长尾里藏着死循环与重试风暴。</li>
+  </ul>
+</section>
+
+<section class="card c3">
+  <div class="eyebrow">03 成功的三层判定</div>
+  <h2>怎么判定一次运行成功了：三档工具串联用。</h2>
+  <p>判断一次运行成没成功，有三档工具，由严到松。第一档断言：答案与标准答案逐字比对，精确但死板——正确换个说法就判错。第二档程序化检查：不看答案文本，看世界状态——文件写好了没有、数据库里那行改了没有、仓库测试通了没有。SWE-bench 就是这档：补丁只有让仓库自己的测试通过才算数。</p>
+  <p>第三档打分：开放式任务没有唯一答案，只能按评分标准打分，人打最准但最贵，模型打便宜但自带偏差（第 6 节讲怎么校准）。三档不是三选一，是串联：断言拦低级错，程序化检查验真结果，打分补开放题。只用一档，漏掉的恰恰是另一档能抓的错。</p>
+  <ul>
+    <li>断言：快而严，但正确换说法会被误杀。</li>
+    <li>程序化检查：验世界状态不验文本，是 Agent 评测的主力。</li>
+    <li>打分：补开放题，但打分者本身也要被评测。</li>
+  </ul>
+  <div class="anim"><h3>动画：三道关卡：断言、检查、打分，各补各的盲区</h3><div class="cap">机制示意，不是真实模型行为：例子为教学简化，三关的顺序与分工是重点。</div><div class="step"><div class="n">1</div><div><div class="lab">Agent 交卷</div><div class="txt">一次任务跑完，交出答案与轨迹：三道关卡依次验它。</div><div class="ro">答案 + 完整轨迹</div></div></div><div class="step"><div class="n">2</div><div><div class="lab">第一关：断言</div><div class="txt">标准答案是 42，Agent 写的是「四十二」——逐字比对判错，其实它是对的。断言严，但会误杀换说法。</div><div class="ro">逐字比对：判错（误杀）</div></div></div><div class="step"><div class="n">3</div><div><div class="lab">第二关：程序化检查</div><div class="txt">不看文字，看世界：仓库测试跑一遍，全绿才算过。文本对错不重要，状态变没变才是真凭据。</div><div class="ro">测试通过：判对</div></div></div><div class="step"><div class="n">4</div><div><div class="lab">第三关：打分</div><div class="txt">开放式部分没有标准答案：按评分标准打分，比如解释清不清楚、步骤有没有多余调用。</div><div class="ro">按标准打分：8/10</div></div></div><div class="step"><div class="n">5</div><div><div class="lab">只用一关会漏</div><div class="txt">只用断言会误杀，只看状态会漏掉过程里的瞎折腾，只打分会被偏差带偏。三关串联，各补各的盲区。</div><div class="ro">三关串联才完整</div></div></div></div>
+</section>
+
+<section class="card c4">
+  <div class="eyebrow">04 基准怎么选</div>
+  <h2>三把公开的尺子，各量各的东西。</h2>
+  <p>公开基准是现成的尺子，但每把尺子量的东西不一样。SWE-bench 量的是修真实 GitHub issue：2,294 个任务，补丁要让仓库测试通过才算数，发布时最强的 Claude 2 只解决 1.96%。GAIA 量的是通用助手：466 道人工出的题，答案唯一可验证，但要上网、读文件、多步推理，人类 92%，带插件的 GPT-4 只有 15%。WebArena 量的是在自建网站上完成任务：812 个任务，GPT-4 成功率 14.41%，人类 78.24%。</p>
+  <p>用基准要先看它在量什么：三把尺子量的都是“模型 + 支架 + 工具”整个系统，不是模型单体。同一把尺子分数涨了，可能是支架变好了，不是模型变强了。更要紧的是，基准分是别人的任务，不是你的任务——它能帮你选模型，帮不了你证明你的 Agent 在你自己的任务上行不行。</p>
+  <ul>
+    <li>SWE-bench：修真实 issue，程序化验测试，2,294 任务。</li>
+    <li>GAIA：466 道通用助手题，答案唯一，人类 92% vs GPT-4 15%。</li>
+    <li>基准量的是整个系统；选模型可以，证明自己的业务不行。</li>
+  </ul>
+</section>
+
+<section class="card c5">
+  <div class="eyebrow">05 自己的评测集</div>
+  <h2>自己的评测集：进版本库、进 CI、当回归门禁。</h2>
+  <p>真正能证明你的 Agent 行不行的，是你自己的评测集：从真实用户请求里挑 50–200 条有代表性的任务，每条写清输入、期望结果、判定方法（断言还是检查还是打分）。它是产品资产，要像代码一样进版本库、写进 CI：每次改 prompt、换模型、动工具，先跑一遍评测集，分数掉了就拦住上线——这就是回归门禁。</p>
+  <p>建集有两条铁律。第一，测试集与调参集分开：调 prompt 时看过的题不能再当考试题，否则分数是调出来的，不是测出来的——等于开卷考试还抄了答案。第二，样本量决定可信度：20 条题上从 62% 涨到 81%，可能只是运气（20 条的波动就有 ±20 个点）；想分辨 5 个点的真改进，至少要上百条。</p>
+  <ul>
+    <li>评测集 = 真实任务 + 期望结果 + 判定方法，进版本库、进 CI。</li>
+    <li>调参集与测试集分开：看过的题不能再当考试题。</li>
+    <li>样本量决定可信度：20 条的涨幅可能是运气，百条起步才谈改进。</li>
+  </ul>
+</section>
+
+<section class="card c6">
+  <div class="eyebrow">06 LLM-as-judge</div>
+  <h2>模型当评委：能用，但要先校准。</h2>
+  <p>开放式任务只能靠打分，人工打分贵，模型打分（LLM-as-judge）就成了主力。Zheng 等人的论文测过：GPT-4 当评委，与人类专家的意见一致率超过 80%，和人类之间互相的一致率差不多。但评委自带三类系统偏差：位置偏差（先看到的答案占便宜）、啰嗦偏差（长的答案占便宜）、自我偏爱（像自己风格的答案占便宜）。</p>
+  <p>所以评委本身也要被评测，这叫校准：先让人给一小批样本打分，再让模型评委打同一批，算两者的一致率——一致率不到人类互相的一致率，就不能信；还要双向跑（两个答案换位置各判一次，只有两次都赢才算赢）、写死评分标准、把评委换成与被评系统不同家族的模型。没校准过的评委分数，和没验过的模型输出一样不可信。</p>
+  <ul>
+    <li>评委三类偏差：位置、啰嗦、自我偏爱，都是系统性的。</li>
+    <li>校准：先拿人类标签测评委的一致率，够格了再用。</li>
+    <li>双向跑 + 写死标准 + 换家族评委，三招压偏差。</li>
+  </ul>
+</section>
+
+<section class="card c7">
+  <div class="eyebrow">07 观测</div>
+  <h2>观测：把每次运行记成一条可查的黑匣子。</h2>
+  <p>评估告诉你“现在有多好”，观测告诉你“坏在哪一步”。做法是把每次运行记成一条 trace：整条 trace 是一次任务，里面每个 span 是一步（一次模型调用、一次工具调用），span 上记着输入、输出、耗时、token 数、成本、错误。线上出问题，先按 trace_id 把那次运行整条捞出来，再看哪个 span 耗时最长、哪步 token 烧得最多、哪次工具调用报错——不用猜。</p>
+  <p>记什么有讲究：输入输出要记（否则无法复现），但密码、密钥、用户隐私要脱敏；token 与成本要按 span 记（才能定位哪一步在烧钱）；错误与重试要记（才能看到重试风暴）。量大了要采样：全量记便宜的小任务，采样记贵的长任务。观测不是事后翻日志，是系统上线前就布好的线。</p>
+  <pre>{
+  &quot;trace_id&quot;: &quot;tr_9f2c&quot;,
+  &quot;spans&quot;: [
+    {&quot;name&quot;: &quot;llm.plan&quot;,   &quot;ms&quot;: 1820, &quot;tokens&quot;: 2400, &quot;cost&quot;: &quot;¥0.03&quot;},
+    {&quot;name&quot;: &quot;tool.search&quot;, &quot;ms&quot;: 640,  &quot;tokens&quot;: 0,    &quot;cost&quot;: &quot;¥0.00&quot;},
+    {&quot;name&quot;: &quot;llm.write&quot;,  &quot;ms&quot;: 3100, &quot;tokens&quot;: 5100, &quot;cost&quot;: &quot;¥0.07&quot;}
+  ]
+}</pre>
+  <ul>
+    <li>trace = 一次任务，span = 其中一步，span 上记耗时、token、成本、错误。</li>
+    <li>按 trace_id 捞整条运行：定位哪一步慢、哪一步贵、哪一步错。</li>
+    <li>隐私脱敏 + 采样：全量记小任务，采样记长任务。</li>
+  </ul>
+</section>
+
+<section class="card">
+  <div class="eyebrow">08 组合与落地</div>
+  <h2>闭环跑起来，再防指标被玩坏。</h2>
+  <p>评估与观测合起来是一条闭环：跑评测集 → 看失败的 trace → 把失败归类（是工具选错、是上下文丢了、是循环打转、是判定太严）→ 一次只改一个地方 → 再跑评测集，看分数与成本、延迟一起动没动。改 prompt、换模型、加工具，都是这条环上的一步；没有环，每次改动都是赌。</p>
+  <p>最后一条红线是古德哈特定律：指标一旦变成目标，就不再是好指标。成功率写进 KPI 的那天起，团队就会开始挑简单的任务测、放宽判定、调参去迎合评委——分数涨了，系统没变好。防法是多指标互相牵制（成功率 + 成本 + 延迟 + 人工抽检），并且定期换一批没见过的测试题。</p>
+  <ul>
+    <li>闭环：跑评测集 → 看失败 trace → 归类 → 只改一处 → 再跑。</li>
+    <li>回归门禁：分数、成本、延迟任一越线就拦住上线。</li>
+    <li>古德哈特定律：指标成目标就失效，多指标牵制 + 定期换题。</li>
+  </ul>
+  <div class="anim"><h3>动画：账单随步数变长：循环多一步，就多一段钱</h3><div class="cap">机制示意，不是真实模型行为：token 数与单价为举例，成本随步数累积的规律是重点。</div><div class="step"><div class="n">1</div><div><div class="lab">任务开始</div><div class="txt">一个查资料任务：Agent 每走一步都要调一次模型，每次调用都按 token 收费。</div><div class="ro">账单：¥0.00</div></div></div><div class="step"><div class="n">2</div><div><div class="lab">第 1 步：规划</div><div class="txt">模型先想怎么查：读入 prompt 约 2,000 token，输出计划 300 token。</div><div class="ro">¥0.03</div></div></div><div class="step"><div class="n">3</div><div><div class="lab">第 2 步：搜索</div><div class="txt">调搜索工具，读回结果再喂给模型：上下文变长了，这一步比上一步贵。</div><div class="ro">¥0.08</div></div></div><div class="step"><div class="n">4</div><div><div class="lab">第 3 步：再查一次</div><div class="txt">第一次结果不够，再查一轮：历史越攒越长，每步都在为前面的步数付费。</div><div class="ro">¥0.15</div></div></div><div class="step"><div class="n">5</div><div><div class="lab">第 4 步：打转了</div><div class="txt">模型没拿到想要的答案，又绕回来重查：循环多一步，账单就多一段。</div><div class="ro">¥0.24</div></div></div><div class="step"><div class="n">6</div><div><div class="lab">成本 = 步数 × 单价</div><div class="txt">账单不是按任务收，是按步数乘出来的：步数翻倍，账单翻倍。控成本先控步数，再控每步的 token。</div><div class="ro">总计 ¥0.24 · 4 步</div></div></div></div>
+</section>
+
+<section class="card takeaways">
+  <div class="eyebrow">要点回顾</div>
+  <h2>这课记住什么</h2>
+  <ul>
+    <li>成功率、成本、延迟三维一起看：成功率先写定义，成本按任务摊，延迟看 p99。</li>
+    <li>判定成功三档串联：断言拦低级错，程序化检查验世界状态，打分补开放题。</li>
+    <li>基准量的是整个系统：SWE-bench、GAIA、WebArena 能选模型，证明不了你的业务。</li>
+    <li>自己的评测集是产品资产：真实任务 + 判定方法，进版本库、进 CI、当回归门禁。</li>
+    <li>调参集与测试集分开：看过的题不能再当考试题；样本量决定可信度。</li>
+    <li>LLM-as-judge 先校准再信任：人类标签测一致率，双向跑、写死标准、换家族评委。</li>
+    <li>观测是黑匣子：trace 记整次运行，span 记每步耗时、token、成本、错误。</li>
+    <li>闭环改进 + 古德哈特定律：一次只改一处再跑评测集；指标成目标就失效，多指标牵制。</li>
+  </ul>
+</section>
+
+<section class="card quiz">
+  <div class="eyebrow">自测</div>
+  <h2>你的 Agent 在 20 条自测题上成功率从 62% 涨到 81%，但这 20 条题你在调 prompt 时反复看过。最该怀疑什么？</h2>
+  <div class="opt">A. 模型升级了，能力真的变强了</div>
+  <div class="opt right">B. 样本太少、且测试集被调参污染，涨幅可能是运气加过拟合 ✓</div>
+  <div class="opt">C. 延迟变高了，成功率跟着涨</div>
+  <div class="opt">D. 成本降了，成功率自然涨</div>
+  <div class="exp"><b>解析：</b>20 条题的统计波动就有 ±20 个点，62% 到 81% 可能只是运气；更关键的是调参时看过测试集，等于开卷考试还抄了答案——分数涨了不代表真实任务上变好了。要换一批没见过的新题、扩大样本再测一次。</div>
+</section>
+
+<section class="card sources">
+  <div class="eyebrow">证据</div>
+  <h2>论文与文章</h2>
+  <ul>
+    <li><a href="https://arxiv.org/abs/2310.06770">SWE-bench: Can Language Models Resolve Real-World GitHub Issues?</a>（Carlos E. Jimenez, John Yang, Alexander Wettig, Shunyu Yao, Kexin Pei, Ofir Press, Karthik Narasimhan，ICLR 2024 2024）<br>支持：2,294 个真实 GitHub issue 任务，补丁须让仓库测试通过才算解决；发布时最强的 Claude 2 仅解决 1.96%；人工审核后的 Verified 子集为 500 题。<br><span class="b">边界：测的是整个系统（模型 + 支架 + 工具），不是模型单体；只覆盖 Python 仓库的修 bug 任务，不代表通用 Agent 能力。</span></li>
+    <li><a href="https://arxiv.org/abs/2311.12983">GAIA: a benchmark for General AI Assistants</a>（Grégoire Mialon, Clémentine Fourrier, Craig Swift, Thomas Wolf, Yann LeCun, Thomas Scialom，arXiv 2023）<br>支持：466 道人工设计的通用助手问题，答案唯一可验证，需多步推理、上网与工具使用；人类 92%，带插件的 GPT-4 仅 15%；300 题答案不公开以支撑排行榜。<br><span class="b">边界：答案唯一、短答案为主，不覆盖开放式长任务；题目依赖的网络信息会随时间变化。</span></li>
+    <li><a href="https://arxiv.org/abs/2306.05685">Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena</a>（Lianmin Zheng, Wei-Lin Chiang, Ying Sheng, Siyuan Zhuang, Zhanghao Wu, Yonghao Zhuang, Zi Lin, Zhuohan Li, Dacheng Li, Eric P. Xing, Hao Zhang, Joseph E. Gonzalez, Ion Stoica，NeurIPS 2023 2023）<br>支持：GPT-4 当评委与人类专家的一致率超 80%，与人类之间的一致率相当；同时发现位置偏差、啰嗦偏差、自我偏爱与推理能力有限四类问题，并给出换位复判等缓解方法。<br><span class="b">边界：结论来自 2023 年测试的模型版本；评委在数学与多步推理题上仍会误判，需先用人标样本校准再信任。</span></li>
+  </ul>
+</section>
+</main>
+<footer>归档自学习应用 · 第 13 天 · 2026-11-13</footer>
+</div>
+<button class="navbtn" id="navbtn" aria-label="打开课程目录">☰</button>
+<div class="navoverlay" id="navoverlay"></div>
+<aside class="navdrawer" id="navdrawer" aria-label="课程目录">
+  <button class="nd-close" id="ndclose" aria-label="关闭目录">×</button>
+  <h3>课程目录</h3>
+  <div id="ndlist"></div>
+  <a class="nd-home" id="ndhome" href="../index.html">← 回到首页</a>
+</aside>
+<script>
+(function(){
+  var btn = document.getElementById('navbtn');
+  var overlay = document.getElementById('navoverlay');
+  var drawer = document.getElementById('navdrawer');
+  var list = document.getElementById('ndlist');
+  var home = document.getElementById('ndhome');
+  var inLessons = /\/lessons\//.test(location.pathname);
+  var jsonUrl = inLessons ? '../lessons.json' : 'lessons.json';
+  var prefix = inLessons ? '' : 'lessons/';
+  home.href = inLessons ? '../index.html' : 'index.html';
+  function open(){ drawer.classList.add('open'); overlay.classList.add('open'); }
+  function close(){ drawer.classList.remove('open'); overlay.classList.remove('open'); }
+  btn.addEventListener('click', open);
+  document.getElementById('ndclose').addEventListener('click', close);
+  overlay.addEventListener('click', close);
+  var cur = location.pathname.split('/').pop();
+  fetch(jsonUrl).then(function(r){ return r.json(); }).then(function(items){
+    list.innerHTML = '';
+    items.forEach(function(it){
+      var a = document.createElement('a');
+      a.className = 'nd-item' + (it.file === cur ? ' cur' : '');
+      a.href = prefix + it.file;
+      a.innerHTML = '<div class="nd-day">第 ' + it.day + ' 天</div><div class="nd-title">' + it.title + '</div><div class="nd-meta">' + it.date + ' · 约 ' + it.minutes + ' 分钟</div>';
+      list.appendChild(a);
+    });
+  }).catch(function(){
+    list.innerHTML = '<p style="font-size:14px;color:#666;">目录加载失败，请点“回到首页”查看全部课程。</p>';
+  });
+})();
+</script>
+</body>
+</html>
