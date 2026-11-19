@@ -31,6 +31,14 @@
   .nd-title { font-size: 14px; line-height: 1.5; margin-top: 2px; }
   .nd-meta { font-size: 12px; color: #9ca3af; margin-top: 2px; }
   .nd-home { display: block; margin-top: 14px; font-size: 14px; color: #1d4ed8; text-decoration: none; }
+
+  .tag { display: inline-block; font-size: 12px; font-weight: 700; color: #4c1d95; background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 999px; padding: 1px 10px; margin-left: 8px; vertical-align: 1px; }
+  .src { font-size: 13px; color: #6b7280; margin-bottom: 10px; }
+  .src a { color: #1d4ed8; }
+  .blab { font-size: 12px; letter-spacing: 2px; font-weight: 700; color: #6b7280; margin-top: 14px; }
+  .brief h2 { font-size: 19px; }
+  .sect { margin: 30px 0 0; font-size: 20px; }
+  .more { display: block; text-align: center; margin-top: 16px; font-size: 14px; color: #1d4ed8; text-decoration: none; }
 </style>
 </head>
 <body>
@@ -40,6 +48,48 @@
   <p>课程的带样式网页归档，每天同步新课。</p>
 </header>
 <main>
+  <a class="lesson" href="lessons/day-18-tool-design.html">
+    <div class="day">第 18 天</div>
+    <h2>工具设计：模型不看你的代码，只看你的文档</h2>
+    <p>新版第 18 天：模型看不到你的代码，只能看到工具的名字、描述、参数表——这份文档就是 Agent 与系统之间的全部接口。Anthropic 把它叫 ACI，SWE-bench 的经验是调工具花的时间比调提示词还多。本课讲清契约三件套的写法、粒度的 Unix 哲学、参数防呆、错误即反馈、副作用上锁，以及工具多了按需加载、MCP 把 N×M 接头变成 N+M。记住：工具不是包一层 API，是写一份让模型挑得准、填得对、错了能改回来的契约。</p>
+    <div class="meta">2026-11-18 · 约 18 分钟</div>
+  </a>
+  <a class="lesson" href="lessons/day-17-checkpoint-resume.html">
+    <div class="day">第 17 天</div>
+    <h2>断点续跑：长任务中断后，凭什么不从头重跑</h2>
+    <p>新版第 17 天：长任务一定会断——崩、部署、等人批。检查点在每超步边界存一张状态快照，thread_id 是恢复用的游标；恢复时已完成的节点不重跑，进行中的节点从头重跑。真正的生产要求不是“能存状态”，而是副作用可安全重放：幂等键、效应缺口、审批绑定与过期清理，缺一不可。记住：状态能恢复，外部世界多发一次退款可恢复不了。</p>
+    <div class="meta">2026-11-17 · 约 18 分钟</div>
+  </a>
+  <a class="lesson" href="lessons/day-16-workflow-vs-agent.html">
+    <div class="day">第 16 天</div>
+    <h2>工作流还是 Agent：先问能不能写死，再问要不要自主</h2>
+    <p>新版第 16 天：工作流与 Agent 的取舍——分界在控制流归谁。五种工作流、Agent 循环的拆解、自主的三笔账（延迟、成本、误差累积）、五道定型题，以及生产常态：工作流为骨、Agent 为关节，升级与降级都要看实测信号。记住：控制流握在自己手里，复杂度是挣来的，不是预支的。</p>
+    <div class="meta">2026-11-16 · 约 18 分钟</div>
+  </a>
+  <a class="lesson" href="lessons/day-15-context-engineering.html">
+    <div class="day">第 15 天</div>
+    <h2>上下文工程：模型只看得到你给它的 token，窗口越大越要省着用</h2>
+    <p>新版第 15 天：上下文工程——模型每次调用只看得到你给它的那组 token，窗口再大也会满，塞得越多记得越差。Anthropic 的定义与长任务三招（压缩、笔记、子 Agent）、RULER 与 Chroma 的 context rot 实测、四块拼图与预算表：写瘦、按需加载、压缩续命、隔离保清晰。记住：上下文是稀缺的工作内存，不是无限的硬盘。</p>
+    <div class="meta">2026-11-15 · 约 18 分钟</div>
+  </a>
+  <a class="lesson" href="lessons/day-14-safety-boundaries.html">
+    <div class="day">第 14 天</div>
+    <h2>安全与边界：模型一定会被骗，防线要建在动作上</h2>
+    <p>新版第 14 天：提示注入没有补丁——token 流里不存在指令与数据的可靠分界。直接注入改用户输入，间接注入改模型读到的网页、邮件、文档，攻击者甚至不用露面，2025 年 EchoLeak 一封邮件就零点击窃取了 Copilot 数据。文本层（spotlighting、指令层级）只能把攻击成功率从 50% 压到 2%；真正的边界在动作侧：最小权限、工具白名单、scoped 凭证、默认只读，lethal trifecta 三者齐聚就是高危设计。不可逆动作过人工确认门，输出进下游前做确定性校验。CaMeL 把读数据和做动作彻底分开，77% 的任务带可证明安全完成。记住：防线要建在模型会被骗这个前提上。</p>
+    <div class="meta">2026-11-14 · 约 18 分钟</div>
+  </a>
+  <a class="lesson" href="lessons/day-13-evaluation-observability.html">
+    <div class="day">第 13 天</div>
+    <h2>评估与观测：先把好坏变成数字，再把每次运行变成黑匣子</h2>
+    <p>新版第 13 天：Agent 是非确定性系统，一次成功证明不了什么——成功率、成本、延迟三维一起钉住，成功才有定义。判定成功有三档：断言快而严、程序化检查验世界状态、打分补开放题，三档串联才完整。SWE-bench、GAIA、WebArena 三把尺子量的都是整个系统；真正证明业务的是自己的评测集，进版本库、进 CI、当回归门禁。LLM-as-judge 能用但要先校准：位置、啰嗦、自我偏爱三类偏差都要防。观测是把每次运行记成 trace：哪个 span 最慢、最贵、最错，一查就知道。最后记住古德哈特定律：指标成了目标，就不再是好指标。</p>
+    <div class="meta">2026-11-13 · 约 18 分钟</div>
+  </a>
+  <a class="lesson" href="lessons/day-12-backend-engineering.html">
+    <div class="day">第 12 天</div>
+    <h2>后端工程：流式、异步与韧性五件套，让 Agent 在真实流量里活下来</h2>
+    <p>新版第 12 天：Agent 任务跑几十秒到几分钟，远超一次 HTTP 请求的舒适区——先把长任务拆出来：同步接单、异步执行、SSE 流式反馈。SSE 是不断的 text/event-stream 响应，事件分类型、带单调 id，断线靠 Last-Event-ID 续传，落盘才是事实。异步靠任务状态机：取任务原子化、执行体必须幂等。超时分层设、deadline 全链路传递；重试只重试瞬时错、只在一层、指数退避加抖动，分层重试会把底层负载放大 243 倍；幂等键让重试不产生副作用；令牌桶限流守入口，熔断加降级治持续故障。</p>
+    <div class="meta">2026-11-12 · 约 18 分钟</div>
+  </a>
   <a class="lesson" href="lessons/day-11-orchestration.html">
     <div class="day">第 11 天</div>
     <h2>编排框架：把 Agent 循环写成一张可恢复的状态图</h2>
@@ -106,6 +156,70 @@
     <p>先讲分词与生成——文本按高频合并切成 token，模型不是懂词，是算下一个 token 的概率、选一个接回去再重复；再讲窗口是容量不是记忆，满了就挤出旧块，中间还容易被忽略，账单按圈数翻倍。</p>
     <div class="meta">2026-11-01 · 约 12 分钟</div>
   </a>
+<!-- BRIEFS-SECTION-START -->
+  <h2 class="sect">AI 前沿速递</h2>
+  <a class="lesson" href="briefs/briefs-06.html#brief-70">
+    <div class="day">2026-11-18</div>
+    <h2>Google Gemini 4 Neon：前沿推理装进快模型，复杂编码与企业长任务的中间档</h2>
+    <p>Google 11 月 18 日发布 Gemini 4 Neon：卡在 Carbon 与 Hydrogen 之间的新档位，主攻复杂编码、分析推理与企业长任务，配四档思考级别与编排器能力，API 价为每百万 token 输入 3 美元、输出 15 美元。</p>
+    <div class="meta">Google DeepMind</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-06.html#brief-69">
+    <div class="day">2026-11-17</div>
+    <h2>Google Gemini Tasks 免费开放：切到 Tasks，杂事交给后台 agent 打电话、查账单、下单</h2>
+    <p>Google 11 月 17 日起把 Gemini 的 Tasks 模式向美国、日本、韩国、加拿大、澳大利亚、印度免费开放：切到 Tasks 后，Gemini 用 Gemini 4 Hydrogen 在后台替你打电话约时间、查账单找异常、比价并用 Google Pay 下单，美国用户还能转发邮件或发短信来派活。</p>
+    <div class="meta">Google</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-05.html#brief-68">
+    <div class="day">2026-11-17</div>
+    <h2>OpenAI GPT-6.2 Astra 与 Sol：旗舰攻最难的专业活，日常款以五分之一成本逼近旗舰</h2>
+    <p>OpenAI 11 月 17 日发布 GPT-6.2 Astra 与 Sol：Astra 是面向最难项目的新旗舰，主攻复杂专业工作、科学研究与编码；Sol 是高效日常款，多步任务上以约五分之一成本逼近 Astra。两者输出 token 更省，Astra 的 API 价降两成，但网络安全与 AI 自我改进能力同时触及 OpenAI 风险框架的高位阈值。</p>
+    <div class="meta">OpenAI</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-06.html#brief-71">
+    <div class="day">2026-11-16</div>
+    <h2>腾讯 Hy4 flash：2240 亿参数只激活 120 亿，日常办公任务的便宜快模型</h2>
+    <p>腾讯 11 月 16 日发布 Hy4 flash：2240 亿参数、每 token 只激活 120 亿的日常办公模型，靠蒸馏、强化学习压短输出与推理优化把每任务成本压到 Hy4 的二十分之一，计划开源。</p>
+    <div class="meta">腾讯</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-05.html#brief-64">
+    <div class="day">2026-11-16</div>
+    <h2>阿里通义 Qwen4-Max：2.4 万亿参数旗舰模型，把长程专业任务当成“队友活”来干</h2>
+    <p>阿里通义发布 Qwen4 系列首个旗舰模型 Qwen4-Max：稀疏 MoE 架构、原生视觉与百万 token 上下文，主打工具调用与长程任务执行，官方自有评估里单任务平均成本下降约六成。</p>
+    <div class="meta">阿里通义</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-05.html#brief-65">
+    <div class="day">2026-11-13</div>
+    <h2>DeepSeek 把整个 App 的能力开放成 API：搜索、读文件、读链接与语音都能直接调用</h2>
+    <p>DeepSeek 把自家 App 里与模型推理配合的整套能力开放给开发者：在 deepseek-flash 模型上开几个参数就能用网页搜索、文件输入、链接阅读与安全检查，搜索、OCR、语音也可作为独立 API 单独调用。</p>
+    <div class="meta">DeepSeek</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-05.html#brief-62">
+    <div class="day">2026-11-13</div>
+    <h2>微软发布 Aion Instruct：Windows 新一代端侧语言模型，接替 Phi Silica 并扩到 GPU</h2>
+    <p>11 月 13 日微软公布 Windows 端侧语言模型 Aion Instruct：23 亿参数、3.2 万 token 上下文，接替 Phi Silica，11 月 20 日进入 Windows Insider，2027 年 1 月全面取代。</p>
+    <div class="meta">Microsoft</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-05.html#brief-60">
+    <div class="day">2026-11-13</div>
+    <h2>Google DeepMind 开放 WeatherNext 3 背后的两套地球数据集：SatWeave 与 PARDIG</h2>
+    <p>11 月 13 日 DeepMind 开放 SatWeave 与 PARDIG：支撑 WeatherNext 3 的全球卫星拼图与 AI 降水数据集，历史档案与实时数据流一并公开。</p>
+    <div class="meta">Google DeepMind</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-05.html#brief-59">
+    <div class="day">2026-11-13</div>
+    <h2>OpenAI ChatGPT Wallet：让 AI 智能体替你付款，但永远拿不到你的真实卡号</h2>
+    <p>OpenAI 推出 ChatGPT Wallet：dots 智能体可在用户逐笔批准后用一次性支付令牌完成购买，真实卡号既不交给商家也不交给智能体，初期仅面向美国 ChatGPT Pro 用户。</p>
+    <div class="meta">OpenAI</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-05.html#brief-57">
+    <div class="day">2026-11-13</div>
+    <h2>DeepSeek 把整个 App 的能力开放成 API：搜索、读文件、读链接与语音一并上架</h2>
+    <p>DeepSeek 11 月 13 日在官方更新日志里宣布：App 里的联网搜索、文件输入、链接阅读、语音交互与安全检查，现在都能通过 API 调用，底层能力还拆成搜索、抓取、OCR、语音识别与语音合成五个独立接口。</p>
+    <div class="meta">DeepSeek</div>
+  </a>
+  <a class="more" href="briefs.html">查看全部速递 →</a>
+<!-- BRIEFS-SECTION-END -->
 </main>
 <footer>每天 21:00 左右同步当天新课</footer>
 </div>

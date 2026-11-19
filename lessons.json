@@ -1,5 +1,54 @@
 [
   {
+    "day": 18,
+    "file": "day-18-tool-design.html",
+    "title": "工具设计：模型不看你的代码，只看你的文档",
+    "date": "2026-11-18",
+    "minutes": 18
+  },
+  {
+    "day": 17,
+    "file": "day-17-checkpoint-resume.html",
+    "title": "断点续跑：长任务中断后，凭什么不从头重跑",
+    "date": "2026-11-17",
+    "minutes": 18
+  },
+  {
+    "day": 16,
+    "file": "day-16-workflow-vs-agent.html",
+    "title": "工作流还是 Agent：先问能不能写死，再问要不要自主",
+    "date": "2026-11-16",
+    "minutes": 18
+  },
+  {
+    "day": 15,
+    "file": "day-15-context-engineering.html",
+    "title": "上下文工程：模型只看得到你给它的 token，窗口越大越要省着用",
+    "date": "2026-11-15",
+    "minutes": 18
+  },
+  {
+    "day": 14,
+    "file": "day-14-safety-boundaries.html",
+    "title": "安全与边界：模型一定会被骗，防线要建在动作上",
+    "date": "2026-11-14",
+    "minutes": 18
+  },
+  {
+    "day": 13,
+    "file": "day-13-evaluation-observability.html",
+    "title": "评估与观测：先把好坏变成数字，再把每次运行变成黑匣子",
+    "date": "2026-11-13",
+    "minutes": 18
+  },
+  {
+    "day": 12,
+    "file": "day-12-backend-engineering.html",
+    "title": "后端工程：流式、异步与韧性五件套，让 Agent 在真实流量里活下来",
+    "date": "2026-11-12",
+    "minutes": 18
+  },
+  {
     "day": 11,
     "file": "day-11-orchestration.html",
     "title": "编排框架：把 Agent 循环写成一张可恢复的状态图",

@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 前沿速递 · 全部速递</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f4f2ec; color: #222; line-height: 1.75; }
+  .wrap { max-width: 780px; margin: 0 auto; padding: 32px 20px 60px; }
+  header { background: linear-gradient(135deg, #1e1b4b, #4c1d95); color: #fff; border-radius: 16px; padding: 28px 26px; }
+  .kicker { font-size: 13px; letter-spacing: 2px; opacity: .85; }
+  header h1 { margin: 10px 0 12px; font-size: 26px; line-height: 1.4; }
+  .thesis { font-size: 16px; opacity: .95; margin: 0 0 14px; }
+  .meta { font-size: 13px; opacity: .75; }
+  section.card { background: #fff; border-radius: 14px; padding: 22px 24px; margin-top: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.06); border-left: 5px solid #2563eb; }
+  section.card.c2 { border-left-color: #7c3aed; }
+  section.card.c3 { border-left-color: #0891b2; }
+  section.card.c4 { border-left-color: #d97706; }
+  section.card.c5 { border-left-color: #dc2626; }
+  section.card.c6 { border-left-color: #059669; }
+  section.card.c7 { border-left-color: #4f46e5; }
+  .eyebrow { font-size: 12px; letter-spacing: 2px; font-weight: 700; color: #6b7280; }
+  h2 { margin: 6px 0 12px; font-size: 20px; line-height: 1.5; }
+  p { margin: 0 0 12px; }
+  ul { margin: 0 0 12px; padding-left: 20px; }
+  li { margin-bottom: 6px; }
+  pre { background: #1e1e2e; color: #e8e8f0; border-radius: 10px; padding: 14px 16px; overflow-x: auto; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+  .anim { background: #f8f7ff; border: 1px solid #e4e1f5; border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .anim h3 { margin: 0 0 4px; font-size: 16px; }
+  .anim .cap { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+  .step { display: flex; gap: 12px; background: #fff; border: 1px solid #e8e6f2; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
+  .step .n { flex: 0 0 26px; height: 26px; border-radius: 50%; background: #4c1d95; color: #fff; text-align: center; line-height: 26px; font-size: 13px; font-weight: 700; }
+  .step .lab { font-weight: 700; font-size: 14px; }
+  .step .txt { font-size: 14px; color: #333; }
+  .step .ro { display: inline-block; margin-top: 4px; font-family: monospace; font-size: 12px; background: #f1f0f8; border-radius: 6px; padding: 1px 8px; color: #4c1d95; }
+  .takeaways { background: #fffbeb; border: 1px solid #f5d98b; }
+  .quiz { background: #eff6ff; border: 1px solid #bfdbfe; }
+  .quiz .opt { background: #fff; border: 1px solid #dbeafe; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: 14px; }
+  .quiz .opt.right { border-color: #22c55e; background: #f0fdf4; }
+  .quiz .exp { margin-top: 10px; font-size: 14px; background: #fff; border-radius: 8px; padding: 10px 12px; }
+  .sources { font-size: 14px; }
+  .sources li { margin-bottom: 14px; }
+  .sources a { color: #1d4ed8; }
+  .sources .b { color: #6b7280; font-size: 13px; }
+  footer { margin-top: 28px; text-align: center; font-size: 12px; color: #9ca3af; }
+  header { padding-right: 66px; }
+  .navbtn { position: fixed; top: 14px; right: 14px; z-index: 100; width: 40px; height: 40px; border-radius: 50%; border: none; background: #fff; color: #1e1b4b; font-size: 20px; line-height: 1; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+  .navoverlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 101; display: none; }
+  .navoverlay.open { display: block; }
+  .navdrawer { position: fixed; top: 0; right: 0; width: min(320px, 85vw); height: 100%; background: #fff; z-index: 102; transform: translateX(100%); transition: transform .25s ease; overflow-y: auto; padding: 20px; box-shadow: -2px 0 12px rgba(0,0,0,.2); }
+  .navdrawer.open { transform: translateX(0); }
+  .navdrawer h3 { margin: 0 0 4px; font-size: 17px; }
+  .nd-close { position: absolute; top: 12px; right: 14px; border: none; background: none; font-size: 22px; cursor: pointer; color: #666; }
+  .nd-item { display: block; text-decoration: none; color: inherit; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 12px; margin-top: 10px; }
+  .nd-item.cur { border-color: #4c1d95; background: #f5f3ff; }
+  .nd-day { font-size: 12px; color: #6b7280; font-weight: 700; letter-spacing: 1px; }
+  .nd-title { font-size: 14px; line-height: 1.5; margin-top: 2px; }
+  .nd-meta { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+  .nd-home { display: block; margin-top: 14px; font-size: 14px; color: #1d4ed8; text-decoration: none; }
+
+  .visual { background: #f8f7ff; border: 1px solid #e4e1f5; border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .visual h3 { margin: 0 0 4px; font-size: 16px; }
+  .visual .cap { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+  .vbar { margin-bottom: 10px; }
+  .vbar .vlab { font-size: 14px; font-weight: 700; }
+  .vbar .vval { font-size: 13px; color: #4c1d95; font-weight: 700; }
+  .vbar .vtrack { background: #e8e6f2; border-radius: 6px; height: 14px; margin-top: 4px; }
+  .vbar .vfill { background: linear-gradient(90deg, #1e1b4b, #7c3aed); border-radius: 6px; height: 14px; }
+  .vflow { list-style: none; margin: 0; padding: 0; }
+  .vflow li { background: #fff; border: 1px solid #e8e6f2; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: 14px; }
+  .vflow li + .varrow { text-align: center; color: #9ca3af; font-size: 14px; margin: -2px 0 6px; }
+
+  .tag { display: inline-block; font-size: 12px; font-weight: 700; color: #4c1d95; background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 999px; padding: 1px 10px; margin-left: 8px; vertical-align: 1px; }
+  .src { font-size: 13px; color: #6b7280; margin-bottom: 10px; }
+  .src a { color: #1d4ed8; }
+  .blab { font-size: 12px; letter-spacing: 2px; font-weight: 700; color: #6b7280; margin-top: 14px; }
+  .brief h2 { font-size: 19px; }
+  .sect { margin: 30px 0 0; font-size: 20px; }
+  .more { display: block; text-align: center; margin-top: 16px; font-size: 14px; color: #1d4ed8; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="kicker">AI 前沿速递</div>
+  <h1>AI 前沿速递 · 全部速递</h1>
+  <p class="thesis">共 63 篇，按发布日期倒序</p>
+  <div class="meta">最新：2026-11-18</div>
+</header>
+
+<main>
+  <a class="lesson" href="briefs/briefs-06.html#brief-70">
+    <div class="day">2026-11-18</div>
+    <h2>Google Gemini 4 Neon：前沿推理装进快模型，复杂编码与企业长任务的中间档</h2>
+    <p>Google 11 月 18 日发布 Gemini 4 Neon：卡在 Carbon 与 Hydrogen 之间的新档位，主攻复杂编码、分析推理与企业长任务，配四档思考级别与编排器能力，API 价为每百万 token 输入 3 美元、输出 15 美元。</p>
+    <div class="meta">Google DeepMind · model</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-06.html#brief-69">
+    <div class="day">2026-11-17</div>
+    <h2>Google Gemini Tasks 免费开放：切到 Tasks，杂事交给后台 agent 打电话、查账单、下单</h2>
+    <p>Google 11 月 17 日起把 Gemini 的 Tasks 模式向美国、日本、韩国、加拿大、澳大利亚、印度免费开放：切到 Tasks 后，Gemini 用 Gemini 4 Hydrogen 在后台替你打电话约时间、查账单找异常、比价并用 Google Pay 下单，美国用户还能转发邮件或发短信来派活。</p>
+    <div class="meta">Google · tech</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-05.html#brief-68">
+    <div class="day">2026-11-17</div>
+    <h2>OpenAI GPT-6.2 Astra 与 Sol：旗舰攻最难的专业活，日常款以五分之一成本逼近旗舰</h2>
+    <p>OpenAI 11 月 17 日发布 GPT-6.2 Astra 与 Sol：Astra 是面向最难项目的新旗舰，主攻复杂专业工作、科学研究与编码；Sol 是高效日常款，多步任务上以约五分之一成本逼近 Astra。两者输出 token 更省，Astra 的 API 价降两成，但网络安全与 AI 自我改进能力同时触及 OpenAI 风险框架的高位阈值。</p>
+    <div class="meta">OpenAI · model</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-06.html#brief-71">
+    <div class="day">2026-11-16</div>
+    <h2>腾讯 Hy4 flash：2240 亿参数只激活 120 亿，日常办公任务的便宜快模型</h2>
+    <p>腾讯 11 月 16 日发布 Hy4 flash：2240 亿参数、每 token 只激活 120 亿的日常办公模型，靠蒸馏、强化学习压短输出与推理优化把每任务成本压到 Hy4 的二十分之一，计划开源。</p>
+    <div class="meta">腾讯 · model</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-05.html#brief-64">
+    <div class="day">2026-11-16</div>
+    <h2>阿里通义 Qwen4-Max：2.4 万亿参数旗舰模型，把长程专业任务当成“队友活”来干</h2>
+    <p>阿里通义发布 Qwen4 系列首个旗舰模型 Qwen4-Max：稀疏 MoE 架构、原生视觉与百万 token 上下文，主打工具调用与长程任务执行，官方自有评估里单任务平均成本下降约六成。</p>
+    <div class="meta">阿里通义 · model</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-05.html#brief-65">
+    <div class="day">2026-11-13</div>
+    <h2>DeepSeek 把整个 App 的能力开放成 API：搜索、读文件、读链接与语音都能直接调用</h2>
+    <p>DeepSeek 把自家 App 里与模型推理配合的整套能力开放给开发者：在 deepseek-flash 模型上开几个参数就能用网页搜索、文件输入、链接阅读与安全检查，搜索、OCR、语音也可作为独立 API 单独调用。</p>
+    <div class="meta">DeepSeek · tech</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-05.html#brief-62">
+    <div class="day">2026-11-13</div>
+    <h2>微软发布 Aion Instruct：Windows 新一代端侧语言模型，接替 Phi Silica 并扩到 GPU</h2>
+    <p>11 月 13 日微软公布 Windows 端侧语言模型 Aion Instruct：23 亿参数、3.2 万 token 上下文，接替 Phi Silica，11 月 20 日进入 Windows Insider，2027 年 1 月全面取代。</p>
+    <div class="meta">Microsoft · model</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-05.html#brief-60">
+    <div class="day">2026-11-13</div>
+    <h2>Google DeepMind 开放 WeatherNext 3 背后的两套地球数据集：SatWeave 与 PARDIG</h2>
+    <p>11 月 13 日 DeepMind 开放 SatWeave 与 PARDIG：支撑 WeatherNext 3 的全球卫星拼图与 AI 降水数据集，历史档案与实时数据流一并公开。</p>
+    <div class="meta">Google DeepMind · tech</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-05.html#brief-59">
+    <div class="day">2026-11-13</div>
+    <h2>OpenAI ChatGPT Wallet：让 AI 智能体替你付款，但永远拿不到你的真实卡号</h2>
+    <p>OpenAI 推出 ChatGPT Wallet：dots 智能体可在用户逐笔批准后用一次性支付令牌完成购买，真实卡号既不交给商家也不交给智能体，初期仅面向美国 ChatGPT Pro 用户。</p>
+    <div class="meta">OpenAI · tech</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-05.html#brief-57">
+    <div class="day">2026-11-13</div>
+    <h2>DeepSeek 把整个 App 的能力开放成 API：搜索、读文件、读链接与语音一并上架</h2>
+    <p>DeepSeek 11 月 13 日在官方更新日志里宣布：App 里的联网搜索、文件输入、链接阅读、语音交互与安全检查，现在都能通过 API 调用，底层能力还拆成搜索、抓取、OCR、语音识别与语音合成五个独立接口。</p>
+    <div class="meta">DeepSeek · tech</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-05.html#brief-63">
+    <div class="day">2026-11-12</div>
+    <h2>新论文 Goal Encoding in LLMs：模型把“下一步要干什么”藏在少数注意力头里</h2>
+    <p>11 月 12 日 arXiv 论文发现，大模型会把下一个子目标编码在少数注意力头的输出里，能提前读出、能跨语言移植；但它靠反复重读任务说明来维持目标，而非一直攥着一个内部状态。</p>
+    <div class="meta">arXiv · paper</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-05.html#brief-61">
+    <div class="day">2026-11-12</div>
+    <h2>Anthropic 推出 Claude for Manufacturing：17 个技能加 4 个连接器，把工厂文档活交给 Claude 起草</h2>
+    <p>11 月 12 日 Anthropic 推出 Claude for Manufacturing 插件：17 个制造业技能接通工厂已有系统，起草报价、质检与生产报告，人工审核后才对外发出；它不操作设备、不写系统记录。</p>
+    <div class="meta">Anthropic · tech</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-05.html#brief-58">
+    <div class="day">2026-11-12</div>
+    <h2>Anthropic 推出 Claude Meetings：Claude 进会议室，边开会边把活干了</h2>
+    <p>11 月 12 日 Anthropic 推出 beta 版 Claude Meetings：Claude 以可见参会者身份加入 Google Meet 会议，实时答问、写笔记，并同步搭建文档与白板。</p>
+    <div class="meta">Anthropic · tech</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-04.html#brief-54">
+    <div class="day">2026-11-12</div>
+    <h2>OpenAI 推出 Defense Factory：让智能体持续找漏洞、验漏洞、准备补丁的防御流水线</h2>
+    <p>OpenAI 在 11 月 12 日的 Cyber at the Frontier 活动中推出 Daybreak Defense Factory：把智能体、现有安全工具与隔离开发环境连成一条持续运转的防御流水线，自动发现漏洞、动态验证、分配负责人并准备经过测试的补丁供工程师审核。</p>
+    <div class="meta">OpenAI · tech</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-04.html#brief-52">
+    <div class="day">2026-11-12</div>
+    <h2>Anthropic 开放自托管 Claude Managed Agents 私测：整个智能体服务搬进企业自己的基础设施</h2>
+    <p>11月12日，Anthropic 在平台发布说明中推出自托管 Claude Managed Agents 私测：企业可在自己的云或本地数据中心运行完整的 Managed Agents 服务，智能体、会话与会话历史都存在自己这边，模型请求可指向自选的推理方。</p>
+    <div class="meta">Anthropic · tech</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-04.html#brief-50">
+    <div class="day">2026-11-12</div>
+    <h2>Google 发布 Gemini 4 Hydrogen：为智能体日常执行而生的快速模型</h2>
+    <p>11月12日，Google 推出 Gemini 4 家族的执行型模型 Hydrogen：100 万 token 上下文、四档思考级别、输入每百万 token 1.50 美元，定位是日常编码与智能体工作流的高速执行引擎，还能与 Carbon、Argon 在同一会话里动态搭配。</p>
+    <div class="meta">Google DeepMind · model</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-05.html#brief-56">
+    <div class="day">2026-11-11</div>
+    <h2>Runway 开源 Praxis-1：从看视频学会动手，27B 世界动作模型直接控制机器人</h2>
+    <p>Runway 把 27B 参数的视频基础模型开源为机器人世界动作模型 Praxis-1：它先想象接下来 1.6 秒的视频，再从想象中读出动作，在英伟达 RoboLab-120 上以 46.2% 居开源机器人模型首位，权重与微调代码均按 Apache 2.0 开放。</p>
+    <div class="meta">Runway · model</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-05.html#brief-55">
+    <div class="day">2026-11-11</div>
+    <h2>Anthropic 研究：每人派一个智能体反而更糟——多用户多智能体团队的协调崩溃</h2>
+    <p>Anthropic Fellows 用四个共享资源环境测试前沿模型：每人一个智能体的团队在全部四个环境里都输给一个服务所有人的协调者，差距 10 到 45 个百分点；三种环境已作为 MAMUBench 基准开放。</p>
+    <div class="meta">Anthropic · paper</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-04.html#brief-53">
+    <div class="day">2026-11-11</div>
+    <h2>百度发布 ERNIE 5.5 Flash Preview：280B 稀疏模型的首个后训练版本</h2>
+    <p>百度发布 ERNIE 5.5 Flash Preview：基于 11 月 5 日开源的 Flash Base 做后训练的首个版本，280B 总参数、每 token 激活 14B、100 万 token 上下文，API 已在千帆平台上线，权重将按 Apache 2.0 开源。</p>
+    <div class="meta">百度 · model</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-04.html#brief-47">
+    <div class="day">2026-11-11</div>
+    <h2>Google DeepMind 发布 AlphaGenome 2：按细胞类型预测 DNA 变异如何致病</h2>
+    <p>11月11日，DeepMind 发布新一代 DNA 序列模型 AlphaGenome 2：它不再对所有组织一次输出全部预测，而是针对单个细胞类型或细胞状态做条件预测；在 28 种免疫细胞的图谱上，它找到的致病变异接近上一代的两倍。</p>
+    <div class="meta">Google DeepMind · model</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-04.html#brief-46">
+    <div class="day">2026-11-11</div>
+    <h2>阿里通义 Qwen4-Max 开启预览：Qwen4 首个旗舰模型，只开放两周</h2>
+    <p>11月11日，阿里通义开放 Qwen4-Max-Preview：Qwen4 家族首个可用的旗舰多模态模型，100 万 token 上下文、思考默认开启；但它只通过 Token Plan 订阅提供两周，11 月 25 日后下线，且未公布基准、参数量与权重。</p>
+    <div class="meta">阿里通义 · model</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-04.html#brief-44">
+    <div class="day">2026-11-11</div>
+    <h2>Google 推出 Gemini Decision 1：不写答案、只给判断的决策模型，1000 道题一次答完</h2>
+    <p>11月11日，Google DeepMind 发布 Gemini Decision 1 与 Gemini Decisions API：这个模型不逐词生成文本，而是对候选选项直接打分；一次请求可对同一份多模态输入回答最多 1000 道封闭式问题，端到端延迟 150–250 毫秒。</p>
+    <div class="meta">Google DeepMind · model</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-04.html#brief-51">
+    <div class="day">2026-11-10</div>
+    <h2>OpenAI 研究：模型越强，思维链越难监控——训练全流程如何侵蚀可监控性</h2>
+    <p>11月10日，OpenAI 对齐团队发布研究：预训练、架构、强化学习与模型生成数据四个环节都在推高模型的无思维链推理能力与思维链可控性，模型正变得更难通过思维链来监控。</p>
+    <div class="meta">OpenAI · paper</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-04.html#brief-49">
+    <div class="day">2026-11-10</div>
+    <h2>Google DeepMind 推出 AlphaProof Code：智能体在机器码层面验证 Signal 加密协议</h2>
+    <p>11月10日，DeepMind 发布形式化验证智能体框架 AlphaProof Code：它用智能体在四周内写出 600 万行以上经 Lean 机器核验的证明，首次在机器码层面验证了 Signal 协议核心加密代码的安全性质。</p>
+    <div class="meta">Google DeepMind · tech</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-04.html#brief-48">
+    <div class="day">2026-11-10</div>
+    <h2>MiniMax 开源 H3-Image：文生图与编辑合一，直接出 1600 万像素</h2>
+    <p>11月10日，MiniMax 公开 H3-Image 权重：文生图与图片编辑合一的图像模型，直接生成约 1600 万像素的图片而不用超分，扩散过程蒸馏到只需 6 步采样，支持最多 16 张参考图；但许可证把美国、欧盟、英国与韩国排除在外。</p>
+    <div class="meta">MiniMax · model</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-04.html#brief-45">
+    <div class="day">2026-11-10</div>
+    <h2>OpenAI 推出 Businesses in ChatGPT：企业认领商家主页，还能派客服智能体</h2>
+    <p>11月10日，OpenAI 以 Beta 形式推出 Businesses in ChatGPT：企业可在 Business Hub 认领商家资料、更新信息并查看提及数据；符合条件的美国电商与在线服务企业还能发布 Business Agent，在 ChatGPT 内直接回答顾客问题。</p>
+    <div class="meta">OpenAI · tech</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-03.html#brief-42">
+    <div class="day">2026-11-10</div>
+    <h2>Google DeepMind 开放 Gemini 4 Carbon：最强 Gemini，主攻长程智能体与网络安全</h2>
+    <p>11月10日，Google DeepMind 把 Gemini 4 Carbon 向开发者、企业、科学家与消费者全面开放：这是 Gemini 4 家族里最强的模型，主攻长程智能体工作流与网络安全，并配套在 Antigravity 里预览多智能体协作 /swarm。</p>
+    <div class="meta">Google DeepMind · model</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-03.html#brief-41">
+    <div class="day">2026-11-10</div>
+    <h2>Anthropic 把 Claude 变成办公室套件：白板、表格与数据故事都能在对话里接着做</h2>
+    <p>11月10日，Anthropic 在 Claude 里上线白板与表格（Beta）并把数据看板正式更名为 Claude Data：团队不用把 Claude 的产出搬去别的工具，在对话里就能一起头脑风暴、编表格、做数据故事；交互式连接器还能把 Adobe、Atlassian、Box、Notion 等应用直接在 Claude 旁边打开。</p>
+    <div class="meta">Anthropic · tech</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-03.html#brief-40">
+    <div class="day">2026-11-10</div>
+    <h2>Google DeepMind 发布 Gemini Robotics 2.5：人形机器人上真实产线分拣零件，成功率 96%</h2>
+    <p>11月10日，Google DeepMind 发布 Gemini Robotics 2.5，迄今最强的视觉-语言-动作模型：在 200 多项任务上评测，成功率比此前基线高 30% 至 100%、速度快 20% 至 30%；Apptronik Apollo 2 人形机器人在奔驰真实产线上分拣汽车零件，成功率 96%，并配套发布机器人越狱测试基准 ASIMOV-Jailbreak。</p>
+    <div class="meta">Google DeepMind · model</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-04.html#brief-43">
+    <div class="day">2026-11-09</div>
+    <h2>OpenAI 上线 Control Room：研究模型失控时 35 秒内断输出的中央总开关</h2>
+    <p>11月9日，OpenAI 介绍内部安全系统 Control Room：给每个研究任务发一个可吊销的 job ID，推理引擎每次出 token 前都要查它是否还被授权；一旦监测到问题，35 秒内让模型彻底停下，且系统本身宕机时默认拒绝一切推理。</p>
+    <div class="meta">OpenAI · tech</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-03.html#brief-38">
+    <div class="day">2026-11-09</div>
+    <h2>字节跳动发布 Seedream 5.5：同一张图能连改 100 轮、直接出透明底素材</h2>
+    <p>11月9日，字节跳动 Seed 团队发布图像生成模型 Seedream 5.5，主打三点：多轮编辑中未改动区域像素级不变、能连续改同一张图 100 轮；原生输出带透明通道的 RGBA 素材；更写实的画面与更准的小字渲染。</p>
+    <div class="meta">字节跳动 · model</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-03.html#brief-37">
+    <div class="day">2026-11-09</div>
+    <h2>Google 发布 TPU 8tx 与 8i Max：一个管机密推理、一个管超长上下文</h2>
+    <p>11月9日，Google 在第八代 TPU 产品线新增 8tx 与 8i Max 两个系统：8tx 把机密计算做到硬件层，让敏感数据在推理时也不解密；8i Max 把两颗 8i 芯片封进一个封装，算力、片上 SRAM 与 HBM 带宽都翻倍，专治智能体的“内存墙”。</p>
+    <div class="meta">Google · tech</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-03.html#brief-36">
+    <div class="day">2026-11-09</div>
+    <h2>Meta 发布 Muse Ember：最小最便宜的 Muse 模型，专干智能体每天重复的活</h2>
+    <p>11月9日，Meta 发布 Muse Ember——Muse 家族最小、最便宜的模型，专为智能体每天重复上百次的小步骤设计：工具调用、编码子任务、路由、抽取与长文档解析；每百万输入 token 0.10 美元，上下文 100 万 token，首个用 Muse Wonder Full 训练出的模型。</p>
+    <div class="meta">Meta · model</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-03.html#brief-35">
+    <div class="day">2026-11-09</div>
+    <h2>Anthropic 发布 Claude Fable 5.2 与 Mythos 5.2：同一底座、两套放行规则的最强技术模型</h2>
+    <p>11月9日，Anthropic 发布 Fable 5.2 与 Mythos 5.2：同一底层模型，Fable 带网安与生物防护面向所有人，Mythos 解开部分防护只给通过验证的组织；官方称其为最能啃硬技术活的模型，输出最高快 30%、价格降至每百万输入 token 8 美元，并新增可选的快速模式。</p>
+    <div class="meta">Anthropic · model</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-03.html#brief-34">
+    <div class="day">2026-11-07</div>
+    <h2>Grok API 从 11 月 7 日起默认给文本加隐形水印：七个模型、为合欧盟 AI 法案</h2>
+    <p>11 月 7 日起，Grok API 返回的文本默认带隐形水印：覆盖 grok-4.7 等七个模型与全部文本生成接口，开发者无需改代码；xAI 称此举为遵守欧盟 AI 法案，检测须申请开通，退出须由团队管理员确认法律例外。</p>
+    <div class="meta">xAI · tech</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-03.html#brief-32">
+    <div class="day">2026-11-06</div>
+    <h2>Google DeepMind 智能体攻下 1024 位 RSA 签名伪造：391 核年复现，两智能体四天跑完</h2>
+    <p>11 月 6 日，Google DeepMind 公布：两智能体在人类密码学家指导下复现了 1024 位 RSA 签名伪造计算，只用 391 CPU 核年（原先 1380 核年），并给出更快的仿射根算法；论文同时声明，2048 位及以上 RSA 不受影响。</p>
+    <div class="meta">Google DeepMind · paper</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-03.html#brief-31">
+    <div class="day">2026-11-06</div>
+    <h2>PSI 宣布 AI 证明了 Aaronson–Ambainis 猜想：18 年量子难题，Lean 已验算通过</h2>
+    <p>11 月 6 日，PSI（Physical Superintelligence）宣布，其内部研究系统（运行未公开的 Anthropic 模型）找到了 Aaronson–Ambainis 猜想的证明：该猜想自 2008 年悬而未决，关系到量子计算机能否在随机输入上指数级快于经典计算机；形式化证明已由 Lean 验算通过，但专家对形式化表述与猜想原文是否一致的核对仍在进行。</p>
+    <div class="meta">Physical Superintelligence · paper</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-02.html#brief-30">
+    <div class="day">2026-11-06</div>
+    <h2>Meta 把 Muse Wonder 的能力下放到 Muse 与 Meta AI：会记事、会死磕的专用模型</h2>
+    <p>11 月 6 日，Meta 宣布用 Muse Wonder 系列训练出的专用模型进入 Muse 与 Meta AI，把主动记忆（Active Memory）与主动专注（Active Focus）带给更多用户：Muse 里遗忘关键信息的程度降至约原来的 1/2.4，遇到意外状况的日常任务完成率提升 67%。</p>
+    <div class="meta">Meta · tech</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-02.html#brief-29">
+    <div class="day">2026-11-06</div>
+    <h2>OpenAI 发布 BioBasicsBench：让 AI 读真实湿实验数据的 100 道题</h2>
+    <p>11 月 6 日，OpenAI 与酶设计公司 Ligo 发布 BioBasicsBench：100 道用真实实验数据出的湿实验室任务，考模型读原始证据、发现错误、承认证据不足的能力；GPT-6 Astra 在最高推理档位拿下 66.7% 的平均 rubric 分，但仍会选错克隆、数错菌落。</p>
+    <div class="meta">OpenAI · tech</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-02.html#brief-28">
+    <div class="day">2026-11-06</div>
+    <h2>Anthropic 详解 Claude 的智能体记忆：会“做梦”整理记忆的四层设计</h2>
+    <p>11 月 6 日，Anthropic 发表工程长文，讲 Claude 如何在会话之间保留记忆：记忆分四层，离线的“做梦”过程在会话间隙对照原始记录修正笔记、搭建维基、决定哪些事实常驻；并给出 CL-Bench、宝可梦与内部文档库上的实测结果。</p>
+    <div class="meta">Anthropic · tech</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-03.html#brief-33">
+    <div class="day">2026-11-05</div>
+    <h2>DeepMind 提出 Fan Factories：批量分解 1024 位 RSA，每把新增密钥便宜约 30 倍</h2>
+    <p>11 月 5 日的 DeepMind 工作论文给出批量分解的新构造：每个目标整数配一把数域“扇”，共用一次有理侧预计算；以一次完整分解为预计算预算，每把新增 1024 位密钥的代价约为单次数域筛的 1/58，比此前最优批量方法低约 30 倍——这是首阶理论估计，尚未实现。</p>
+    <div class="meta">Google DeepMind · paper</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-02.html#brief-27">
+    <div class="day">2026-11-05</div>
+    <h2>NVIDIA 发布 Cosmos 3 四个开源检查点：驾驶与机器人都能交互仿真</h2>
+    <p>11 月 5 日，NVIDIA 在 Cosmos 3 世界模型家族新增四个开源权重检查点，覆盖多视角驾驶数据生成、流式驾驶仿真、模拟器转实拍视频与双臂机器人动作预测，并公开了四阶段训练配方与后训练方法。</p>
+    <div class="meta">NVIDIA · model</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-02.html#brief-24">
+    <div class="day">2026-11-05</div>
+    <h2>Thinking Machines 发布 Inkling 2 Small：594B 参数的长程智能体模型</h2>
+    <p>11 月 5 日，Thinking Machines 发布第二代模型 Inkling 2 Small：594B 总参数、每 token 激活 17B，面向长程自主编码与知识工作，先在 Tinker 上提供推理与微调，权重计划在外部安全测试完成后以 Apache 2.0 开源。</p>
+    <div class="meta">Thinking Machines Lab · model</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-02.html#brief-22">
+    <div class="day">2026-11-05</div>
+    <h2>Google 发布 Gemini Omni 1.2 Flash：15 秒原生视频，正式全面可用</h2>
+    <p>11 月 5 日，Google DeepMind 让视频生成模型 Gemini Omni 1.2 Flash 正式全面可用：单次原生生成 15 秒视频、多轮对话式编辑、更强的参考一致性，720p 价格降 30% 至每秒 0.07 美元。</p>
+    <div class="meta">Google DeepMind · model</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-02.html#brief-21">
+    <div class="day">2026-11-05</div>
+    <h2>OpenAI 发布 GPT-6 Cyber：专做授权漏洞研究的网络安全模型</h2>
+    <p>11 月 5 日，OpenAI 发布网络安全专用模型 GPT-6 Cyber：发现漏洞、做出可运行的利用验证、协助写补丁，同时被专门训练得只在授权范围内行动；首批只开放给获批的 Daybreak Red 客户。</p>
+    <div class="meta">OpenAI · model</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-02.html#brief-20">
+    <div class="day">2026-11-05</div>
+    <h2>百度开源 ERNIE-5.5-Flash-Base：280B 参数的预训练终点权重</h2>
+    <p>11 月 5 日，百度发布 ERNIE-5.5-Flash-Base：280B 总参数、每 token 激活 14B 的稀疏 MoE 语言模型，在 33.5T token 上预训练，开放未经后训练的 Base 权重，供社区做领域适配、指令微调与强化学习研究。</p>
+    <div class="meta">百度 · model</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-02.html#brief-19">
+    <div class="day">2026-11-05</div>
+    <h2>Anthropic 给 Claude 接上银行账户：只读的个人理财功能进入美国 Beta</h2>
+    <p>11 月 5 日，Anthropic 在 Claude 中推出 Personal Finance Beta：用户通过 Plaid 连接自选的银行与卡账户，用日常语言问自己的钱花在哪、发薪日前还剩多少；访问是只读的，Claude 不能动钱。</p>
+    <div class="meta">Anthropic · tech</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-02.html#brief-26">
+    <div class="day">2026-11-04</div>
+    <h2>Perplexity 推出 Teammates：常驻的 AI 工作伙伴</h2>
+    <p>11 月 4 日，Perplexity 推出 Teammates：为长期工作而设的个人智能体，住在 Perplexity Computer 里，按角色持续跟进项目、主动监测变化并把结果交回审核，先向 Max 订阅用户在网页端开放。</p>
+    <div class="meta">Perplexity · tech</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-01.html#brief-18">
+    <div class="day">2026-11-04</div>
+    <h2>OpenAI 发布 GPT Image 2.6：双模型分工，新增标注编辑、SVG 与 GIF 输出</h2>
+    <p>11 月 4 日，OpenAI 上线 GPT Image 2.6：Sunburst 主攻精细视觉、Flare 主攻快速迭代，并通过 Image API 新增复杂度控制、标注引导编辑、SVG 矢量与动画 GIF 输出。</p>
+    <div class="meta">OpenAI · model</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-01.html#brief-16">
+    <div class="day">2026-11-04</div>
+    <h2>Moonshot 开放 Kimi K3.1 Pro 权重：2.8T 参数的原生多模态智能体模型</h2>
+    <p>11 月 4 日，Moonshot 在 Hugging Face 公开 Kimi K3.1 Pro 全部权重：2.8T 混合专家、每 token 激活 104B、100 万 token 上下文，24 层改用稀疏注意力以扛长上下文。</p>
+    <div class="meta">Moonshot AI · model</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-01.html#brief-15">
+    <div class="day">2026-11-04</div>
+    <h2>腾讯发布混元 Hy4：首次看懂图像、能操作电脑的旗舰模型</h2>
+    <p>11 月 4 日，腾讯正式发布混元 Hy4：首次加入视觉理解与电脑操作能力，强化指令遵循、长上下文与长程智能体任务；模型权重与系统卡将于随后几天发布。</p>
+    <div class="meta">腾讯 · model</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-02.html#brief-25">
+    <div class="day">2026-11-03</div>
+    <h2>新论文 Route Anything：一个路由器调度所有模态的模型，效率平均提升 8.82 倍</h2>
+    <p>11 月 3 日，新加坡国立大学等团队在 arXiv 发表 Route Anything：在 25 个基准、374,401 次打分运行上研究跨模态模型路由，逐输入选最优候选比固定用最强模型高 5.4 分，而按质量—成本路由的效率平均提升 8.82 倍。</p>
+    <div class="meta">arXiv · paper</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-02.html#brief-23">
+    <div class="day">2026-11-03</div>
+    <h2>NVIDIA 论文：长上下文不一定必要，频繁压缩能省下数倍成本</h2>
+    <p>11 月 3 日，NVIDIA 团队在 arXiv 发表《You don&#x27;t need long context》：在长程与长输入任务上，频繁把对话历史压缩成简短状态，模型几乎不丢准确率；而把上下文从 256K 压到 16K，可让解码速度提升 3.6–7 倍。</p>
+    <div class="meta">arXiv · paper</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-01.html#brief-17">
+    <div class="day">2026-11-03</div>
+    <h2>Google DeepMind 给 Antigravity 装上化学信息学技能：药物发现工作流一小时走完</h2>
+    <p>11 月 3 日，DeepMind 发布 Antigravity 的 Cheminformatics Skills：以 RDKit 确定性工具加 ChEMBL、PubChem 数据源，让智能体在一小时内完成文献检索、成对分析与新型大环分子设计。</p>
+    <div class="meta">Google DeepMind · tech</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-01.html#brief-14">
+    <div class="day">2026-11-02</div>
+    <h2>MIT CSAIL 的权重空间编程：让大模型直接读改另一个模型的权重</h2>
+    <p>11 月 2 日，MIT CSAIL 公布“权重空间编程”实验：不用梯度下降、不用训练循环，GPT-6 Astra 直接读另一个网络的权重、推理它在算什么，再改写权重修复故障——在 Qwen3.5-0.8B 上只改 0.016% 的权重就把 MATH-500 从 7.9% 提到 48.1%，但作者自己也说明这主要是修掉了推理死循环，不是凭空注入数学能力。</p>
+    <div class="meta">MIT CSAIL · tech</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-01.html#brief-13">
+    <div class="day">2026-11-02</div>
+    <h2>Anthropic 发布 FlashProve：不用看到权重，也能证明回答出自指定模型</h2>
+    <p>11 月 2 日，Anthropic 开源可证明推理原型 FlashProve：服务方先公布模型权重的密码学指纹，之后每次回答附上一份零知识证明，验证方不用拿到权重、不用重跑大模型，就能在普通 CPU 上核对这份回答确实出自承诺过的那套权重。</p>
+    <div class="meta">Anthropic · tech</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-01.html#brief-1">
+    <div class="day">2026-10-31</div>
+    <h2>DeepSeek 开源 Super Agent 研究原型：一个仓库的常驻主动编程助手</h2>
+    <p>10 月 31 日，DeepSeek Harness 团队开源 dsh-superagent 研究原型：常驻 Router 统一收 GitHub 与飞书消息，分派 Worker 在隔离会话里并行干活，目标是用最少的人类注意力换最大的价值；但它只是研究原型，不是正式产品。</p>
+    <div class="meta">DeepSeek · tech</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-01.html#brief-10">
+    <div class="day">2026-10-30</div>
+    <h2>商汤开源 SenseNova-Loop-9B：9B 参数跑出 56 层计算的循环解码器</h2>
+    <p>10 月 30 日商汤开源 SenseNova-Loop-9B-Preview：一个 32 层解码器里有 24 层被共用权重执行两次，一次前向跑出 56 层计算，用计算深度换参数规模，面向长上下文与智能体任务。</p>
+    <div class="meta">SenseTime · model</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-01.html#brief-9">
+    <div class="day">2026-10-30</div>
+    <h2>OpenAI 发布 GPT-Rosalind-6：同一套权重，换一套生物研究的放行规则</h2>
+    <p>10 月 30 日 OpenAI 发布 GPT-Rosalind-6：它与旗舰 GPT-6 Astra 共用同一套权重、没有新增训练，真正的设计在部署层——为合法生物研究放宽双用途请求的拒绝边界，同时只对受信准入的机构开放。</p>
+    <div class="meta">OpenAI · model</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-01.html#brief-8">
+    <div class="day">2026-10-30</div>
+    <h2>谷歌在轨 TPU 发回首个 AI 回答：Project Suncatcher 的太空算力“Hello World”</h2>
+    <p>谷歌 Project Suncatcher 原型卫星在轨用数据中心级 TPU 运行星载 Gemma 4，地面上行一首太空俳句的提示并在斯瓦尔巴上空收到回诗，验证了从上行到执行再到下行的整条链路。</p>
+    <div class="meta">Google · tech</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-01.html#brief-7">
+    <div class="day">2026-10-29</div>
+    <h2>LeCun 等人把柏拉图表示假说变成 JEPA 定理：对齐的关键是正样本，不是规模</h2>
+    <p>Balestriero 与 LeCun 证明：用“同一场景的两次观测”作正样本训练的 JEPA，不同模态会学到只差一个旋转的同一表示；次词元预测则是坏视角，所以只能靠规模慢慢对齐。</p>
+    <div class="meta">arXiv · paper</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-01.html#brief-6">
+    <div class="day">2026-10-29</div>
+    <h2>Mistral 开源万亿参数 Large 4 权重：能自己部署的前沿编码与安全模型</h2>
+    <p>Mistral 把旗舰模型 Large 4（Le Chonk）的改进版权重公开，机构可在自有基础设施上检查、定制和部署它，并用三档推理模式调节性能与成本。</p>
+    <div class="meta">Mistral AI · model</div>
+  </a>
+  <a class="lesson" href="briefs/briefs-03.html#brief-39">
+    <div class="day">2026-10-27</div>
+    <h2>Google 发布 Genie 4：输入一句话，实时生成一个能走进去、能改动、能对话的世界</h2>
+    <p>10月27日，Google DeepMind 发布世界模型 Genie 4：输入一句话，实时生成一个能走进去、能用键盘走动、用文字改动的世界，环境音、音乐与人物对话和画面同一趟生成；Gemini Omni 管世界长什么样，Gemini 3.8 Flash 在循环里当导演兼监工。目前只是研究预览，先给受信任测试者。</p>
+    <div class="meta">Google DeepMind · model</div>
+  </a>
+</main>
+<footer>归档自学习应用 · AI 前沿速递</footer>
+</div>
+<button class="navbtn" id="navbtn" aria-label="打开课程目录">☰</button>
+<div class="navoverlay" id="navoverlay"></div>
+<aside class="navdrawer" id="navdrawer" aria-label="课程目录">
+  <button class="nd-close" id="ndclose" aria-label="关闭目录">×</button>
+  <h3>课程目录</h3>
+  <div id="ndlist"></div>
+  <a class="nd-home" id="ndhome" href="index.html">← 回到首页</a>
+</aside>
+<script>
+(function(){
+  var btn = document.getElementById('navbtn');
+  var overlay = document.getElementById('navoverlay');
+  var drawer = document.getElementById('navdrawer');
+  var list = document.getElementById('ndlist');
+  var home = document.getElementById('ndhome');
+  var jsonUrl = 'lessons.json';
+  var prefix = 'lessons/';
+  home.href = 'index.html';
+  function open(){ drawer.classList.add('open'); overlay.classList.add('open'); }
+  function close(){ drawer.classList.remove('open'); overlay.classList.remove('open'); }
+  btn.addEventListener('click', open);
+  document.getElementById('ndclose').addEventListener('click', close);
+  overlay.addEventListener('click', close);
+  var cur = location.pathname.split('/').pop();
+  fetch(jsonUrl).then(function(r){ return r.json(); }).then(function(items){
+    list.innerHTML = '';
+    items.forEach(function(it){
+      var a = document.createElement('a');
+      a.className = 'nd-item' + (it.file === cur ? ' cur' : '');
+      a.href = prefix + it.file;
+      a.innerHTML = '<div class="nd-day">第 ' + it.day + ' 天</div><div class="nd-title">' + it.title + '</div><div class="nd-meta">' + it.date + ' · 约 ' + it.minutes + ' 分钟</div>';
+      list.appendChild(a);
+    });
+  }).catch(function(){
+    list.innerHTML = '<p style="font-size:14px;color:#666;">目录加载失败，请点“回到首页”查看全部课程。</p>';
+  });
+})();
+</script>
+</body>
+</html>

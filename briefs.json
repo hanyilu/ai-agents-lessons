@@ -1,0 +1,569 @@
+[
+  {
+    "id": 70,
+    "file": "briefs-06.html",
+    "anchor": "brief-70",
+    "title": "Google Gemini 4 Neon：前沿推理装进快模型，复杂编码与企业长任务的中间档",
+    "date": "2026-11-18",
+    "source": "Google DeepMind",
+    "kind": "model"
+  },
+  {
+    "id": 69,
+    "file": "briefs-06.html",
+    "anchor": "brief-69",
+    "title": "Google Gemini Tasks 免费开放：切到 Tasks，杂事交给后台 agent 打电话、查账单、下单",
+    "date": "2026-11-17",
+    "source": "Google",
+    "kind": "tech"
+  },
+  {
+    "id": 68,
+    "file": "briefs-05.html",
+    "anchor": "brief-68",
+    "title": "OpenAI GPT-6.2 Astra 与 Sol：旗舰攻最难的专业活，日常款以五分之一成本逼近旗舰",
+    "date": "2026-11-17",
+    "source": "OpenAI",
+    "kind": "model"
+  },
+  {
+    "id": 71,
+    "file": "briefs-06.html",
+    "anchor": "brief-71",
+    "title": "腾讯 Hy4 flash：2240 亿参数只激活 120 亿，日常办公任务的便宜快模型",
+    "date": "2026-11-16",
+    "source": "腾讯",
+    "kind": "model"
+  },
+  {
+    "id": 64,
+    "file": "briefs-05.html",
+    "anchor": "brief-64",
+    "title": "阿里通义 Qwen4-Max：2.4 万亿参数旗舰模型，把长程专业任务当成“队友活”来干",
+    "date": "2026-11-16",
+    "source": "阿里通义",
+    "kind": "model"
+  },
+  {
+    "id": 65,
+    "file": "briefs-05.html",
+    "anchor": "brief-65",
+    "title": "DeepSeek 把整个 App 的能力开放成 API：搜索、读文件、读链接与语音都能直接调用",
+    "date": "2026-11-13",
+    "source": "DeepSeek",
+    "kind": "tech"
+  },
+  {
+    "id": 62,
+    "file": "briefs-05.html",
+    "anchor": "brief-62",
+    "title": "微软发布 Aion Instruct：Windows 新一代端侧语言模型，接替 Phi Silica 并扩到 GPU",
+    "date": "2026-11-13",
+    "source": "Microsoft",
+    "kind": "model"
+  },
+  {
+    "id": 60,
+    "file": "briefs-05.html",
+    "anchor": "brief-60",
+    "title": "Google DeepMind 开放 WeatherNext 3 背后的两套地球数据集：SatWeave 与 PARDIG",
+    "date": "2026-11-13",
+    "source": "Google DeepMind",
+    "kind": "tech"
+  },
+  {
+    "id": 59,
+    "file": "briefs-05.html",
+    "anchor": "brief-59",
+    "title": "OpenAI ChatGPT Wallet：让 AI 智能体替你付款，但永远拿不到你的真实卡号",
+    "date": "2026-11-13",
+    "source": "OpenAI",
+    "kind": "tech"
+  },
+  {
+    "id": 57,
+    "file": "briefs-05.html",
+    "anchor": "brief-57",
+    "title": "DeepSeek 把整个 App 的能力开放成 API：搜索、读文件、读链接与语音一并上架",
+    "date": "2026-11-13",
+    "source": "DeepSeek",
+    "kind": "tech"
+  },
+  {
+    "id": 63,
+    "file": "briefs-05.html",
+    "anchor": "brief-63",
+    "title": "新论文 Goal Encoding in LLMs：模型把“下一步要干什么”藏在少数注意力头里",
+    "date": "2026-11-12",
+    "source": "arXiv",
+    "kind": "paper"
+  },
+  {
+    "id": 61,
+    "file": "briefs-05.html",
+    "anchor": "brief-61",
+    "title": "Anthropic 推出 Claude for Manufacturing：17 个技能加 4 个连接器，把工厂文档活交给 Claude 起草",
+    "date": "2026-11-12",
+    "source": "Anthropic",
+    "kind": "tech"
+  },
+  {
+    "id": 58,
+    "file": "briefs-05.html",
+    "anchor": "brief-58",
+    "title": "Anthropic 推出 Claude Meetings：Claude 进会议室，边开会边把活干了",
+    "date": "2026-11-12",
+    "source": "Anthropic",
+    "kind": "tech"
+  },
+  {
+    "id": 54,
+    "file": "briefs-04.html",
+    "anchor": "brief-54",
+    "title": "OpenAI 推出 Defense Factory：让智能体持续找漏洞、验漏洞、准备补丁的防御流水线",
+    "date": "2026-11-12",
+    "source": "OpenAI",
+    "kind": "tech"
+  },
+  {
+    "id": 52,
+    "file": "briefs-04.html",
+    "anchor": "brief-52",
+    "title": "Anthropic 开放自托管 Claude Managed Agents 私测：整个智能体服务搬进企业自己的基础设施",
+    "date": "2026-11-12",
+    "source": "Anthropic",
+    "kind": "tech"
+  },
+  {
+    "id": 50,
+    "file": "briefs-04.html",
+    "anchor": "brief-50",
+    "title": "Google 发布 Gemini 4 Hydrogen：为智能体日常执行而生的快速模型",
+    "date": "2026-11-12",
+    "source": "Google DeepMind",
+    "kind": "model"
+  },
+  {
+    "id": 56,
+    "file": "briefs-05.html",
+    "anchor": "brief-56",
+    "title": "Runway 开源 Praxis-1：从看视频学会动手，27B 世界动作模型直接控制机器人",
+    "date": "2026-11-11",
+    "source": "Runway",
+    "kind": "model"
+  },
+  {
+    "id": 55,
+    "file": "briefs-05.html",
+    "anchor": "brief-55",
+    "title": "Anthropic 研究：每人派一个智能体反而更糟——多用户多智能体团队的协调崩溃",
+    "date": "2026-11-11",
+    "source": "Anthropic",
+    "kind": "paper"
+  },
+  {
+    "id": 53,
+    "file": "briefs-04.html",
+    "anchor": "brief-53",
+    "title": "百度发布 ERNIE 5.5 Flash Preview：280B 稀疏模型的首个后训练版本",
+    "date": "2026-11-11",
+    "source": "百度",
+    "kind": "model"
+  },
+  {
+    "id": 47,
+    "file": "briefs-04.html",
+    "anchor": "brief-47",
+    "title": "Google DeepMind 发布 AlphaGenome 2：按细胞类型预测 DNA 变异如何致病",
+    "date": "2026-11-11",
+    "source": "Google DeepMind",
+    "kind": "model"
+  },
+  {
+    "id": 46,
+    "file": "briefs-04.html",
+    "anchor": "brief-46",
+    "title": "阿里通义 Qwen4-Max 开启预览：Qwen4 首个旗舰模型，只开放两周",
+    "date": "2026-11-11",
+    "source": "阿里通义",
+    "kind": "model"
+  },
+  {
+    "id": 44,
+    "file": "briefs-04.html",
+    "anchor": "brief-44",
+    "title": "Google 推出 Gemini Decision 1：不写答案、只给判断的决策模型，1000 道题一次答完",
+    "date": "2026-11-11",
+    "source": "Google DeepMind",
+    "kind": "model"
+  },
+  {
+    "id": 51,
+    "file": "briefs-04.html",
+    "anchor": "brief-51",
+    "title": "OpenAI 研究：模型越强，思维链越难监控——训练全流程如何侵蚀可监控性",
+    "date": "2026-11-10",
+    "source": "OpenAI",
+    "kind": "paper"
+  },
+  {
+    "id": 49,
+    "file": "briefs-04.html",
+    "anchor": "brief-49",
+    "title": "Google DeepMind 推出 AlphaProof Code：智能体在机器码层面验证 Signal 加密协议",
+    "date": "2026-11-10",
+    "source": "Google DeepMind",
+    "kind": "tech"
+  },
+  {
+    "id": 48,
+    "file": "briefs-04.html",
+    "anchor": "brief-48",
+    "title": "MiniMax 开源 H3-Image：文生图与编辑合一，直接出 1600 万像素",
+    "date": "2026-11-10",
+    "source": "MiniMax",
+    "kind": "model"
+  },
+  {
+    "id": 45,
+    "file": "briefs-04.html",
+    "anchor": "brief-45",
+    "title": "OpenAI 推出 Businesses in ChatGPT：企业认领商家主页，还能派客服智能体",
+    "date": "2026-11-10",
+    "source": "OpenAI",
+    "kind": "tech"
+  },
+  {
+    "id": 42,
+    "file": "briefs-03.html",
+    "anchor": "brief-42",
+    "title": "Google DeepMind 开放 Gemini 4 Carbon：最强 Gemini，主攻长程智能体与网络安全",
+    "date": "2026-11-10",
+    "source": "Google DeepMind",
+    "kind": "model"
+  },
+  {
+    "id": 41,
+    "file": "briefs-03.html",
+    "anchor": "brief-41",
+    "title": "Anthropic 把 Claude 变成办公室套件：白板、表格与数据故事都能在对话里接着做",
+    "date": "2026-11-10",
+    "source": "Anthropic",
+    "kind": "tech"
+  },
+  {
+    "id": 40,
+    "file": "briefs-03.html",
+    "anchor": "brief-40",
+    "title": "Google DeepMind 发布 Gemini Robotics 2.5：人形机器人上真实产线分拣零件，成功率 96%",
+    "date": "2026-11-10",
+    "source": "Google DeepMind",
+    "kind": "model"
+  },
+  {
+    "id": 43,
+    "file": "briefs-04.html",
+    "anchor": "brief-43",
+    "title": "OpenAI 上线 Control Room：研究模型失控时 35 秒内断输出的中央总开关",
+    "date": "2026-11-09",
+    "source": "OpenAI",
+    "kind": "tech"
+  },
+  {
+    "id": 38,
+    "file": "briefs-03.html",
+    "anchor": "brief-38",
+    "title": "字节跳动发布 Seedream 5.5：同一张图能连改 100 轮、直接出透明底素材",
+    "date": "2026-11-09",
+    "source": "字节跳动",
+    "kind": "model"
+  },
+  {
+    "id": 37,
+    "file": "briefs-03.html",
+    "anchor": "brief-37",
+    "title": "Google 发布 TPU 8tx 与 8i Max：一个管机密推理、一个管超长上下文",
+    "date": "2026-11-09",
+    "source": "Google",
+    "kind": "tech"
+  },
+  {
+    "id": 36,
+    "file": "briefs-03.html",
+    "anchor": "brief-36",
+    "title": "Meta 发布 Muse Ember：最小最便宜的 Muse 模型，专干智能体每天重复的活",
+    "date": "2026-11-09",
+    "source": "Meta",
+    "kind": "model"
+  },
+  {
+    "id": 35,
+    "file": "briefs-03.html",
+    "anchor": "brief-35",
+    "title": "Anthropic 发布 Claude Fable 5.2 与 Mythos 5.2：同一底座、两套放行规则的最强技术模型",
+    "date": "2026-11-09",
+    "source": "Anthropic",
+    "kind": "model"
+  },
+  {
+    "id": 34,
+    "file": "briefs-03.html",
+    "anchor": "brief-34",
+    "title": "Grok API 从 11 月 7 日起默认给文本加隐形水印：七个模型、为合欧盟 AI 法案",
+    "date": "2026-11-07",
+    "source": "xAI",
+    "kind": "tech"
+  },
+  {
+    "id": 32,
+    "file": "briefs-03.html",
+    "anchor": "brief-32",
+    "title": "Google DeepMind 智能体攻下 1024 位 RSA 签名伪造：391 核年复现，两智能体四天跑完",
+    "date": "2026-11-06",
+    "source": "Google DeepMind",
+    "kind": "paper"
+  },
+  {
+    "id": 31,
+    "file": "briefs-03.html",
+    "anchor": "brief-31",
+    "title": "PSI 宣布 AI 证明了 Aaronson–Ambainis 猜想：18 年量子难题，Lean 已验算通过",
+    "date": "2026-11-06",
+    "source": "Physical Superintelligence",
+    "kind": "paper"
+  },
+  {
+    "id": 30,
+    "file": "briefs-02.html",
+    "anchor": "brief-30",
+    "title": "Meta 把 Muse Wonder 的能力下放到 Muse 与 Meta AI：会记事、会死磕的专用模型",
+    "date": "2026-11-06",
+    "source": "Meta",
+    "kind": "tech"
+  },
+  {
+    "id": 29,
+    "file": "briefs-02.html",
+    "anchor": "brief-29",
+    "title": "OpenAI 发布 BioBasicsBench：让 AI 读真实湿实验数据的 100 道题",
+    "date": "2026-11-06",
+    "source": "OpenAI",
+    "kind": "tech"
+  },
+  {
+    "id": 28,
+    "file": "briefs-02.html",
+    "anchor": "brief-28",
+    "title": "Anthropic 详解 Claude 的智能体记忆：会“做梦”整理记忆的四层设计",
+    "date": "2026-11-06",
+    "source": "Anthropic",
+    "kind": "tech"
+  },
+  {
+    "id": 33,
+    "file": "briefs-03.html",
+    "anchor": "brief-33",
+    "title": "DeepMind 提出 Fan Factories：批量分解 1024 位 RSA，每把新增密钥便宜约 30 倍",
+    "date": "2026-11-05",
+    "source": "Google DeepMind",
+    "kind": "paper"
+  },
+  {
+    "id": 27,
+    "file": "briefs-02.html",
+    "anchor": "brief-27",
+    "title": "NVIDIA 发布 Cosmos 3 四个开源检查点：驾驶与机器人都能交互仿真",
+    "date": "2026-11-05",
+    "source": "NVIDIA",
+    "kind": "model"
+  },
+  {
+    "id": 24,
+    "file": "briefs-02.html",
+    "anchor": "brief-24",
+    "title": "Thinking Machines 发布 Inkling 2 Small：594B 参数的长程智能体模型",
+    "date": "2026-11-05",
+    "source": "Thinking Machines Lab",
+    "kind": "model"
+  },
+  {
+    "id": 22,
+    "file": "briefs-02.html",
+    "anchor": "brief-22",
+    "title": "Google 发布 Gemini Omni 1.2 Flash：15 秒原生视频，正式全面可用",
+    "date": "2026-11-05",
+    "source": "Google DeepMind",
+    "kind": "model"
+  },
+  {
+    "id": 21,
+    "file": "briefs-02.html",
+    "anchor": "brief-21",
+    "title": "OpenAI 发布 GPT-6 Cyber：专做授权漏洞研究的网络安全模型",
+    "date": "2026-11-05",
+    "source": "OpenAI",
+    "kind": "model"
+  },
+  {
+    "id": 20,
+    "file": "briefs-02.html",
+    "anchor": "brief-20",
+    "title": "百度开源 ERNIE-5.5-Flash-Base：280B 参数的预训练终点权重",
+    "date": "2026-11-05",
+    "source": "百度",
+    "kind": "model"
+  },
+  {
+    "id": 19,
+    "file": "briefs-02.html",
+    "anchor": "brief-19",
+    "title": "Anthropic 给 Claude 接上银行账户：只读的个人理财功能进入美国 Beta",
+    "date": "2026-11-05",
+    "source": "Anthropic",
+    "kind": "tech"
+  },
+  {
+    "id": 26,
+    "file": "briefs-02.html",
+    "anchor": "brief-26",
+    "title": "Perplexity 推出 Teammates：常驻的 AI 工作伙伴",
+    "date": "2026-11-04",
+    "source": "Perplexity",
+    "kind": "tech"
+  },
+  {
+    "id": 18,
+    "file": "briefs-01.html",
+    "anchor": "brief-18",
+    "title": "OpenAI 发布 GPT Image 2.6：双模型分工，新增标注编辑、SVG 与 GIF 输出",
+    "date": "2026-11-04",
+    "source": "OpenAI",
+    "kind": "model"
+  },
+  {
+    "id": 16,
+    "file": "briefs-01.html",
+    "anchor": "brief-16",
+    "title": "Moonshot 开放 Kimi K3.1 Pro 权重：2.8T 参数的原生多模态智能体模型",
+    "date": "2026-11-04",
+    "source": "Moonshot AI",
+    "kind": "model"
+  },
+  {
+    "id": 15,
+    "file": "briefs-01.html",
+    "anchor": "brief-15",
+    "title": "腾讯发布混元 Hy4：首次看懂图像、能操作电脑的旗舰模型",
+    "date": "2026-11-04",
+    "source": "腾讯",
+    "kind": "model"
+  },
+  {
+    "id": 25,
+    "file": "briefs-02.html",
+    "anchor": "brief-25",
+    "title": "新论文 Route Anything：一个路由器调度所有模态的模型，效率平均提升 8.82 倍",
+    "date": "2026-11-03",
+    "source": "arXiv",
+    "kind": "paper"
+  },
+  {
+    "id": 23,
+    "file": "briefs-02.html",
+    "anchor": "brief-23",
+    "title": "NVIDIA 论文：长上下文不一定必要，频繁压缩能省下数倍成本",
+    "date": "2026-11-03",
+    "source": "arXiv",
+    "kind": "paper"
+  },
+  {
+    "id": 17,
+    "file": "briefs-01.html",
+    "anchor": "brief-17",
+    "title": "Google DeepMind 给 Antigravity 装上化学信息学技能：药物发现工作流一小时走完",
+    "date": "2026-11-03",
+    "source": "Google DeepMind",
+    "kind": "tech"
+  },
+  {
+    "id": 14,
+    "file": "briefs-01.html",
+    "anchor": "brief-14",
+    "title": "MIT CSAIL 的权重空间编程：让大模型直接读改另一个模型的权重",
+    "date": "2026-11-02",
+    "source": "MIT CSAIL",
+    "kind": "tech"
+  },
+  {
+    "id": 13,
+    "file": "briefs-01.html",
+    "anchor": "brief-13",
+    "title": "Anthropic 发布 FlashProve：不用看到权重，也能证明回答出自指定模型",
+    "date": "2026-11-02",
+    "source": "Anthropic",
+    "kind": "tech"
+  },
+  {
+    "id": 1,
+    "file": "briefs-01.html",
+    "anchor": "brief-1",
+    "title": "DeepSeek 开源 Super Agent 研究原型：一个仓库的常驻主动编程助手",
+    "date": "2026-10-31",
+    "source": "DeepSeek",
+    "kind": "tech"
+  },
+  {
+    "id": 10,
+    "file": "briefs-01.html",
+    "anchor": "brief-10",
+    "title": "商汤开源 SenseNova-Loop-9B：9B 参数跑出 56 层计算的循环解码器",
+    "date": "2026-10-30",
+    "source": "SenseTime",
+    "kind": "model"
+  },
+  {
+    "id": 9,
+    "file": "briefs-01.html",
+    "anchor": "brief-9",
+    "title": "OpenAI 发布 GPT-Rosalind-6：同一套权重，换一套生物研究的放行规则",
+    "date": "2026-10-30",
+    "source": "OpenAI",
+    "kind": "model"
+  },
+  {
+    "id": 8,
+    "file": "briefs-01.html",
+    "anchor": "brief-8",
+    "title": "谷歌在轨 TPU 发回首个 AI 回答：Project Suncatcher 的太空算力“Hello World”",
+    "date": "2026-10-30",
+    "source": "Google",
+    "kind": "tech"
+  },
+  {
+    "id": 7,
+    "file": "briefs-01.html",
+    "anchor": "brief-7",
+    "title": "LeCun 等人把柏拉图表示假说变成 JEPA 定理：对齐的关键是正样本，不是规模",
+    "date": "2026-10-29",
+    "source": "arXiv",
+    "kind": "paper"
+  },
+  {
+    "id": 6,
+    "file": "briefs-01.html",
+    "anchor": "brief-6",
+    "title": "Mistral 开源万亿参数 Large 4 权重：能自己部署的前沿编码与安全模型",
+    "date": "2026-10-29",
+    "source": "Mistral AI",
+    "kind": "model"
+  },
+  {
+    "id": 39,
+    "file": "briefs-03.html",
+    "anchor": "brief-39",
+    "title": "Google 发布 Genie 4：输入一句话，实时生成一个能走进去、能改动、能对话的世界",
+    "date": "2026-10-27",
+    "source": "Google DeepMind",
+    "kind": "model"
+  }
+]
