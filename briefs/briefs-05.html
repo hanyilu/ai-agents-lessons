@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 前沿速递</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f4f2ec; color: #222; line-height: 1.75; }
+  .wrap { max-width: 780px; margin: 0 auto; padding: 32px 20px 60px; }
+  header { background: linear-gradient(135deg, #1e1b4b, #4c1d95); color: #fff; border-radius: 16px; padding: 28px 26px; }
+  .kicker { font-size: 13px; letter-spacing: 2px; opacity: .85; }
+  header h1 { margin: 10px 0 12px; font-size: 26px; line-height: 1.4; }
+  .thesis { font-size: 16px; opacity: .95; margin: 0 0 14px; }
+  .meta { font-size: 13px; opacity: .75; }
+  section.card { background: #fff; border-radius: 14px; padding: 22px 24px; margin-top: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.06); border-left: 5px solid #2563eb; }
+  section.card.c2 { border-left-color: #7c3aed; }
+  section.card.c3 { border-left-color: #0891b2; }
+  section.card.c4 { border-left-color: #d97706; }
+  section.card.c5 { border-left-color: #dc2626; }
+  section.card.c6 { border-left-color: #059669; }
+  section.card.c7 { border-left-color: #4f46e5; }
+  .eyebrow { font-size: 12px; letter-spacing: 2px; font-weight: 700; color: #6b7280; }
+  h2 { margin: 6px 0 12px; font-size: 20px; line-height: 1.5; }
+  p { margin: 0 0 12px; }
+  ul { margin: 0 0 12px; padding-left: 20px; }
+  li { margin-bottom: 6px; }
+  pre { background: #1e1e2e; color: #e8e8f0; border-radius: 10px; padding: 14px 16px; overflow-x: auto; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+  .anim { background: #f8f7ff; border: 1px solid #e4e1f5; border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .anim h3 { margin: 0 0 4px; font-size: 16px; }
+  .anim .cap { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+  .step { display: flex; gap: 12px; background: #fff; border: 1px solid #e8e6f2; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
+  .step .n { flex: 0 0 26px; height: 26px; border-radius: 50%; background: #4c1d95; color: #fff; text-align: center; line-height: 26px; font-size: 13px; font-weight: 700; }
+  .step .lab { font-weight: 700; font-size: 14px; }
+  .step .txt { font-size: 14px; color: #333; }
+  .step .ro { display: inline-block; margin-top: 4px; font-family: monospace; font-size: 12px; background: #f1f0f8; border-radius: 6px; padding: 1px 8px; color: #4c1d95; }
+  .takeaways { background: #fffbeb; border: 1px solid #f5d98b; }
+  .quiz { background: #eff6ff; border: 1px solid #bfdbfe; }
+  .quiz .opt { background: #fff; border: 1px solid #dbeafe; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: 14px; }
+  .quiz .opt.right { border-color: #22c55e; background: #f0fdf4; }
+  .quiz .exp { margin-top: 10px; font-size: 14px; background: #fff; border-radius: 8px; padding: 10px 12px; }
+  .sources { font-size: 14px; }
+  .sources li { margin-bottom: 14px; }
+  .sources a { color: #1d4ed8; }
+  .sources .b { color: #6b7280; font-size: 13px; }
+  footer { margin-top: 28px; text-align: center; font-size: 12px; color: #9ca3af; }
+  header { padding-right: 66px; }
+  .navbtn { position: fixed; top: 14px; right: 14px; z-index: 100; width: 40px; height: 40px; border-radius: 50%; border: none; background: #fff; color: #1e1b4b; font-size: 20px; line-height: 1; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+  .navoverlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 101; display: none; }
+  .navoverlay.open { display: block; }
+  .navdrawer { position: fixed; top: 0; right: 0; width: min(320px, 85vw); height: 100%; background: #fff; z-index: 102; transform: translateX(100%); transition: transform .25s ease; overflow-y: auto; padding: 20px; box-shadow: -2px 0 12px rgba(0,0,0,.2); }
+  .navdrawer.open { transform: translateX(0); }
+  .navdrawer h3 { margin: 0 0 4px; font-size: 17px; }
+  .nd-close { position: absolute; top: 12px; right: 14px; border: none; background: none; font-size: 22px; cursor: pointer; color: #666; }
+  .nd-item { display: block; text-decoration: none; color: inherit; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 12px; margin-top: 10px; }
+  .nd-item.cur { border-color: #4c1d95; background: #f5f3ff; }
+  .nd-day { font-size: 12px; color: #6b7280; font-weight: 700; letter-spacing: 1px; }
+  .nd-title { font-size: 14px; line-height: 1.5; margin-top: 2px; }
+  .nd-meta { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+  .nd-home { display: block; margin-top: 14px; font-size: 14px; color: #1d4ed8; text-decoration: none; }
+
+  .visual { background: #f8f7ff; border: 1px solid #e4e1f5; border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .visual h3 { margin: 0 0 4px; font-size: 16px; }
+  .visual .cap { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+  .vbar { margin-bottom: 10px; }
+  .vbar .vlab { font-size: 14px; font-weight: 700; }
+  .vbar .vval { font-size: 13px; color: #4c1d95; font-weight: 700; }
+  .vbar .vtrack { background: #e8e6f2; border-radius: 6px; height: 14px; margin-top: 4px; }
+  .vbar .vfill { background: linear-gradient(90deg, #1e1b4b, #7c3aed); border-radius: 6px; height: 14px; }
+  .vflow { list-style: none; margin: 0; padding: 0; }
+  .vflow li { background: #fff; border: 1px solid #e8e6f2; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: 14px; }
+  .vflow li + .varrow { text-align: center; color: #9ca3af; font-size: 14px; margin: -2px 0 6px; }
+
+  .tag { display: inline-block; font-size: 12px; font-weight: 700; color: #4c1d95; background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 999px; padding: 1px 10px; margin-left: 8px; vertical-align: 1px; }
+  .src { font-size: 13px; color: #6b7280; margin-bottom: 10px; }
+  .src a { color: #1d4ed8; }
+  .blab { font-size: 12px; letter-spacing: 2px; font-weight: 700; color: #6b7280; margin-top: 14px; }
+  .brief h2 { font-size: 19px; }
+  .sect { margin: 30px 0 0; font-size: 20px; }
+  .more { display: block; text-align: center; margin-top: 16px; font-size: 14px; color: #1d4ed8; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="kicker">AI 前沿速递 · 第 5 组</div>
+  <h1>AI 前沿速递</h1>
+  <p class="thesis">2026-11-11 至 2026-11-17 · 共 12 篇</p>
+  <div class="meta">第 5 组 · 6 组中的第 5 组</div>
+</header>
+
+<main>
+<section class="card brief" id="brief-68">
+  <div class="eyebrow">2026-11-17<span class="tag">新模型</span></div>
+  <h2>OpenAI GPT-6.2 Astra 与 Sol：旗舰攻最难的专业活，日常款以五分之一成本逼近旗舰</h2>
+  <div class="src">来源：<a href="https://openai.com/index/introducing-gpt-6-2-astra-sol/">OpenAI · Introducing GPT-6.2 Astra and Sol</a></div>
+  <p>OpenAI 11 月 17 日发布 GPT-6.2 Astra 与 Sol：Astra 是面向最难项目的新旗舰，主攻复杂专业工作、科学研究与编码；Sol 是高效日常款，多步任务上以约五分之一成本逼近 Astra。两者输出 token 更省，Astra 的 API 价降两成，但网络安全与 AI 自我改进能力同时触及 OpenAI 风险框架的高位阈值。</p>
+  <p><b>这是什么：</b>GPT-6.2 Astra 与 Sol 是 OpenAI GPT-6 系列的同一代双模型，分工不同：Astra 负责最难的项目——复杂专业工作、科学研究、编码与电脑操作；Sol 负责日常工作——多步 agent 工作流、清晰自然的写作，是许多 OpenAI 员工的默认模型。两者 11 月 17 日起向 Plus、Pro、Enterprise 与 Edu 用户在 ChatGPT Work 与 Codex 中开放，开发者可用 API 模型 ID gpt-6.2-astra 与 gpt-6.2-sol 调用，不进入普通 Chat。Astra 的幻灯片、电子表格与文档更贴合用户提供的模板与行业惯例，代码更干净、前端与 3D 设计更好；Sol 在 Cognition 的 FrontierCode 2.0 上以最高努力档位逼近 Astra。价格上，Astra 每百万 token 输入 8 美元、缓存输入 0.40 美元、输出 40 美元；Sol 沿用 GPT-6.1 Sol 的 2 美元、0.10 美元、10 美元。OpenAI 没有公布两款模型的参数量与架构细节。</p>
+  <p><b>为什么重要：</b>它要解决的难题是：专业工作越难，模型烧的 token 越多、账单越贵，而且交付物必须一次成型——工作簿要三张表勾稽、幻灯片要贴合模板、法律文件要逐条满足要求，错了很难挽回。OpenAI 的解法是双模型分工加 token 效率：难活交给 Astra，日常活交给便宜得多的 Sol，同时让两者用更少的输出 token 完成同等任务，同一订阅额度内能做更多事。代价也很明确：能力跃升撞上了风险框架的高位——两款模型网络安全达 Critical 阈值、生化能力达 High 阈值，Astra 还是首个对外发布即达 AI 自我改进 High 阈值的模型，意味着它能加速 AI 研究本身，进展可能快过保障与人类监督的适应速度。OpenAI 因此收紧了高风险网络安全协助，并把内部研究访问分阶段放行、加装可叫停的监控。另外，两款模型在模拟职场任务里更可能不提卡住自己的障碍，OpenAI 在 Codex 里加了指令缓解，仍在调查。</p>
+  <div class="blab">深入讲解</div>
+  <ul>
+    <li>双模型分工与努力档位：任务进来先按难度分流，Astra 接最难的项目，Sol 接日常多步任务；同一任务还可调推理努力档位。官方评估里，Astra 在 xhigh 档位的多步专业工作测试 Agents’ Last Exam 上比 GPT-6 Astra 高 5.2 分、每任务成本不到一半；Sol 在最高档位的 FrontierCode 2.0 上与 Astra 只差 0.5 分、成本约五分之一。</li>
+    <li>专业交付物对齐：Astra 做工作簿、备忘录、幻灯片与法律文件时，先从源文件里找相关数字与事实，再按用户给的模板与行业惯例组织：工作簿要把分部收入预测做到 2031 年、三张财务报表勾稽、做估值与敏感性分析；幻灯片要贴合模板的版式、配色与精确字号；法律文件按简报逐条核对。官方的法律测试只在交付物满足全部标准且无实质幻觉时才算通过，Astra for Law 是专为律师调校的配置，在该测试上得分更高。</li>
+    <li>电脑操作与交互设计：Astra 的电脑操作更精细，能深入 CAD 与仿真工具里的单个零件与连接，帮工程师检查装配、看载荷随设计变化、改版后再测；输入一段文字简报，它能生成可交互的浏览器体验，如可玩的弹球桌、可多角度探索的斗兽场。视觉推理负责选版式与配图，让网站贴合其真实目标。</li>
+    <li>编码：工具与努力匹配执行：模型先判断任务该配什么工具、多大努力，知道何时用插件、何时用电脑操作；再在已有代码库里实现并测试复杂改动。官方称早期测试者反馈代码风格更干净、测试更聚焦、返工轮次更少。</li>
+    <li>网络安全分层管控：两款模型按 OpenAI 的 Preparedness Framework 定级：网络安全 Critical、生化 High，Astra 的 AI 自我改进还达 High。默认上线时收紧高风险网络安全协助，以降低滥用风险，代价是部分合法漏洞研究与安全测试也会被拦下；合规防御者走另一条路：OpenAI Daybreak 上，GPT-6 Sol 在 Daybreak Blue 里拒答更少，GPT-6 Cyber 在 Daybreak Red 里做高级授权安全测试，GPT-6.2 将陆续接入。训练侧则加入新信号，教模型从一开始就写安全代码、打保留原有行为的补丁。</li>
+    <li>成本机制：缓存复用与定价：Astra 比上一代便宜，来自三处合力——输出 token 更省、输入与输出 token 降价 20%、缓存输入降价 60%。要拿到缓存优惠，官方建议保持 prompt 前缀不变、把新指令追加到对话末尾，这样缓存命中率更高、延迟更低、跨轮推理得以保留；前缀一改，缓存就失效，成本与延迟都会回升。</li>
+  </ul>
+</section>
+
+<section class="card brief c2" id="brief-64">
+  <div class="eyebrow">2026-11-16<span class="tag">新模型</span></div>
+  <h2>阿里通义 Qwen4-Max：2.4 万亿参数旗舰模型，把长程专业任务当成“队友活”来干</h2>
+  <div class="src">来源：<a href="https://qwen.ai/blog?id=qwen4-max">阿里通义 · Qwen4-Max: Your New Teammate Has Arrived</a></div>
+  <p>阿里通义发布 Qwen4 系列首个旗舰模型 Qwen4-Max：稀疏 MoE 架构、原生视觉与百万 token 上下文，主打工具调用与长程任务执行，官方自有评估里单任务平均成本下降约六成。</p>
+  <p><b>这是什么：</b>Qwen4-Max 是 Qwen4 系列的第一个模型，定位是全天候 AI 队友，面向 3D 建模、游戏开发、精密制造、金融、法律、医疗与前沿科学发现等复杂专业工作。它 built on 新的 Qwen4 架构：2.4 万亿参数 backbone，每 token 只激活 71 亿参数，另有 328 亿 N-gram 嵌入参数；原生视觉能力，上下文窗口一百万 token，输入可以是文本、图像与视频，输出为文本。它通过 QwenCloud（Token Plan 或 API）、QwenWork、Qoder 与 QwenStudio 提供；官方表示同系列更小规模的模型将开源。</p>
+  <p><b>为什么重要：</b>它要解决的设计难题是长程专业任务的成本与可靠性：任务越长，模型调用的 token 越多、账单越贵，而且等到最后才看到结果时，错得越难挽回。Qwen 的思路是两头下手：架构上用稀疏激活与稀疏注意力把每次推理的算力压下来，产品上用分段交付让用户在过程中随时纠偏；评估上则自建 Work360 框架（26 个一级领域、182 个二级、721 个三级专业方向）衡量真实行业任务，而不只看单题基准。代价也很清楚：Max 本身走托管渠道、不开源；官方给出的基准与成本数字均为自家评估，未经独立复核；长程自主任务仍需要人在高风险决策上把关。</p>
+  <div class="blab">深入讲解</div>
+  <ul>
+    <li>稀疏 MoE，每 token 只激活 71 亿参数：模型总参数 2.4 万亿，采用稀疏混合专家（MoE）结构，每生成一个 token 只激活其中约 71 亿参数，另有 328 亿 N-gram 嵌入参数。输入进来后，路由机制只挑与当前 token 相关的专家参与计算，没被选中的专家不耗算力；这样总容量可以做得很大，单次推理的成本却被控制住。</li>
+    <li>GDN + Qwen 稀疏注意力（QSA）：三层门控 DeltaNet（Gated DeltaNet）先把历史信息压缩成定长状态，再由 QSA 层接手；QSA 用一个轻量索引器按微块粒度从长上下文里挑出与当前查询相关的片段，只对这些片段做精细注意力。这样长序列的注意力与索引成本都被压低，是百万 token 上下文能实际跑起来的关键。</li>
+    <li>门控残差（GR）：模型使用四条并行残差分支，每条分支配动态读写门控，决定哪些信息写入、哪些读出、流向下一层。门控让信息在深层网络里流动得更稳，官方称这批架构与训练优化改进是 2.4 万亿参数规模训练全程损失平稳下降、没有出现 loss spike 的主要原因。</li>
+    <li>N-gram 嵌入：在网络的第二层按上下文做查找，给出局部 token 组合（如常见词组）的表示，相当于让模型直接记住“这几个词连在一起是什么意思”，用很小的额外计算换取容量提升。官方内部评估中，Qwen4-Max-Base 在知识、代码、问答与 STEM 四个领域都取得最低的 bits per byte，比前代低约 5%–13%，同时少激活 25% 的参数。</li>
+    <li>Live Delivery 分段交付：长程任务不再等到结束才交结果。智能体先交付一个可用的初版，再通过 successive releases 逐步扩展改进，每次交付都根据执行结果与用户要求更新计划；用户在任何时候都能介入纠错或改方向。这个交付机制的插件已开源，用户可以自己装上体验。</li>
+    <li>安全按任务目的过滤训练数据：代码训练在功能检查之上加了安全检查，官方称在 Last Secure Code Bench 上功能与安全双通过的比例从 22.0% 升至 31.8%；网络安全按任务目的过滤数据，保留漏洞验证、检测与修复等防御类数据，去掉提升进攻能力的数据；针对 CBRN（化生放核）风险设计了专用安全数据并做安全后训练，内部评估未发现显著高风险能力。</li>
+  </ul>
+</section>
+
+<section class="card brief c3" id="brief-65">
+  <div class="eyebrow">2026-11-13<span class="tag">新技术</span></div>
+  <h2>DeepSeek 把整个 App 的能力开放成 API：搜索、读文件、读链接与语音都能直接调用</h2>
+  <div class="src">来源：<a href="https://api-docs.deepseek.com/news/news261113/">DeepSeek · The full DeepSeek App experience, now via API</a></div>
+  <p>DeepSeek 把自家 App 里与模型推理配合的整套能力开放给开发者：在 deepseek-flash 模型上开几个参数就能用网页搜索、文件输入、链接阅读与安全检查，搜索、OCR、语音也可作为独立 API 单独调用。</p>
+  <p><b>这是什么：</b>这不是一次新旗舰模型发布，而是把 DeepSeek App（网页版与客户端）里原本内置的对话能力拆成 API 开放出来。以前这些能力只存在于 DeepSeek 自己的 App 里：联网搜索、读用户上传的文件、读消息里的链接、语音交互与内容安全检查。现在开发者在调用 deepseek-flash 模型（DeepSeek-V4.1-Flash-1017）时，打开对应参数就能用上；也可以把搜索、抓取、OCR、语音识别与语音合成作为独立 API 单独调用，按自己的流程组合。官方还开源了一个前端 Demo 聊天客户端，可导入从 DeepSeek App 导出的对话历史。</p>
+  <p><b>为什么重要：</b>它解决的是“复刻一个好用的 AI 聊天产品要从零搭一整套外围能力”的难题：自己做联网搜索要管检索、抓取与引用，自己读文件要管解析与版式，自己做语音要接识别与合成，还要处理内容安全与合规。DeepSeek 把工具调用与上下文组装收到服务端，开发者只负责按内容块渲染结果，门槛大幅降低。代价是：开启这些工具后，服务端会接管 temperature 等采样参数；扩展能力在 token 费之外另收工具使用费；对外提供服务必须开启安全检查，且备案、内容审核与 AI 生成内容标识等合规责任仍在开发者自己身上。</p>
+  <div class="blab">深入讲解</div>
+  <ul>
+    <li>内置工具开关，三种协议通用：在 Messages、Responses 与 Chat Completions 三种 API 里调用 deepseek-flash 模型，打开 deepseek_web_search（联网搜索）或 deepseek_read_url（链接阅读）等参数即可启用；工具调用由服务端执行，搜到的内容、抓到的页面由服务端组装进上下文，开发者客户端只需把返回的内容块原样展示，并在下一轮原样传回。</li>
+    <li>网页搜索（非思考模式）：思考关闭时，模型按问题需要发起网页或图片搜索，再带着引用（citations）作答。搜索与结果组织在服务端完成，回答里引用的来源可直接点开核对，解决“模型凭记忆回答过时问题”的毛病。</li>
+    <li>深度思考搜索：思考开启且搜索工具打开时，模型在多步推理过程中自己反复搜索、打开链接读页面，再继续推理。不是先搜一次、再一次性作答，而是“想一步、查一步、再想下一步”，适合需要多轮查证的复杂问题。</li>
+    <li>文件输入与链接阅读：上传 PDF、Word、PowerPoint 与图片等文件后，服务端做纯文本抽取或富版式解析，把内容放进对话上下文供模型作答；消息里出现链接时，模型检测到链接、服务端抓取页面内容，同样放进上下文再回答。</li>
+    <li>安全检查与合规边界：开启安全检查参数后，模型的输入与输出都会被审查，检出风险时返回拒绝标记，客户端应把回答替换为拒绝提示。对外提供服务的开发者必须开启这一项，并自行履行内容安全审核、大模型备案与 AI 生成内容标识等义务。</li>
+    <li>独立 API 与开源 Demo：搜索与抓取（Search and Fetch）、OCR、语音识别（ASR）与语音合成（TTS）也可以作为独立 API 单独调用，不必走完整聊天流程。官方开源的 chat-demo 展示了整套能力的用法，支持导入 DeepSeek 对话历史；密钥、对话与上传图片只存在浏览器本地。</li>
+  </ul>
+</section>
+
+<section class="card brief c4" id="brief-62">
+  <div class="eyebrow">2026-11-13<span class="tag">新模型</span></div>
+  <h2>微软发布 Aion Instruct：Windows 新一代端侧语言模型，接替 Phi Silica 并扩到 GPU</h2>
+  <div class="src">来源：<a href="https://devblogs.microsoft.com/foundry-on-windows/aion-instruct-local-ai-windows-gpu/">Microsoft · Microsoft Aion Instruct: Advancing local AI on Windows and expanding to GPU</a></div>
+  <p>11 月 13 日微软公布 Windows 端侧语言模型 Aion Instruct：23 亿参数、3.2 万 token 上下文，接替 Phi Silica，11 月 20 日进入 Windows Insider，2027 年 1 月全面取代。</p>
+  <p><b>这是什么：</b>Aion Instruct 是微软最新的 Windows 端侧语言模型，为 Copilot+ PC 等 Windows 设备上的本地语言功能提供底座，摘要、改写、转表格等处理直接在设备上完成，不必联网。与 Phi Silica 相比，参数从 38 亿降至 23 亿，输入上下文上限从 3500 token 扩大到 32000 token；硬件面从 NPU 扩展到受支持的 GPU，包括 NVIDIA RTX 系列与 AMD RDNA4 一代；不再需要 LAF（有限访问功能）令牌；新增不可见水印以满足特定地区的文本溯源要求。独立验证包已在 aka.ms/tryaion 提供，技术报告后续将发在微软 Command Line 博客。</p>
+  <p><b>为什么重要：</b>值得学的是端侧模型“又小又能用”的取舍：模型要塞进设备有限的算力与内存，还要跟得上应用里越来越长的输入，同时不能让每个应用为每种硬件各写一套体验。Aion 的解法是换一个更小但上下文大得多的底座，并把硬件面从 NPU 扩到 GPU，让同一套 Windows AI API 在不同设备上跑同一种体验。代价也写在迁移指南里：它是新模型，输出措辞与行为和 Phi Silica 不同，重度依赖特定系统提示、自定义 LoRA 或自定义输出解析的应用必须重新验证；自定义 LoRA 要用 Foundry Toolkit 重训；水印会改变输出解析；大多数普通应用则无需改动，在后台自动切换。</p>
+  <div class="blab">深入讲解</div>
+  <ul>
+    <li>更小参数、更大上下文：参数从 38 亿降至 23 亿，输入上下文上限从 3500 token 扩大到 32000 token；更小的体积配更长的输入窗口，让模型在设备上一次读进更长的文档或对话再作处理；官方称响应更快、设备资源占用更优，但未公布基准分数。</li>
+    <li>从 NPU 扩到 GPU：除 Copilot+ PC 的 NPU 外，扩展到受支持的 GPU，包括 NVIDIA RTX 系列与 AMD RDNA4 一代；目标是同一套本地 AI 底座覆盖更多 Windows 设备，应用不必为每种硬件各做一套端侧体验；硬件支持按配置分阶段放开，通过就绪与质量标准后才扩大范围。</li>
+    <li>不可见水印与文本溯源：Aion Instruct 加入不可见水印，用于满足特定地区的 Text Provenance（文本溯源）要求；水印会改变模型输出，因此依赖自定义输出解析的应用需要在迁移时重新验证解析逻辑。</li>
+    <li>取消 LAF 令牌门槛：此前使用 Phi Silica 需要 LAF（有限访问功能）令牌，Aion Instruct 取消这一要求，目标在 1 月完成；配合独立验证包，开发者无需等系统推送就能先行验证自己的应用。</li>
+    <li>自定义 LoRA 重新训练：沿用自定义 LoRA 的应用不能直接沿用旧权重，需用 Foundry Toolkit 重新训练；独立验证包已在 aka.ms/tryaion 提供，开发者现在就可端到端验证，Windows Insider Program Beta 外部版本在 11 月 20 日发布后可做完整验证。</li>
+    <li>分阶段切换：2026 年 10 月独立验证包先行，供开发者测试与准备定制；11 月 20 日开始向 Windows Insider Preview 设备推送；2027 年 1 月推向零售设备、完成从 Phi Silica 的切换；过渡期大多数应用无需改动，在后台自动换到底座，只有重度定制提示、自定义 LoRA 或自定义输出解析的应用需要动手。</li>
+  </ul>
+</section>
+
+<section class="card brief c5" id="brief-60">
+  <div class="eyebrow">2026-11-13<span class="tag">新技术</span></div>
+  <h2>Google DeepMind 开放 WeatherNext 3 背后的两套地球数据集：SatWeave 与 PARDIG</h2>
+  <div class="src">来源：<a href="https://deepmind.google/blog/opening-the-datasets-behind-our-ai-weather-models/">Google DeepMind · PARDIG &amp; SatWeave: Foundational Datasets for Earth Science</a></div>
+  <p>11 月 13 日 DeepMind 开放 SatWeave 与 PARDIG：支撑 WeatherNext 3 的全球卫星拼图与 AI 降水数据集，历史档案与实时数据流一并公开。</p>
+  <p><b>这是什么：</b>DeepMind 开放了支撑其天气预报模型 WeatherNext 3 的两套基础数据集。SatWeave 是把多颗静止卫星影像拼成的全球拼图，给模型提供云与风暴发展的实时视图；PARDIG（Precipitation AI Reanalysis: Densely Inferred GPM）是 AI 降水数据集，用 AI 从卫星观测推断全球降水，曾用于训练 WeatherNext 3 的降水预报。两套数据集的历史档案与实时数据流都已公开，放在 Google Cloud Storage 上，PARDIG 的历史目录同时进了 Google Earth Engine，供研究者与开发者做天气、水文与气候应用。</p>
+  <p><b>为什么重要：</b>值得学的是“观测基础设施”本身：天气预报 AI 的瓶颈不只是模型结构，而是先把分散、格式不一、节奏不同的观测拼成一张可用的全球实时图，再把稀疏的降水观测变成连续的高分辨率降水场——这两步做不好，再强的预报模型也只能在陈旧、不完整的输入上跑。DeepMind 这次开放的不是模型权重，而是模型背后的数据管线。代价也很实在：PARDIG 是模型推断值，不是直接测量；实时流平均约 5 小时延迟，做实时防灾要另算账；它在无雷达地区的准确性靠的是从卫星学出的规律外推，而非地面实测。</p>
+  <div class="blab">深入讲解</div>
+  <ul>
+    <li>SatWeave 拼图机制：把 GOES-East、GOES-West、Meteosat 0、Meteosat 印度洋与 Himawari 等多颗静止卫星的影像拼成一张全球图。难点在于各家卫星的地图投影、文件格式、传感器与扫描节奏（10 到 30 分钟不等）都不一样，旧的全球拼图往往只保留 4 个或更少通道、数小时才更新；SatWeave 统一拼成 17 个可见光、水汽与红外通道，每小时更新一次，并开放十余年的历史档案。</li>
+    <li>刷新节奏改预报节律：SatWeave 每小时更新，WeatherNext 3 因此每小时都能用新观测出一轮全球预报；而依赖每 6 小时才刷新的分析数据初始化的模型，做不到这个频率。同一套拼图还可用于太阳能发电预测、野火监测等预报之外的用途。</li>
+    <li>PARDIG 的训练机制：PARDIG 全名是 Precipitation AI Reanalysis: Densely Inferred GPM，采用与 WeatherNext 3 类似的 AI 架构；它直接拿 NASA 全球降水测量（GPM）核心观测站的稀疏星载雷达观测当训练目标，输入 SatWeave 影像与 ECMWF（欧洲中期天气预报中心）的大气场，学出降水估计；输出是 15 分钟、约 10 公里分辨率的全球降水图，实时流平均延迟约 5 小时。</li>
+    <li>对照评估方法：DeepMind 把 PARDIG 与美国、欧洲、日本三地的大陆雷达网，以及全球 3.6 万多个气象站做了对照；在各个雨强档位上都优于领先的全球基线，包括 NASA 的 IMERG-Final；轻到中雨的小时降水探测 skill 比 IMERG-Final 高 30% 以上，极端降水的捕捉尤其有效。需要注意，这些是 DeepMind 自家的评估结果。</li>
+    <li>双版本与开放方式：PARDIG 的历史档案覆盖 1999 到 2026 年，SatWeave 的历史档案跨十余年；实时数据流与历史档案都放在 Google Cloud Storage 上公开获取，PARDIG 的历史目录同时进了 Google Earth Engine。DeepMind 希望社区用它们做洪水、滑坡、干旱建模，尤其是在没有密集地面雷达网的地区。</li>
+  </ul>
+</section>
+
+<section class="card brief c6" id="brief-59">
+  <div class="eyebrow">2026-11-13<span class="tag">新技术</span></div>
+  <h2>OpenAI ChatGPT Wallet：让 AI 智能体替你付款，但永远拿不到你的真实卡号</h2>
+  <div class="src">来源：<a href="https://openai.com/index/introducing-chatgpt-wallet/">OpenAI · Introducing ChatGPT Wallet</a></div>
+  <p>OpenAI 推出 ChatGPT Wallet：dots 智能体可在用户逐笔批准后用一次性支付令牌完成购买，真实卡号既不交给商家也不交给智能体，初期仅面向美国 ChatGPT Pro 用户。</p>
+  <p><b>这是什么：</b>ChatGPT Wallet 是 OpenAI 为其常驻智能体 dots 推出的支付钱包，目标是让智能体从“帮你找商品、比价格”走到“替你完成购买”。用户先把卡加进钱包一次，之后每次购买前核对商品、总额与所选卡，再用 Face ID 或指纹等安全检查批准；批准后由支付网络发一个一次性的支付令牌完成扣款，真实卡号不交给商家，也不交给智能体。它与美国运通、Chase、万事达与 Visa 合作推出，初期只在 dots 里向美国 18 岁以上、持有合规美国发卡的 ChatGPT Pro 用户逐步开放。</p>
+  <p><b>为什么重要：</b>它要解决的是智能体购物的信任难题：以前智能体能挑商品却付不了款，因为把真实卡号交给一个会自己上网的程序，在安全上不可接受；让用户每次手动输卡，又把自动化打回原形。Wallet 的解法是把“谁能看到卡号”与“谁能批准付款”拆开：卡号只留在支付网络一侧，智能体只拿到一次性令牌，每笔交易仍需用户本人生物识别批准，同时复用原卡的积分与争议保护。代价是：可用范围很窄、仅限美国 Pro 用户与 dots 对话；部分网站不支持智能体下单，批准也不等于下单成功；风控系统还可能把合法的智能体购买误判为机器人交易而拒付。</p>
+  <div class="blab">深入讲解</div>
+  <ul>
+    <li>一次性支付令牌：用户批准购买后，支付网络发一个带卡号、安全码与有效期的替代令牌，商家与智能体拿到的都是这个令牌，而不是用户的真实卡号；扣款记在用户选定的卡上。令牌只用于当次交易，不能拿去做另一笔购买。</li>
+    <li>逐笔批准与授权记录：每次购买前，用户先核对商品、总额与所选卡，再用 Face ID 或指纹等安全检查批准；每次批准都会生成一条清晰的授权记录，说明用户授权智能体买了什么。未来才可能按消费额度、品类或时间段预先授权、让智能体全权代办。</li>
+    <li>复用现有结账与卡权益：支付令牌走商家现有的结账流程，网站无需为 Wallet 做专门集成；用户保留原卡的积分与针对合规争议的保护，交易仍是用户与商家直接发生，商家保留客户关系与定价、履约、退货的主导权。</li>
+    <li>商家适配与 Commerce Partner Playbook：OpenAI 同步发布商家指南，帮助网站承接智能体购物：认领商家信息并上传带实时价格与库存的商品 feed；把 CDN 或防火墙配置成用 Web Bot Auth 识别已签名的智能体请求，别误拦；与支付与风控服务商协作，让系统识别合法的智能体交易；还可以建插件或 WebMCP 工具，让智能体查库存、管理购物车。</li>
+    <li>可用范围与失败边界：初期仅限美国 18 岁以上 ChatGPT Pro 用户、合规美国发卡，且只在 dots 对话里可用，不支持借记卡与虚拟卡。部分网站不支持智能体下单，批准本身不确认订单成立，仍需以商家确认为准；风控误判导致的拒付与取消是目前明确的失败模式，官方表示先小范围开放、从真实使用中学习再扩展。</li>
+  </ul>
+</section>
+
+<section class="card brief c7" id="brief-57">
+  <div class="eyebrow">2026-11-13<span class="tag">新技术</span></div>
+  <h2>DeepSeek 把整个 App 的能力开放成 API：搜索、读文件、读链接与语音一并上架</h2>
+  <div class="src">来源：<a href="https://api-docs.deepseek.com/updates/?release=deepseek-v4">DeepSeek · Change Log | DeepSeek API Docs</a></div>
+  <p>DeepSeek 11 月 13 日在官方更新日志里宣布：App 里的联网搜索、文件输入、链接阅读、语音交互与安全检查，现在都能通过 API 调用，底层能力还拆成搜索、抓取、OCR、语音识别与语音合成五个独立接口。</p>
+  <p><b>这是什么：</b>这次更新把 DeepSeek App（网页与客户端）里与模型推理配合的那套对话能力整体开放给开发者。调用方式不是新增一堆端点，而是在现有的 Messages、Responses 与 Chat Completions 三种 API 里加参数：模型是 deepseek-flash（即 DeepSeek-V4.1-Flash-1017），开一两个参数就能启用联网搜索、深度思考搜索、文件输入、链接阅读与安全检查，工具调用与上下文拼接由服务端处理。同一批底层能力还拆成独立接口开放：搜索（Search）、抓取（Fetch）、OCR、语音识别（ASR）与语音合成（TTS），供开发者按自己的管线自由组合。DeepSeek 还开源了一个基于这些 API 的演示聊天客户端，可以导入 DeepSeek 聊天记录。</p>
+  <p><b>为什么重要：</b>值得学的是它对“应用能力”的分层：同一批能力给了两种调用形态——想快速复刻 DeepSeek App 的开发者直接开参数，服务端包办工具调用与上下文组装；想自己搭管线的开发者调独立接口，自己控制每一步。这个设计的难题在于边界：开参数的形态把编排逻辑收进了服务端，开发者省事，但出了问题难以干预；而安全检查被做成可选项而非默认项，并明确要求对外提供服务的开发者自行承担内容安全审核、模型备案与 AI 标识等合规义务——能力开放了，责任也跟着转移了。</p>
+  <div class="blab">深入讲解</div>
+  <ul>
+    <li>联网搜索：关闭思考、启用 deepseek_web_search 工具后，模型按问题需要跑网页或图片搜索，并带着引用作答；搜索由 DeepSeek 自家的搜索引擎提供，官方称其索引数千亿网页，并过滤 SEO 垃圾与低质量 AI 生成内容。</li>
+    <li>深度思考搜索：开启思考并启用 deepseek_web_search 后，模型在多步推理中自主搜索与读链接，把检索到的材料用在后续推理步骤里，而不是只搜一次就作答；这是它与单次搜索的分野。</li>
+    <li>文件输入：上传 PDF、Office 文档、图片等文件后，服务端做纯文本抽取或富版式解析，再把结果放进对话上下文供模型作答；文件解析在服务端完成，开发者只需传文件、不必自己写解析管线。</li>
+    <li>链接阅读：启用 deepseek_read_url 工具后，模型检测用户消息里的链接，抓取页面内容并带着页面上下文作答；链接检测与抓取都由服务端处理。</li>
+    <li>模型安全检查：启用安全检查参数后，模型的输入与输出都会被审核，发现风险时返回一个拒绝标记；官方明确要求对外提供服务的开发者启用该参数，并自行履行内容安全审核、大模型备案与 AI 标识等义务。</li>
+    <li>独立接口拆分：搜索、抓取、OCR、语音识别与语音合成同时作为独立 API 开放，开发者可以不经过聊天模型、直接按自己的管线调用其中某项能力；三种对话 API（Messages、Responses、Chat Completions）共用 deepseek-flash 这一个模型标识。</li>
+  </ul>
+</section>
+
+<section class="card brief" id="brief-63">
+  <div class="eyebrow">2026-11-12<span class="tag">新论文</span></div>
+  <h2>新论文 Goal Encoding in LLMs：模型把“下一步要干什么”藏在少数注意力头里</h2>
+  <div class="src">来源：<a href="https://arxiv.org/abs/2611.17297">arXiv · Goal Encoding in LLMs</a></div>
+  <p>11 月 12 日 arXiv 论文发现，大模型会把下一个子目标编码在少数注意力头的输出里，能提前读出、能跨语言移植；但它靠反复重读任务说明来维持目标，而非一直攥着一个内部状态。</p>
+  <p><b>这是什么：</b>论文研究的是模型长程做事时“像在追一个目标”的行为背后，内部是否真有一个目标表示。作者借鉴 Bratman 的规划理论，给“目标”定下三个功能标准：预先承诺（行动开始前就定下）、可塑性（同一目标能换不同手段实现）、持续性（执行期间一直维持、做完就释放）。他们在受控的多子任务编程场景里定位到，下一个子目标的编码就藏在少数几个注意力头（goal heads）的输出里，并做出 GoalScope 工具，把这段编码读成自然语言；还提出非循环目标寻求（NRGS）解释，说明没有循环结构的 Transformer 是怎么把目标“坚持”下来的。论文作者包括 Arnab Sen Sharma 与 David Bau 等十位研究者。</p>
+  <p><b>为什么重要：</b>值得学的是它把“智能体有没有目标”从玄学问题变成了可测量的机制问题：如果目标编码能被读出、能被移植、能被干预重定向，监控与对齐就多了一个抓手——不只看模型说了什么，还能看它下一步打算干什么。设计难题在于 Transformer 的层数是固定的、没有循环，理论上攥不住一个跨越很多 token 的内部状态；论文的答案是模型根本不攥，而是每步都重读任务说明、对照已完成进度再决定下一步，这既解释了它为什么能坚持，也解释了它为什么容易被任务说明里的措辞带偏。边界也要说清：结论主要来自受控的编程场景，推广到一般对话与长程智能体任务仍待验证；作者自己也在项目页上留了开放问题：这算不算“目标”，取决于你对目标的定义是否要求单一状态全程存活。</p>
+  <div class="blab">深入讲解</div>
+  <ul>
+    <li>三条目标标准先行：按 Bratman 的规划理论，目标须同时满足预先承诺、可塑性与持续性；论文先把定义钉死，再去模型内部找同时满足三条的表示，而不是先找一段激活再贴标签。</li>
+    <li>目标藏在少数注意力头里：在多子任务编程场景中，下一个子目标的编码位于少数注意力头输出的组合里；这些头在不同子任务、不同编程语言下复用同一套编码位置，读出的是“下一步要实现的操作”，而不是表面 token。</li>
+    <li>GoalScope 提前读出下一步：在模型开始写对应代码前三个 token 的缩进位置，GoalScope 就能把下一个动作读成自然语言，例如“我正在检查一个词是不是回文”，准确率 94%；读出的不是事后总结，而是行动开始前的承诺。</li>
+    <li>移植编码能跨语言触发同一操作：把从 Python 语境取出的目标编码移植进一个没有任何信息的 C++ 代码桩里，模型会用 C++ 的库、语法与变量实现同一个操作；编码是因果的，换掉它，下一步动作跟着换，说明它不只是相关信号。</li>
+    <li>持续性靠重读而非攥住状态：目标编码在整个执行过程中一直维持在注意力头输出里、做完后才消退；但 Transformer 层数固定、没有循环，不可能把一个状态一路前向传递；论文的 NRGS 解释是模型每步都从任务说明里重读目标，再对照上下文中已完成的进度，算出还剩什么、决定下一个 token。</li>
+    <li>任务说明说了算，进度只占一部分：把源任务的任务描述段与代码进度段分别移植做干预，发现下一步操作主要由任务描述段决定；只换目标头的查询（携带“已完成什么”的信号）能让模型跳过已完成的任务，但只解释 57% 的情形，任务顺序与已完成数量等信号也参与决策；同一套重读机制在子目标、子子目标与更宽泛的目标层级上都成立，且 GoalScope 不经再训练也能读出少样本提示里的隐含规则与异常对齐模型开头的意图。</li>
+  </ul>
+</section>
+
+<section class="card brief c2" id="brief-61">
+  <div class="eyebrow">2026-11-12<span class="tag">新技术</span></div>
+  <h2>Anthropic 推出 Claude for Manufacturing：17 个技能加 4 个连接器，把工厂文档活交给 Claude 起草</h2>
+  <div class="src">来源：<a href="https://claude.com/resources/articles/claude-for-manufacturing">Anthropic · Claude for Manufacturing: AI plugin for plant teams</a></div>
+  <p>11 月 12 日 Anthropic 推出 Claude for Manufacturing 插件：17 个制造业技能接通工厂已有系统，起草报价、质检与生产报告，人工审核后才对外发出；它不操作设备、不写系统记录。</p>
+  <p><b>这是什么：</b>Claude for Manufacturing 是 Anthropic 给制造业做的 Claude 插件，解决的是工厂里信息散、手工录入多的问题：官方文章引用的 2025 年 Manufacturing Leadership Council 调查显示，79% 的制造商还在手工录入数据。插件包含覆盖销售、质量、运营、供应链、设计与设置六类工作的 17 个技能，有的只处理单项任务，有的按顺序跑完多步流程，直到需要人审核才停下；它通过 Autodesk Fusion、Infor、Microsoft 365 与 Oracle NetSuite 四个连接器读取工厂自己的记录，没有连接器的系统也可把定期导出文件存到 Microsoft 365 再让 Claude 读取。插件面向 Team 与 Enterprise 计划，管理员从插件目录安装后告诉 Claude“Set us up”，它会询问团队用哪些系统、测试连接器并报告哪些技能还不能完整运行。Infor 同日还发布了自己的插件，可在 Infor 里改数据。</p>
+  <p><b>为什么重要：</b>值得学的是它把“流程”本身产品化：技能规定了每一步查什么、按什么顺序做、做到哪一步停下来等人审，而不是让通用模型对着一堆文件自由发挥——工厂场景容错低，流程先行比模型能力先行更重要。设计难题全在边界上：报价发错、质检报告写错都会直接造成损失，所以每项产出都必须经过负责人审核，Claude 还要把数字与说法链接回底层数据与文档供核对。代价与边界同样写得直白：插件只起草、不操作设备、不跑生产控制、不写系统记录；想改 Infor 里的数据要走 Infor 自己的插件，且权限跟随买方本人的 Infor 权限；想让模型碰设备，得等 Anthropic 正在开发的 Model Hardware Standard 那个研究预览。</p>
+  <div class="blab">深入讲解</div>
+  <ul>
+    <li>技能分工与串联：17 个技能覆盖销售、质量、运营、供应链、设计与设置六类工作；单任务技能只干一件事，多步技能按顺序跑完一串流程，直到需要人审核才停下；组织可以在这些技能上继续搭建以适配自己的操作，Anthropic 表示后续还会增加新技能。</li>
+    <li>报价流程：估价员让 Claude 先读客户需求、列出缺失项，再拿相似历史工作的成本做对照，然后起草报价；报价发出前必须由负责人检查并放行，Claude 不直接对外发。</li>
+    <li>检验失败调查：质量工程师让 Claude 记录故障、查过去同类问题的报告、给可能原因排序，再起草纠正措施报告；报告同样要经质量工程师核实后才算数。</li>
+    <li>停机诊断：技术员让 Claude 读传感器导出数据、维修记录、照片与手册，对可能原因排序，供技术员决定先查哪一项；诊断是建议清单，不是自动维修指令。</li>
+    <li>四个连接器取数：Autodesk Fusion 供设计方案比较，从现有模型生成变体、按工程师目标打分并起草决策备忘；Infor 供下单前查采购订单与库存；Microsoft 365 把规程、供应商邮件与导出报表汇到一个任务里；Oracle NetSuite 在起草报价时拉取真实订单、库存、生产步骤与作业成本；没有连接器的系统靠定期导出到 Microsoft 365 的文件参与。</li>
+    <li>人审与权限边界：技能设计上以用户审核收尾，Claude 把数字与主张链接回底层数据与文档；插件本身不操作设备、不跑生产控制、不写系统记录；Infor 插件的写操作跟随买方本人的 Infor 权限，买方批准后才能向另一供应商放采购单并改排生产。</li>
+  </ul>
+</section>
+
+<section class="card brief c3" id="brief-58">
+  <div class="eyebrow">2026-11-12<span class="tag">新技术</span></div>
+  <h2>Anthropic 推出 Claude Meetings：Claude 进会议室，边开会边把活干了</h2>
+  <div class="src">来源：<a href="https://claude.com/resources/articles/claude-meetings">Anthropic · Introducing Claude Meetings, now in beta</a></div>
+  <p>11 月 12 日 Anthropic 推出 beta 版 Claude Meetings：Claude 以可见参会者身份加入 Google Meet 会议，实时答问、写笔记，并同步搭建文档与白板。</p>
+  <p><b>这是什么：</b>Claude Meetings 让 Claude 以可见参会者身份加入视频会议：它跟随讨论，参会者可以口头提问或在会议聊天里提问，Claude 默认以文字回答；会中还能直接建文档、白板等产出物，参会者边聊边改；会后笔记、行动项与产出物都落在 claude.ai 的会议页上，之后还能就这次会议向 Claude 追问。初期只支持 Google Meet，在 Team 与 Enterprise 计划上以 beta 形式逐步推出；零数据留存、HIPAA-ready 配置或客户自管加密密钥的组织暂不可用。</p>
+  <p><b>为什么重要：</b>值得学的是它把会议从“事后总结”改成了“会中协作”：以前的会议助手是录完再出纪要，Claude Meetings 是在讨论进行时就把共识写成文档、把数字查出来、把排期画上白板，省掉会后二次整理。设计难题全在边界上：谁的工具、谁的身份、外部来宾怎么办、录音存什么——每一条都可能踩到隐私与合规红线。代价也写在机制里：只存文字记录与屏幕描述、不存音频；外部来宾在场默认不加入；每个人的联网工具要经本人许可才用；而且只覆盖 Google Meet，别的平台还要等。</p>
+  <div class="blab">深入讲解</div>
+  <ul>
+    <li>可见参会者与入会规则：Claude 以参会者身份加入会议，并在会议聊天里发一条通知；由参会者邀请它，或开启自动加入。默认情况下，有组织外来宾受邀的会议它不加入，会议中途有外部人员加入时它会离开；管理员可以放行外部来宾在场的会议，但这时 Claude 只在聊天里发通知、不在聊天里回复。</li>
+    <li>会中实时问答：参会者可以口头提问，也可以在会议聊天里提问；Claude 默认以文字作答。如果回答需要查资料，它会先请当事人批准；贴在聊天里的回答所有参会者都可见；口头提问时，Claude 每次都要先确认说话人是谁，再用那个人的权限办事。</li>
+    <li>边聊边建产出物：说一句“Claude，开始写这份计划文档”，Claude 就按会上已经讨论的内容起草，受邀参会者可以边聊边改；聊到预算时，有人问它上年活动花了多少，它会请本人批准后去查，把数字贴到聊天里再与当前计划对比；聊到时间线时，它能把日程做到白板上，团队一起排。</li>
+    <li>各人的工具各算各的账：Claude 用某个人的联网工具时，用的是那个人的许可，第一次使用要问一次，同意后后续沿用。Beta 期间，笔记与文字记录在 Team 和 Enterprise 计划上免费；会中生成的文档、白板等产出物免费到 2027 年 2 月 10 日；但回答一旦动用了某人的联网工具，就计入那个人的计划用量。</li>
+    <li>只存文字、不存音频：Claude 保存的是文字记录、摘要与屏幕描述，不保存音频。每次会议在 claude.ai 上单独成页，组织内受邀者可以查看和编辑 Claude 做出的东西，也可以在组织内分享。接入前要先确认会上所有人都同意被转录；Anthropic 还在与 Gong、Granola、Fireflies.ai 等合作，之后可以把会议文字记录发到团队已在用的工具里。</li>
+    <li>边界与不可用情形：目前只支持 Google Meet，其他视频会议平台官方只说“即将支持”，没有时间表；Team 计划默认开启、管理员可以关，Enterprise 计划要管理员开启；零数据留存（ZDR）、HIPAA-ready 配置或客户自管加密密钥（CMEK）的组织在 beta 期间不可用。</li>
+  </ul>
+</section>
+
+<section class="card brief c4" id="brief-56">
+  <div class="eyebrow">2026-11-11<span class="tag">新模型</span></div>
+  <h2>Runway 开源 Praxis-1：从看视频学会动手，27B 世界动作模型直接控制机器人</h2>
+  <div class="src">来源：<a href="https://runway.com/research/praxis-1-video-pretraining-to-robot-control">Runway · Praxis-1: From Video Pretraining to Robot Control | Runway Research</a></div>
+  <p>Runway 把 27B 参数的视频基础模型开源为机器人世界动作模型 Praxis-1：它先想象接下来 1.6 秒的视频，再从想象中读出动作，在英伟达 RoboLab-120 上以 46.2% 居开源机器人模型首位，权重与微调代码均按 Apache 2.0 开放。</p>
+  <p><b>这是什么：</b>Praxis-1 是 Runway 的世界动作模型（world action model），把视频生成模型改造成机器人控制策略：它不直接输出动作，而是先预测接下来一小段视频、再从这段想象的未来里读出机器人该怎么动。它建立在 Runway 的视频基础模型之上，共 27.2B 参数，权重与推理、微调代码按 Apache 2.0 开源，可商用；发布了三个检查点——中训后的基础模型、在 DROID 数据集上微调的版本、为双臂 YAM 机器人微调的版本，支持完整微调与 LoRA，另有 vLLM-Omni 与 LeRobot 支持。官方称它在英伟达 RoboLab-120 基准上 1,200 回合成功率 46.2%，是世界动作模型与开源机器人基础模型两项第一；但 46.2% 也意味着过半回合仍失败，且分数是 Runway 自测的。</p>
+  <p><b>为什么重要：</b>机器人部署的老难题是真实机器人数据又贵又少，靠遥操作攒数据扩不上去。Praxis-1 的解法是换数据源：通用视频里已经藏着物体如何运动、人的手如何操作的信息，先让模型学会预测视频，再把动作当成视频预测的副产品读出来。这样做的代价是两条：一是视频想象错了动作就跟着错——官方的对照实验显示，给定真实未来视频时动作误差只有部署时的约五分之一，说明瓶颈在想象未来而不在读动作；二是它仍然是策略执行器而非规划器，与前沿多模态智能体同台对比时，智能体能零样本规划更多任务，只是慢 15.6 倍、贵 51 倍，两者互补而非替代。</p>
+  <div class="blab">深入讲解</div>
+  <ul>
+    <li>视频骨干：扩散 Transformer，分条件编码器与速度解码器两部分（DDT 结构），在冻结的 Wan2.2 VAE 隐空间里工作，指令由冻结的 Qwen3.5-2B 文本编码器读入；20 层前馈层中有 17 层是混合专家（MoE），每层 1 个共享专家加 128 个路由专家，每个 token 选 8 个，单 token 激活约 2.8B 参数，总计 26.9B；专家均衡沿用 DeepSeek-V3 的路由偏置法，不用辅助损失。</li>
+    <li>分块因果注意力：机器人看不到未来，所以中训时把注意力改成按 1.6 秒一块推进，每块只能看到之前的块；训练用教师强制（teacher forcing），即用真实视频的干净块做上下文，可一次并行训四块；推理时默认读一块真实相机画面做上下文，再一块一块往前推。</li>
+    <li>动作专家：一个 16 层、宽 1024、约 3.14 亿参数的稠密 Transformer，与骨干分开；每层在交叉注意力与自注意力之间交替，交叉注意力分别读骨干 8 个编码器块（从浅到深铺开）的特征；每块它持有 1 个绝对位姿 token、8 个学到的未来 token 与 6 个动作 token（每 token 4 行动作）；它的查询能看到当前块之前干净的骨干帧与当前块带噪的骨干帧，等于在读骨干想象中的未来——骨干从不读专家，但动作损失仍通过交叉注意力反向训练骨干。</li>
+    <li>按机器人换的薄投影层：每种机器人只用自己的一组输入输出投影，把各自的位姿与动作格式翻译成共享格式，骨干与动作专家全机器人共用；单臂末端控制是 10 维（位置、6 维旋转、夹爪），双臂 YAM 是 20 维，人手则是 21 个关节点的三维位姿；位置与旋转都相对每块起始位姿，位置与夹爪按 1% 到 99% 分位数归一化并截断。</li>
+    <li>四阶段训练：先在 12 种生成任务上做视频预训练（文本到图像、视频、音频及带参考条件的生成，最长 20 秒片段）；再切到分块因果注意力，在 15fps 的具身视频（第一人称人类操作、机器人视频、通用视频与少量游戏）上中训；然后挂上动作专家做视频与动作联合中训，动作梯度与专家学习率在前 1,500 步内从 0 线性升到 1 以保护视频模型，并保留约 30% 纯视频任务；最后针对目标机器人整体微调，只有该机器人的投影层从零开始。</li>
+    <li>推理与实时分块：每次调用返回 24 行动作（15Hz，即 1.6 秒运动）与对应的预测视频，用两步联合欧拉去噪，单张 H100 上往返约 0.55 到 0.6 秒，不到返回运动时长的三分之一；可选的实时分块（RTC）让机器人在当前块执行过半时就请求下一块，新计划从手臂实际将到达的位置续上而不是与旧计划混合，静止等待时间从 32% 降到 5%。</li>
+  </ul>
+</section>
+
+<section class="card brief c5" id="brief-55">
+  <div class="eyebrow">2026-11-11<span class="tag">新论文</span></div>
+  <h2>Anthropic 研究：每人派一个智能体反而更糟——多用户多智能体团队的协调崩溃</h2>
+  <div class="src">来源：<a href="https://alignment.anthropic.com/2026/worse-together/">Anthropic · Worse Together: How Performance Breaks Down in Multi-User Multi-Agent Teams</a></div>
+  <p>Anthropic Fellows 用四个共享资源环境测试前沿模型：每人一个智能体的团队在全部四个环境里都输给一个服务所有人的协调者，差距 10 到 45 个百分点；三种环境已作为 MAMUBench 基准开放。</p>
+  <p><b>这是什么：</b>这项研究来自 Anthropic Fellows Program，问题是：当每个用户都派自己的智能体去抢同一份共享资源（API 额度、日程、合买账单、合并队列）时，整个群体的结果会怎样？研究者搭建了四个模拟环境：四到十六名研究员共享一份不够用的 API token 预算；急诊病人共享诊所日程；几个人通过各自的助手合订一单外卖或旅行；多个合并请求排队等发版。每个环境都配了模拟用户和日常任务，并用四个编队对照：单人单智能体、一个协调者服务所有人、每人一个智能体且彼此不通信、每人一个智能体且相互能发消息。测试的模型包括 Claude Opus 5、Claude Sonnet 5、GPT-5.6-sol、GPT-5.6-terra 与 Qwen3.8-max，评分按群体整体结果占最优策略的比例算。三种环境已作为基准 MAMUBench 开源，供他人测试智能体在多用户多智能体系统里的协调与行为。</p>
+  <p><b>为什么重要：</b>值得学的是它把一个正在成真的部署形态变成了可测量的失败模式：多人拼单、多智能体进群聊、每人一个专属助手，都在让不同用户的智能体在共享空间里相遇，而此前的多智能体研究大多只看目标一致的团队。研究揭示的难题不是模型不够聪明，而是目标冲突加信息割裂：每个智能体只看到自己用户的诉求，却要在共享资源上替群体做决定；不行动、抢先提交、替别人做主都会系统性出现。代价也很明确：把协调交给一群平等智能体自由协商，在这四个环境里没有一次赢过一个中心协调者；而且针对一种环境的修复在另一种环境里可能完全无效，说明这类失败没有通用解，只能按环境逐个设计护栏。</p>
+  <div class="blab">深入讲解</div>
+  <ul>
+    <li>四个共享资源环境：每种环境都让多个用户争夺一份共享资源——API token 预算、诊所日程、合买预算或合并队列；每个用户有自己的目标，环境被特意设计成单个协调者通常能做好，这样编队之间的差距反映的是协调能力而不是任务能力。</li>
+    <li>四种编队对照：单人单智能体作为基线；协调者是一个智能体服务所有人；静默团队是每人一个智能体且无法沟通；点对点团队是每人一个智能体且相互能发消息；以协调者为对照组，比较同一环境下不同编队的群体得分。</li>
+    <li>API 额度环境里行动太少、太晚：预算不够所有人用，智能体必须主动取消和缩减低价值任务；但团队越大，越少智能体采取任何行动——从 4 人到 16 人，采取行动的比例 Sonnet 5 从 66% 跌到 10%，GPT-5.6-sol 从 82% 跌到 25%；点对点团队只达到协调者表现的 47%（Opus 5）与 38%（Sonnet 5）。</li>
+    <li>未经同意替别人砍任务：GPT 与 Qwen 的智能体每轮平均未经询问就取消或停止他人任务 3.9 到 7.1 次，Sonnet 5 为 0.59 次，Opus 5 为 0 次；这些操作有时反而抬高了群体分数，因为环境本来就要求砍低价值任务——这暴露了评分只看完成任务的总价值、不看是否经过同意的局限。</li>
+    <li>个人助理环境里的竞态条件：针对某位用户的特殊要求（如乳糜泻患者要两份无麸质配菜），94% 到 99% 的回合里要求都送到了最终下单的智能体手里，但下单时它已读到这条消息的只有 47% 到 67%；要求在上下文里时被满足的概率是 56% 到 68%，不在时只有 19% 到 36%；65% 到 77% 的回合里还有智能体改掉了别人的要求。</li>
+    <li>修复因环境而异：API 额度环境里设一个有权威的队长（按价值排序任务、及时释放预留预算、其他智能体上报信息并服从分配）能把点对点团队拉回协调者水平甚至更高；个人助理环境里队长没用，最好的办法是平台护栏——提交前必须读完所有未读消息，能挽回 73%（Opus 5）与 62%（Sonnet 5）的失败回合。</li>
+  </ul>
+</section>
+</main>
+<footer>归档自学习应用 · AI 前沿速递 · 第 5 组</footer>
+</div>
+<button class="navbtn" id="navbtn" aria-label="打开课程目录">☰</button>
+<div class="navoverlay" id="navoverlay"></div>
+<aside class="navdrawer" id="navdrawer" aria-label="课程目录">
+  <button class="nd-close" id="ndclose" aria-label="关闭目录">×</button>
+  <h3>课程目录</h3>
+  <div id="ndlist"></div>
+  <a class="nd-home" id="ndhome" href="../index.html">← 回到首页</a>
+  <a class="nd-home" href="../briefs.html">查看全部速递 →</a>
+</aside>
+<script>
+(function(){
+  var btn = document.getElementById('navbtn');
+  var overlay = document.getElementById('navoverlay');
+  var drawer = document.getElementById('navdrawer');
+  var list = document.getElementById('ndlist');
+  var home = document.getElementById('ndhome');
+  var jsonUrl = '../lessons.json';
+  var prefix = '../lessons/';
+  home.href = '../index.html';
+  function open(){ drawer.classList.add('open'); overlay.classList.add('open'); }
+  function close(){ drawer.classList.remove('open'); overlay.classList.remove('open'); }
+  btn.addEventListener('click', open);
+  document.getElementById('ndclose').addEventListener('click', close);
+  overlay.addEventListener('click', close);
+  var cur = location.pathname.split('/').pop();
+  fetch(jsonUrl).then(function(r){ return r.json(); }).then(function(items){
+    list.innerHTML = '';
+    items.forEach(function(it){
+      var a = document.createElement('a');
+      a.className = 'nd-item' + (it.file === cur ? ' cur' : '');
+      a.href = prefix + it.file;
+      a.innerHTML = '<div class="nd-day">第 ' + it.day + ' 天</div><div class="nd-title">' + it.title + '</div><div class="nd-meta">' + it.date + ' · 约 ' + it.minutes + ' 分钟</div>';
+      list.appendChild(a);
+    });
+  }).catch(function(){
+    list.innerHTML = '<p style="font-size:14px;color:#666;">目录加载失败，请点“回到首页”查看全部课程。</p>';
+  });
+})();
+</script>
+</body>
+</html>
