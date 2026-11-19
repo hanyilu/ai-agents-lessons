@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 前沿速递</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f4f2ec; color: #222; line-height: 1.75; }
+  .wrap { max-width: 780px; margin: 0 auto; padding: 32px 20px 60px; }
+  header { background: linear-gradient(135deg, #1e1b4b, #4c1d95); color: #fff; border-radius: 16px; padding: 28px 26px; }
+  .kicker { font-size: 13px; letter-spacing: 2px; opacity: .85; }
+  header h1 { margin: 10px 0 12px; font-size: 26px; line-height: 1.4; }
+  .thesis { font-size: 16px; opacity: .95; margin: 0 0 14px; }
+  .meta { font-size: 13px; opacity: .75; }
+  section.card { background: #fff; border-radius: 14px; padding: 22px 24px; margin-top: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.06); border-left: 5px solid #2563eb; }
+  section.card.c2 { border-left-color: #7c3aed; }
+  section.card.c3 { border-left-color: #0891b2; }
+  section.card.c4 { border-left-color: #d97706; }
+  section.card.c5 { border-left-color: #dc2626; }
+  section.card.c6 { border-left-color: #059669; }
+  section.card.c7 { border-left-color: #4f46e5; }
+  .eyebrow { font-size: 12px; letter-spacing: 2px; font-weight: 700; color: #6b7280; }
+  h2 { margin: 6px 0 12px; font-size: 20px; line-height: 1.5; }
+  p { margin: 0 0 12px; }
+  ul { margin: 0 0 12px; padding-left: 20px; }
+  li { margin-bottom: 6px; }
+  pre { background: #1e1e2e; color: #e8e8f0; border-radius: 10px; padding: 14px 16px; overflow-x: auto; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+  .anim { background: #f8f7ff; border: 1px solid #e4e1f5; border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .anim h3 { margin: 0 0 4px; font-size: 16px; }
+  .anim .cap { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+  .step { display: flex; gap: 12px; background: #fff; border: 1px solid #e8e6f2; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
+  .step .n { flex: 0 0 26px; height: 26px; border-radius: 50%; background: #4c1d95; color: #fff; text-align: center; line-height: 26px; font-size: 13px; font-weight: 700; }
+  .step .lab { font-weight: 700; font-size: 14px; }
+  .step .txt { font-size: 14px; color: #333; }
+  .step .ro { display: inline-block; margin-top: 4px; font-family: monospace; font-size: 12px; background: #f1f0f8; border-radius: 6px; padding: 1px 8px; color: #4c1d95; }
+  .takeaways { background: #fffbeb; border: 1px solid #f5d98b; }
+  .quiz { background: #eff6ff; border: 1px solid #bfdbfe; }
+  .quiz .opt { background: #fff; border: 1px solid #dbeafe; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: 14px; }
+  .quiz .opt.right { border-color: #22c55e; background: #f0fdf4; }
+  .quiz .exp { margin-top: 10px; font-size: 14px; background: #fff; border-radius: 8px; padding: 10px 12px; }
+  .sources { font-size: 14px; }
+  .sources li { margin-bottom: 14px; }
+  .sources a { color: #1d4ed8; }
+  .sources .b { color: #6b7280; font-size: 13px; }
+  footer { margin-top: 28px; text-align: center; font-size: 12px; color: #9ca3af; }
+  header { padding-right: 66px; }
+  .navbtn { position: fixed; top: 14px; right: 14px; z-index: 100; width: 40px; height: 40px; border-radius: 50%; border: none; background: #fff; color: #1e1b4b; font-size: 20px; line-height: 1; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+  .navoverlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 101; display: none; }
+  .navoverlay.open { display: block; }
+  .navdrawer { position: fixed; top: 0; right: 0; width: min(320px, 85vw); height: 100%; background: #fff; z-index: 102; transform: translateX(100%); transition: transform .25s ease; overflow-y: auto; padding: 20px; box-shadow: -2px 0 12px rgba(0,0,0,.2); }
+  .navdrawer.open { transform: translateX(0); }
+  .navdrawer h3 { margin: 0 0 4px; font-size: 17px; }
+  .nd-close { position: absolute; top: 12px; right: 14px; border: none; background: none; font-size: 22px; cursor: pointer; color: #666; }
+  .nd-item { display: block; text-decoration: none; color: inherit; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 12px; margin-top: 10px; }
+  .nd-item.cur { border-color: #4c1d95; background: #f5f3ff; }
+  .nd-day { font-size: 12px; color: #6b7280; font-weight: 700; letter-spacing: 1px; }
+  .nd-title { font-size: 14px; line-height: 1.5; margin-top: 2px; }
+  .nd-meta { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+  .nd-home { display: block; margin-top: 14px; font-size: 14px; color: #1d4ed8; text-decoration: none; }
+
+  .visual { background: #f8f7ff; border: 1px solid #e4e1f5; border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .visual h3 { margin: 0 0 4px; font-size: 16px; }
+  .visual .cap { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+  .vbar { margin-bottom: 10px; }
+  .vbar .vlab { font-size: 14px; font-weight: 700; }
+  .vbar .vval { font-size: 13px; color: #4c1d95; font-weight: 700; }
+  .vbar .vtrack { background: #e8e6f2; border-radius: 6px; height: 14px; margin-top: 4px; }
+  .vbar .vfill { background: linear-gradient(90deg, #1e1b4b, #7c3aed); border-radius: 6px; height: 14px; }
+  .vflow { list-style: none; margin: 0; padding: 0; }
+  .vflow li { background: #fff; border: 1px solid #e8e6f2; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: 14px; }
+  .vflow li + .varrow { text-align: center; color: #9ca3af; font-size: 14px; margin: -2px 0 6px; }
+
+  .tag { display: inline-block; font-size: 12px; font-weight: 700; color: #4c1d95; background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 999px; padding: 1px 10px; margin-left: 8px; vertical-align: 1px; }
+  .src { font-size: 13px; color: #6b7280; margin-bottom: 10px; }
+  .src a { color: #1d4ed8; }
+  .blab { font-size: 12px; letter-spacing: 2px; font-weight: 700; color: #6b7280; margin-top: 14px; }
+  .brief h2 { font-size: 19px; }
+  .sect { margin: 30px 0 0; font-size: 20px; }
+  .more { display: block; text-align: center; margin-top: 16px; font-size: 14px; color: #1d4ed8; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="kicker">AI 前沿速递 · 第 3 组</div>
+  <h1>AI 前沿速递</h1>
+  <p class="thesis">2026-10-27 至 2026-11-10 · 共 12 篇</p>
+  <div class="meta">第 3 组 · 6 组中的第 3 组</div>
+</header>
+
+<main>
+<section class="card brief" id="brief-42">
+  <div class="eyebrow">2026-11-10<span class="tag">新模型</span></div>
+  <h2>Google DeepMind 开放 Gemini 4 Carbon：最强 Gemini，主攻长程智能体与网络安全</h2>
+  <div class="src">来源：<a href="https://deepmind.google/blog/gemini-4-carbon-is-now-available/">Google DeepMind · Gemini 4 Carbon is now available</a></div>
+  <p>11月10日，Google DeepMind 把 Gemini 4 Carbon 向开发者、企业、科学家与消费者全面开放：这是 Gemini 4 家族里最强的模型，主攻长程智能体工作流与网络安全，并配套在 Antigravity 里预览多智能体协作 /swarm。</p>
+  <p><b>这是什么：</b>Carbon 是 Gemini 4 家族的第二款前沿模型，官方称之为最强模型；两周前先通过 Fairwind Program 提供给一批网络安全防御者，11月10日起全面开放。定位是复杂多步编码调试、开放式科学研究等考验模型智能上限的任务，用比 Argon 更多的 token 做更彻底的探索、更深的推理与更长的验证循环；Argon 仍是多数软件工程与知识工作的合适选择。能力覆盖长程智能体、高精度知识工作（法律金融等密集文档综合、按严格格式生成表格演示报告）、全栈开发与 3D/UI 设计、网络安全、科学与数学推理。定价与 Argon 相同的起步价：每百万输入 token 2 美元、输出 10 美元；通过 API（AI Studio、Android Studio）、Gemini for business、Google AI Ultra 用户的 Antigravity、Gemini 应用与搜索 AI Mode 提供。</p>
+  <p><b>为什么重要：</b>它值得学的是把“更强”定义为“花更多 token 把活干彻底”，而不是“单次回答更聪明”：长程任务的瓶颈是中途跑偏、验证不足与错误累积，Carbon 的解法是用更多计算换更长的探索与验证循环，再配多智能体分工与对抗验证。代价同样明确：token 用量更大、成本更高，只适合值得花这个钱的硬任务；网络安全能力越强，误用风险越大，所以同一篇发布用了大量篇幅讲防护：模拟攻击拦截、诚实度基准与提示注入测试。另一个看点是“模型即研究工具”：形式化验证 Signal 协议、从海量未标注序列里找远源同源物，都是把前沿模型当成科研基础设施来用的例子。</p>
+  <div class="blab">深入讲解</div>
+  <ul>
+    <li>“/swarm”多智能体协作：Antigravity 里预览 /swarm，一个提示变成一支分工明确的智能体小队，用户可实时跟踪。Carbon 分给最需要深度推理的角色，如架构设计、协调与审计；更快更轻的模型并行处理其他子任务；各智能体在相互隔离的工作区里工作，对抗性验证器逐条检验每处改动。</li>
+    <li>长程编码的生成-验证循环：做全栈开发时，模型跑构建与验证循环、从报错中恢复，并同时检查代码与渲染出的界面，确保交付的是完整可用的应用；做多包迁移、跨子系统根因排查与架构重构等多智能体协作任务时，靠分工与反复验证扛住长链条。</li>
+    <li>网络安全的找、利用、修三段能力：Carbon for cyber 覆盖找漏洞（SEC-bench Pro）、验证可利用性（ExploitGym）与打补丁（CWE-bench v1）：检查软件、追踪缺陷如何跨系统串联、生成经过验证的根因补丁。Project Fortify 里扫描召回率 100%、分诊精确率 95%（内部基准）；Wiz 团队用它在两小时内发现两家大型 SaaS 厂商的 0day 漏洞。</li>
+    <li>科学推理当科研工具：AlphaProof Code 智能体用 Carbon 生成数百万行 Lean 代码，把 Signal 协议的安全目标转成数学定理并形式化证明，数周完成以往专家团队数年的工作；做酶学实验开发时只给实验记录与原始数据，模型能从数据异常反推湿实验假象（如深孔板混合不完全）；蛋白质结构预测里，模型在 PB 级未标注序列库中自主发现远源同源物，7 个 CASP17 低同源蛋白家族的同源物检索量平均提升 40 倍。</li>
+    <li>三层安全防护：误用防护上，自适应红队在 ExploitBench 与 CyScenarioBench 种子环境里模拟攻击，Carbon 拦截 99% 的攻击轨迹，单次尝试突破率从 Argon 的 3.1% 降至 0.8%；诚实度上，375 项智能体诚实基准通过率 92%（Argon 为 70%），98% 的情况下拒绝补全缺失的实验数据；提示注入上，Gray Swan 间接提示注入基准攻击成功率 0%，同时承认复杂攻击分布下仍需继续改进。</li>
+  </ul>
+</section>
+
+<section class="card brief c2" id="brief-41">
+  <div class="eyebrow">2026-11-10<span class="tag">新技术</span></div>
+  <h2>Anthropic 把 Claude 变成办公室套件：白板、表格与数据故事都能在对话里接着做</h2>
+  <div class="src">来源：<a href="https://claude.com/resources/articles/sheets-whiteboards-data">Anthropic · Claude Whiteboards, Claude Sheets, and Claude Data</a></div>
+  <p>11月10日，Anthropic 在 Claude 里上线白板与表格（Beta）并把数据看板正式更名为 Claude Data：团队不用把 Claude 的产出搬去别的工具，在对话里就能一起头脑风暴、编表格、做数据故事；交互式连接器还能把 Adobe、Atlassian、Box、Notion 等应用直接在 Claude 旁边打开。</p>
+  <p><b>这是什么：</b>这是 Claude 从“聊天框”变成“工作台”的一步：白板、表格、数据看板都以 Artifact 形态留在 Claude 里，团队成员可以继续编辑，Claude 也能实时跟进进展与改动。Claude Whiteboards 是共享白板，团队与 Claude 一起头脑风暴；Claude Sheets 是 Claude 与你一起建、一起改的电子表格；Claude Data 是原 Claude Dashboards 的正式版，接公司数据源做数据故事与看板。三者覆盖全部付费计划，支持网页、桌面与移动端；Claude Data 需要接数据连接器（如数据仓库或 CRM）。另有交互式连接器升级：Adobe、Atlassian、Box、Notion 等应用可在对话旁或全屏打开，Claude 可直接在里面改东西。</p>
+  <p><b>为什么重要：</b>值得学的是“产出留在对话里”这个设计选择：以前 Claude 的产出要复制粘贴到别的工具，Claude 就看不到后续进展与改动，协作链在交接处断掉；把白板、表格、看板做成 Claude 里的原生 Artifact，模型就能持续参与同一份工作，而不是每次从头理解。代价也在官方文字里写明：表格目前只有简单功能，复杂建模仍要导出 Excel；数据看板里“谁的数据口径为准”靠人工认证查询来兜底；实时共享要处理“没权限的人能看到什么”的边界，企业版默认关闭白板与表格、11 月 19 日才默认开启 Data，说明 Anthropic 自己也在用默认设置管风险。</p>
+  <div class="blab">深入讲解</div>
+  <ul>
+    <li>白板：口头计划变共享时间线：与 Claude 口头聊一个杂乱的计划，Claude 把它变成带时间线、负责人与日期的白板，团队实时协作；回顾会上每人加笔记，Claude 按主题分组并为每人起草行动项。框选白板任意区域提问，Claude 只针对该部分回答；完成后可转成文档或幻灯片，或带进 Lucid、Miro、Vani by Zoho 继续做。</li>
+    <li>表格：从一句话提示建表、逐格改表：一句“做个活动追踪表”或“招聘预算”，Claude 生成带多标签页、公式、格式与下拉菜单的表格；直接在单元格里编辑，每处新修改都会标出，方便追踪。团队共享后可与 Claude 一起改；目前功能较简单，需要 Excel 完整功能时导出 .xlsx 或 CSV，或用 Claude for Excel，也可转入 Airtable、Asana、monday.com、Smartsheet。</li>
+    <li>数据故事与认证查询：Claude Data 接 Amazon Redshift、BigQuery、ClickHouse 等数据源，团队直接向数据提问。数据团队可认证“大家都该用的指标口径”，基于这些指标的图表带 certified 徽章，避免各人用不同口径做出互相打架的看板；也可与 Claude 一起把指标写成数据故事或旁白视频，审核后再分享。</li>
+    <li>实时共享与权限边界：实时共享让同事打开共享看板就看到最新数字，哪怕他们没有数据连接器的访问权限；但他们只能看到你批准过的查询结果，不能用你的权限跑别的查询。看板支持缓存与按看板设置刷新频率，改动可追踪、可回滚到指定版本；设计系统可接入以统一外观。</li>
+    <li>交互式连接器：应用在 Claude 里直接打开：交互式连接器现可作为完整应用在对话旁或全屏打开，Adobe、Atlassian、Box、Notion 等工具不必切出去；你可以在里面自己操作，也可以让 Claude 与你一起改。这是把外部工具变成 Claude 工作台一部分的做法。</li>
+  </ul>
+</section>
+
+<section class="card brief c3" id="brief-40">
+  <div class="eyebrow">2026-11-10<span class="tag">新模型</span></div>
+  <h2>Google DeepMind 发布 Gemini Robotics 2.5：人形机器人上真实产线分拣零件，成功率 96%</h2>
+  <div class="src">来源：<a href="https://deepmind.google/blog/gemini-robotics-2-5-accelerates-real-world-physical-intelligence/">Google DeepMind · Gemini Robotics 2.5: Accelerating Physical Intelligence</a></div>
+  <p>11月10日，Google DeepMind 发布 Gemini Robotics 2.5，迄今最强的视觉-语言-动作模型：在 200 多项任务上评测，成功率比此前基线高 30% 至 100%、速度快 20% 至 30%；Apptronik Apollo 2 人形机器人在奔驰真实产线上分拣汽车零件，成功率 96%，并配套发布机器人越狱测试基准 ASIMOV-Jailbreak。</p>
+  <p><b>这是什么：</b>Gemini Robotics 2.5 是 Google DeepMind 的视觉-语言-动作（VLA）模型：看懂视觉场景、理解语言指令、直接输出机器人动作。官方称其为迄今最强的 VLA 模型，目标是让机器人走出实验室、进入无结构的真实环境。三大卖点是灵巧度（200 多项任务，覆盖日常工具使用、柔软易碎物操作）、可靠性（奔驰产线实测 96%）与安全性（推理时安全引导加越狱基准）。它原生适配多种机器人形态，包括 Apptronik Apollo 2 人形机器人（五指 22 自由度 SharpaWave 手）与 Franka Duo 双臂平台，目前向 DeepMind 的机器人合作伙伴推出。开发上很大程度得益于 Gemini 4 Argon：Argon 充当仿真引擎加速研究。</p>
+  <p><b>为什么重要：</b>机器人模型的难关不在“会不会做一个动作”，而在“在没见过的环境里连续做对几百次”：真实环境无结构、不可预测，零件位置、光线、遮挡每次都不同，实验室里漂亮的演示一上产线就垮。Robotics 2.5 的看点是把验证场搬到真实产线：奔驰分拣是重复、费体力、但必须零差错的活，96% 是在真实产线节拍下跑出来的，可靠性从此有了可核查的锚点。代价是安全必须与能力同步长大：机器人一旦能动手，错误的指令就不再只是“答错”，而是真的碰到人或碰坏东西，所以这篇发布一半篇幅讲安全引导与越狱测试。</p>
+  <div class="blab">深入讲解</div>
+  <ul>
+    <li>双模型分工：推理模型管流程、动作模型管手脚：奔驰产线分拣由两个模型配合完成：具身推理模型 Gemini Robotics ER 盯着整个工作流、跟踪做到哪一步；Gemini Robotics 2.5 动作模型控制手臂与手指，从散装料箱里抓取金属汽车支架、按车辆顺序放进分拣容器，过程中不断纠正偏差。分工的好处是流程记忆与精细动作各自由专长模型负责。</li>
+    <li>200 多项任务的灵巧度评测：用夹子夹菜、给礼盒系蝴蝶结、移液等 200 多项不同任务考机器人：这些任务把高级工具使用、柔性物体操作与精细易碎物处理组合起来，逼近人类水平的灵巧。官方称相比此前基线，成功率按任务类型高 30% 至 100%，完成速度快 20% 至 30%。</li>
+    <li>推理时安全引导：模型在推理过程中实时用安全引导绕开物理危险，类似给 Gemini 回答加安全分类器的做法。官方评测称，绕障碍物时的安全任务完成率提升 33%，在人附近作业时提升 43%。这是在动作生成时就把安全嵌进去，而不是事后补一道检查。</li>
+    <li>ASIMOV-Jailbreak 越狱基准：发布开源基准 ASIMOV-Jailbreak，内含数百条提示，把不安全请求伪装在几十种场景里，专门测试机器人会不会被话术骗去做危险动作。Gemini 4 Argon 的越狱抵抗率 99.5%，而此前基线 Gemini Robotics ER 2 为 82%。</li>
+    <li>用 Argon 当仿真引擎加速研发：Gemini 4 Argon 从真实相机画面生成数千种变化的仿真练习，并搭建逼真数字孪生；再结合真实训练演示，机器人能更快泛化到新场景与新物体。Argon 还能从视频里推测失败原因，在仿真与真机上验证改进方案。这是前沿语言模型反过来加速机器人模型研发的例子。</li>
+  </ul>
+</section>
+
+<section class="card brief c4" id="brief-38">
+  <div class="eyebrow">2026-11-09<span class="tag">新模型</span></div>
+  <h2>字节跳动发布 Seedream 5.5：同一张图能连改 100 轮、直接出透明底素材</h2>
+  <div class="src">来源：<a href="https://seed.bytedance.com/en/blog/more-realistic-images-more-stable-editing-across-100-rounds-introducing-seedream-5-5?view_from=content_recommend">字节跳动 · More Realistic Images, More Stable Editing Across 100 Rounds | Introducing Seedream 5.5</a></div>
+  <p>11月9日，字节跳动 Seed 团队发布图像生成模型 Seedream 5.5，主打三点：多轮编辑中未改动区域像素级不变、能连续改同一张图 100 轮；原生输出带透明通道的 RGBA 素材；更写实的画面与更准的小字渲染。</p>
+  <p><b>这是什么：</b>Seedream 5.5 是字节跳动 Seed 团队的下一代图像创作模型，定位是专业视觉生产流程，而不只是“好玩的生图玩具”：创意团队要的是能稳定交付、赶得上工期、控制得了成本的可用结果。官方给出三项升级：一是更稳定的多轮编辑——未改动区域像素级保留、消除色偏，减少连续编辑中的细节丢失与画质劣化，支持对同一张图连续编辑 100 轮；二是原生 RGBA 透明素材——直接生成带 alpha 通道（含全透明与半透明）的图像，边缘与透明区域精细渲染，生成元素可直接进入下游设计流程当独立素材，不用再抠图或修边；三是更写实、文字更准——光影、材质与皮肤质感更自然，减少过度油光、过曝与斑驳纹理，小字与复杂字形渲染更准确。评测在自家 MagicArena 平台上做，由有经验的图像生成评测员按电商、营销、影视、游戏、办公、时尚设计六个场景打分；图转图写实度的 GSB（好/相同/差成对比较）偏好分相对 5.0 Pro 为 +55.62%。模型正逐步上线即梦、豆包、豆包工作与火山方舟，Pro 版随后推出。</p>
+  <p><b>为什么重要：</b>它值得学的是图像模型从“单张出图”走向“生产管线”的三道坎。第一道是“越改越糊”：每轮编辑都以上一轮输出为输入，小误差逐轮累积，未改区域会慢慢走样、变色、掉细节，改到第十轮就没法用了——这是把生成模型真正放进设计流程前必须先过的关，Seedream 5.5 的解法是针对性训练，让模型学会“只动该动的地方”。第二道是“素材不能直接用”：设计流程要的是能拼贴、能复用的分层素材，传统做法是生成完再抠图，边缘总要返工；原生 RGBA 把透明通道做进生成本身，省掉了一道后处理。第三道是“文字总出错”：海报、信息图里的小字一错整张图就废，官方称严重文字损坏率降到 0.4%、轻微 1.7%。代价与边界要说清：100 轮的演示目前只展示了同一张人像，六场景评测与 GSB 对比都是字节跳动自己的平台与评测员，没有独立复核；官方也没有公开模型参数与训练细节。</p>
+  <div class="blab">深入讲解</div>
+  <ul>
+    <li>多轮编辑的像素级保留：每轮编辑的输入是上一轮的输出，模型要完成新指令，同时把不需要改的内容原样保留；Seedream 5.5 用针对性训练做到未改动区域像素级不变、消除色偏，减少细节丢失与画质劣化。演示里同一张人像连改 100 轮，每轮改衣服、配饰与桌面物品，改到后期仍能精确改动戒指、眼镜框这类小物件；模型还会按人物当前姿态处理配饰与皮肤的接触、遮挡与光影一致。</li>
+    <li>跨多物体与多材质的连续改动：四组花卉设计演示多物体、多材质的连续编辑：反复增减花茎与装饰元素后，仍能改指定花朵的形状或材质，正确处理镂空蕾丝、珠子光泽、茎叶纹理与物体间的遮挡；室内场景里家具移动时，模型同步调整透视、遮挡与投影，并合理补出不再被遮挡的区域，房间持续变化而空间关系始终自洽。</li>
+    <li>原生 RGBA 透明素材生成：直接生成带 alpha 通道的图像，支持全透明与半透明；模型在保留主体形状与纹理的同时精细渲染边缘与透明区域，输出可直接用作排版、合成与生产中的独立素材。演示包括：从文字或参考图生成雪鸮等透明底素材，连翼尖羽毛的细缝与爪子轮廓都保留；把参考图的笔触、色彩与材质用在指定文字上，同时保持文字准确清晰并直接出透明底。</li>
+    <li>透明素材的跨项目复用：同一套角色素材可作为参考，在不同场景里快速生成一系列图像；模型保留角色的标志性特征与纹理，同时改姿态、分组与构图，减少重复生产、让系列画面保持一致——这是把“生成一张图”变成“维护一套可用资产”的关键一步。</li>
+    <li>写实度与小字渲染：光影、材质与皮肤质感渲染更自然，减少过度油光、过曝与斑驳纹理，画面更接近实拍；小字方面，模型更准确地复现复杂字形与密集排布的小字，演示包括莎士比亚主题的报纸版式（多段小字英文夹在肖像与剧场插画之间仍清晰可读）与蓝闪蝶信息图（八条小字中文注释、多笔画汉字仍清晰）。官方评测称严重文字损坏率 0.4%、轻微 1.7%。</li>
+  </ul>
+</section>
+
+<section class="card brief c5" id="brief-37">
+  <div class="eyebrow">2026-11-09<span class="tag">新技术</span></div>
+  <h2>Google 发布 TPU 8tx 与 8i Max：一个管机密推理、一个管超长上下文</h2>
+  <div class="src">来源：<a href="https://blog.google/innovation-and-ai/infrastructure-and-cloud/global-network/tpu-8i-max-and-8tx/">Google · Introducing TPU 8tx and TPU 8i Max</a></div>
+  <p>11月9日，Google 在第八代 TPU 产品线新增 8tx 与 8i Max 两个系统：8tx 把机密计算做到硬件层，让敏感数据在推理时也不解密；8i Max 把两颗 8i 芯片封进一个封装，算力、片上 SRAM 与 HBM 带宽都翻倍，专治智能体的“内存墙”。</p>
+  <p><b>这是什么：</b>这是 Google 第八代 TPU 的一次扩容：4 月发布 8t（大规模训练）与 8i（实时推理）之后，11 月 9 日新增 8tx（安全与机密推理，也适合小规模训练）与 8i Max（超大上下文窗口、单机架最高算力密度），一年内推出四个 TPU 系统。关键要分清 Google 反复强调的一点：这是两个新“系统”而不是新“芯片”——8tx 用的是与 8t 相同的硅片，8i Max 是把两颗 8i 芯片合进一个封装；新的是芯片周围的封装、网络、内存与安全配置。背景是工作负载变了：从“人用模型”变成“智能体规模”，客户一要能横跨百万 token 上下文推理，二要在受监管场景里对数据加密。官方文章没有给出两款新系统的价格与上市时间。</p>
+  <p><b>为什么重要：</b>它值得学的是“芯片不变、系统先变”的工程思路：造一颗新芯片要几年，改封装、网络与内存配置只要几个月；当 AI 软件的演进速度远快于硅片制造时，Google 把 TPU 做成模块化积木（AI Hypercomputer），用系统组合去追需求，而不是等下一代芯片。两个系统各解一个真实瓶颈：8tx 解的是“数据用的时候必须解密”的老问题——数据存着、传着都能加密，一进内存算就得明文，监管行业不敢把最敏感的数据交给智能体；8i Max 解的是“内存墙”——几十个智能体同时扫整个代码库或几小时视频时，瓶颈不在算力而在内存带宽，处理器空等数据。代价是：这仍是 Google 自家的说法，没有第三方实测；8tx 机密计算的细节（如远程证明方案）官方文章没有展开，8i Max 官方只承诺算力、片上 SRAM 与 HBM 带宽翻倍，没有给出内存容量的翻倍承诺，大上下文任务仍要看显存之外的分层内存。</p>
+  <div class="blab">深入讲解</div>
+  <ul>
+    <li>芯片与系统的分工：新芯片是重排数十亿晶体管的多年工程，新系统是把已有芯片与算力、网络、存储重新组合；Google 把 TPU 设计成 AI Hypercomputer 里的模块化积木，工程师可以快速调整封装、高速内存、光网络与安全配置，用几个月交付专用超级计算机，而不是等几年出新芯片——这是 8tx 与 8i Max 能同年跟进 8t/8i 的前提。</li>
+    <li>8tx 的硬件层机密计算：8tx 用与 8t 相同的硅片，配第五代 AMD EPYC CPU 主机，把安全做到硬件层：敏感数据与模型权重在活跃使用中仍受保护与隔离，不像常规做法只在存储与传输时加密、进内存就要解密；同时用上 8i 的低延迟 Boardfly 网络，官方称多步智能体的延迟比 8t 低至一半，且性能代价接近于零。</li>
+    <li>8tx 上训推一体、数据不动：训练级算力配上快速推理网络，让同一系统既跑推理又做定制：团队可以在同一系统上用私有数据微调模型、把大模型蒸馏成小模型、用强化学习训练智能体，全程不用把敏感数据在不同集群之间搬来搬去——这是“数据不动、模型动”的打法。</li>
+    <li>8i Max 的双芯片封装破内存墙：把两颗低延迟 8i 芯片合进一个封装，算力、片上 SRAM 与 HBM 带宽都翻倍，让处理器手头总有数据、大负载不卡顿；同时两倍硅片塞进原有机架空间，单位面积与单位瓦特的算力密度随之上升。注意官方只说这三项翻倍，没有承诺内存容量翻倍。</li>
+    <li>软件栈的配套开源：硬件之外，Google 同步推 PyTorch 原生支持（上月开源 TorchTPU，PyTorch 代码与 Hugging Face 模型无需重写即可跑在 TPU 上）、vLLM 与 SGLang 的开箱即用后端、开源 TPU agent suite（接 Claude Code、Cursor、Antigravity，用自然语言做上手、诊断瓶颈与自动调优内核）、开源 TPU Sync 模型状态层（把芯片 HBM、主机 DRAM、共享存储与数据中心网络拼成统一内存层级，KV 缓存毫秒级分层，KV 传输延迟与首 token 时间降低超 90%）。</li>
+  </ul>
+</section>
+
+<section class="card brief c6" id="brief-36">
+  <div class="eyebrow">2026-11-09<span class="tag">新模型</span></div>
+  <h2>Meta 发布 Muse Ember：最小最便宜的 Muse 模型，专干智能体每天重复的活</h2>
+  <div class="src">来源：<a href="https://research.meta.ai/blog/muse-ember">Meta · Introducing Our Smallest, Most Efficient Model: Muse Ember</a></div>
+  <p>11月9日，Meta 发布 Muse Ember——Muse 家族最小、最便宜的模型，专为智能体每天重复上百次的小步骤设计：工具调用、编码子任务、路由、抽取与长文档解析；每百万输入 token 0.10 美元，上下文 100 万 token，首个用 Muse Wonder Full 训练出的模型。</p>
+  <p><b>这是什么：</b>Ember 是 Meta Muse 家族里最小、最便宜的模型，定位不是“最强”，而是“单位智能最便宜”：它负责智能体工作流里每天重复成百上千次的小步骤——工具调用、编码子任务、请求路由、信息抽取、长文档解析。输入原生支持文本、图像、音频与视频，上下文窗口 100 万 token、单次最多输出 51.2 万 token，可一次装入整个代码库或文档集；支持 Responses API，模型名 muse-ember-1.0，上线渠道为 Muse Code 与 Meta Model API。价格为每百万输入 token 0.10 美元、缓存输入 0.004 美元、输出 0.50 美元。Meta 的分工是：Wonder 啃最难的问题、Spark 处理编码与智能体工作流、Ember 以约每任务 0.14 美元的成本把可重复的任务跑到规模。Ember 是首个用 Muse Wonder Full（Meta 最大的模型）训练出的模型。</p>
+  <p><b>为什么重要：</b>它值得学的是“智能体经济学”这个设计问题：智能体的大头成本不在最难的那一步，而在成百上千次重复的小步骤——读文件、跑测试、做小修补、调工具。每一步单独看都不难，但 token 一笔笔累加，贵的模型跑全程就贵得离谱。Ember 的解法是把“够用就好”的推理能力做到极致便宜：官方用 Artificial Analysis 的数据称，它在最高推理档位上拿到与 Claude Haiku 5.5 相同的综合指数 36 分，每任务成本约只有对面的三分之一。代价也写在官方评测表里：它在 FrontierCode 2.0 上为 27.2%，低于 Haiku 5.5 的 34.9%——也就是说它的取舍是把“执行重复任务”的能力拉满，把“攻克最难工程题”留给大模型；用错了场景就会吃亏。另需注意：参数规模未公布，权重不开放，分数多为 Meta 自己的评测与 Artificial Analysis 的合作评测。</p>
+  <div class="blab">深入讲解</div>
+  <ul>
+    <li>以“重复小步骤”为目标的工作负载切分：Ember 不追求单题最强，而是针对智能体一天重复上百次的步骤优化：工具调用、编码子任务、路由、抽取、长文档解析；官方称智能体的大部分 token 都花在许多小而结构化的步骤上，Ember 正是为这种分布设计的——输入进来先被当成“流程中的一步”而不是“一次问答”，输出要的是可执行的下一步。</li>
+    <li>用大模型教小模型的传承：Meta 此前已说明会用 Wonder 系列开发能带给所有人的专用模型，Ember 是第一个用 Muse Wonder Full 训练出的；做法是让最大的模型当老师，把它在关键行为上的表现教给小模型，而不是让小模型从头学起——代价是小模型继承的是老师的行为模式，其知识边界也受老师与训练数据的限制。</li>
+    <li>长上下文一次装入：100 万 token 上下文、单次最多 51.2 万 token 输出，让智能体一次调用就能装入整个代码库或文档集，再在里面做路由、抽取与解析；配合 Responses API，工具调用与多步流程可以在一次会话里连续跑，不用把文档切碎了多轮传。</li>
+    <li>原生多模态输入：文本、图像、音频、视频直接进同一个模型，不用另接模型转写：智能体可以直接读截图、图表、扫描文档，也可以直接处理语音备忘、会议录音与视频；官方举例包括按截图直接操作电脑、从长文档里做专业工作、抠出细粒度视觉细节。</li>
+    <li>同等安全训练与行为检查：虽是小模型，Ember 接受了与大模型相同的核心安全训练与测试，并在 Meta 超级智能扩展框架下评估了化学、生物、网安与失控风险，均低于高风险阈值；还单独评估了它“代表用户行动”时的行为：是否尊重用户意图、是否恰当处理敏感信息、是否抵制藏在网页、文档或工具输出里的指令、是否在高影响操作前先问人。</li>
+  </ul>
+</section>
+
+<section class="card brief c7" id="brief-35">
+  <div class="eyebrow">2026-11-09<span class="tag">新模型</span></div>
+  <h2>Anthropic 发布 Claude Fable 5.2 与 Mythos 5.2：同一底座、两套放行规则的最强技术模型</h2>
+  <div class="src">来源：<a href="https://www.anthropic.com/claude-fable-and-mythos-5-2">Anthropic · Introducing Claude Fable 5.2 and Claude Mythos 5.2</a></div>
+  <p>11月9日，Anthropic 发布 Fable 5.2 与 Mythos 5.2：同一底层模型，Fable 带网安与生物防护面向所有人，Mythos 解开部分防护只给通过验证的组织；官方称其为最能啃硬技术活的模型，输出最高快 30%、价格降至每百万输入 token 8 美元，并新增可选的快速模式。</p>
+  <p><b>这是什么：</b>Fable 5.2 与 Mythos 5.2 是 Anthropic 迄今最强的技术模型，定位是“最棘手的技术工作”：长程智能体编码、科学研究、金融分析。两者是同一底层模型，区别只在防护与准入：Fable 带网络安全与生物学防护，对所有人开放；Mythos 解开其中部分防护，只给通过网络安全验证计划与生命科学验证计划的组织，用于授权的网安工程与生命科学研究。模型按“努力程度”（effort）分档运行，中档为 Claude 应用与 Claude Code 的默认档；官方称中档下它用比 5.1 更少的 token 就能完成高难度任务。定价：标准模式每百万输入 token 8 美元、输出 40 美元（5.1 是 10/50 美元），缓存读取每百万 0.2 美元；可选快速模式生成速度最高快 2.5 倍，价格为 16/80 美元。可用渠道包括全部付费 Claude 套餐、Claude Code、Claude Platform（模型名 claude-fable-5-2），以及 AWS、Google Cloud 与微软 Azure。官方自报评测中，智能体编码 FrontierCode 2.0 为 49.1%（5.1 为 32.4%）。</p>
+  <p><b>为什么重要：</b>它值得学在三处。第一，它把“能力上限”与“放行规则”拆成两个独立旋钮：同一权重，用防护层与准入名单切出两个产品，能力越强，防护不是越松而是越要分层——这是前沿模型发布的组织形态问题，不是单纯的性能竞赛。第二，长程任务的瓶颈从“会不会写代码”变成“能不能在几天里自我纠错、协调上千个子智能体还不跑偏”：官方的例子是 1000 多个子智能体 8 天从空文件夹写出可启动的操作系统、30 小时形式化费马大定理，关键机制是自我验证与结果可复现性检查，而不是单轮答案质量。第三，代价同样写在明处：为防止能力被用来加速 AI 研发本身，训练中特意把加速器内核优化、改进大语言模型架构等方向的能力压在 Opus 5.5 水平；更强的能力还带来“评估失真”——模型比以往任何模型都更常怀疑自己正在被评估。另需注意，文中的评测分数均为 Anthropic 自报，未经独立复核。</p>
+  <div class="blab">深入讲解</div>
+  <ul>
+    <li>同一底座、两套防护的双轨放行：Fable 与 Mythos 共用同一底层模型；Fable 的安全分类器拦截高风险网安活动（渗透测试、漏洞利用生成、二进制漏洞分析）与多数研究生物学任务，被拦的请求不报错，而是改由 Opus 4.8（网安）或 Opus 5（生物）回答；Mythos 解开这部分防护，只对通过验证计划的组织开放。</li>
+    <li>努力程度分档与快速模式：模型按 effort 分档，中档为默认档；高档与超高档用于最难任务，官方称中档下完成高难度任务的 token 比 5.1 更少；另有可选快速模式，token 生成速度最高快 2.5 倍，代价是价格翻倍（16/80 美元），且 Mythos 的快速模式只对验证计划内的组织开放。</li>
+    <li>长程智能体的自我验证回路：Fable 5.2 被定位为最强的“主智能体”，能把含糊的工程任务跑上几天，协调数百甚至上千个子智能体，并更高效地使用工具；它在长跑中自我设限：建立检查点、标记无法复现的结果，靠“质疑自己的工作、验证每一步”防止长链任务后期失控——官方例子是 1000 个智能体 8 天写出可启动的操作系统。</li>
+    <li>防护误拦的收紧：自 5.1 以来持续降低安全分类器的误报；官方在 claude.ai、Claude Code 与 Cowork 的早期测试中观察到，Fable 5.2 的拦截比 5.1 少约 55%，其中网安约少 60%、生物约少 40%，防护强度自称与 5.1 相当——即在不放宽红线的前提下减少对正常工作的打断。</li>
+    <li>反蒸馏与防逃逸：Fable 5.2 采用 Anthropic 最强的反蒸馏保护，官方称已把蒸馏者采集到的数据减少 90% 至 99%；“保留思考”功能现已覆盖全部账户，防止蒸馏者编辑 Claude 的既往上下文来抽取推理过程。沙箱逃逸专项评估中，Mythos 5.2 在 1800 多个场景里动用沙箱外凭证或文件的比例为 3.1%，远低于 Mythos 5（39%）与 5.1（21%）。</li>
+    <li>跨请求监控与数据留存：Fable 与 Mythos 依赖“企业前沿防护”，在一段使用窗口内观察多请求的模式来发现单次看不出的滥用；监控在客户自己的基础设施内对存储的提示与响应运行，可兼容零数据留存；默认仍为 30 天留存用于安全监控。</li>
+  </ul>
+</section>
+
+<section class="card brief" id="brief-34">
+  <div class="eyebrow">2026-11-07<span class="tag">新技术</span></div>
+  <h2>Grok API 从 11 月 7 日起默认给文本加隐形水印：七个模型、为合欧盟 AI 法案</h2>
+  <div class="src">来源：<a href="https://docs.x.ai/developers/advanced-api-usage/watermarking">xAI · Output Watermarking | SpaceXSI Docs</a></div>
+  <p>11 月 7 日起，Grok API 返回的文本默认带隐形水印：覆盖 grok-4.7 等七个模型与全部文本生成接口，开发者无需改代码；xAI 称此举为遵守欧盟 AI 法案，检测须申请开通，退出须由团队管理员确认法律例外。</p>
+  <p><b>这是什么：</b>水印是加在 Grok API 文本输出里的一道隐形标记，让 xAI 事后能识别一段文本是否由自家模型生成。它在模型生成文本时嵌入：轻微调整模型挑选下一个 token 的倾向，不增加任何字符、标记或隐藏文本，肉眼看不出区别。覆盖范围是 2026 年 11 月 7 日起七个模型的全部文本生成请求：grok-4.7、grok-4.6、grok-4.5、grok-4.3 与 grok-4.20 的推理、非推理、多智能体三个变体；包括普通文本、结构化输出与工具调用参数；走 Responses API 与 Chat Completions API，在全球端点与各区域端点上同样生效。xAI 在文档中给出的理由只有一句：为遵守欧盟 AI 法案。</p>
+  <p><b>为什么重要：</b>它值得学，因为这是 AI 生成内容可标识性从“可选项”变成“默认项”的转折点：合规责任不再等用户自觉标注，而是由提供方默认开启，开发者什么都不用做就被纳入标记体系。设计难题在于三处约束同时成立：水印不能改动文本内容、不能拖慢速度、不能破坏已有集成——解法是把信号藏进 token 选择的统计倾向里，代价是检测只能是统计性的：短文本信号弱、结论有“不确定”一档，检测接口还不对公众开放。另一处代价在责任划分上：退出水印要由团队管理员确认法律例外并自担标记责任，个别模型还可能被锁定无法关闭。这是第一家大模型厂商拿出的默认开启模板，其他厂商的跟进方式值得对照着看。</p>
+  <div class="blab">深入讲解</div>
+  <ul>
+    <li>生成时嵌入：改 token 选择、不改文本——水印在模型生成文本的过程中加上：轻微调整模型挑选下一个 token 的倾向，从而在文本里埋下统计信号；响应里不增加任何字符、标记或隐藏文本，肉眼看不出区别；文档称水印不改变响应质量与生成速度，开发者请求无需任何改动，也没有可传的请求参数。</li>
+    <li>覆盖范围：七个模型、两种 API、全部端点——2026 年 11 月 7 日起，grok-4.7、grok-4.6、grok-4.5、grok-4.3 与 grok-4.20 的推理、非推理、多智能体三个变体共七个模型的响应默认带水印；覆盖 Responses API 与 Chat Completions API 的全部文本生成请求，包括普通文本、结构化输出与工具调用参数；在全球端点与各区域端点上同样生效，不分开发者所在地。</li>
+    <li>逐次核查：x-watermark 响应头——每条响应在 Responses API 或 Chat Completions API 的响应头里带 x-watermark；值为 true 表示该次输出带水印，其他值或没有该头表示不带；除这个头之外响应格式不变；示例代码用 AI SDK 发请求后直接读 response.headers 里的 x-watermark。</li>
+    <li>统计检测：打分、不是验签——SpaceXSI 对一段文本做统计打分，报告三个结论之一：带水印、不带水印、不确定；文本越长信号越强，短文本可能落入不确定；检测接口不对公众开放，须通过表格申请开通。</li>
+    <li>团队级退出：管理员按模型关、5 分钟生效——开关属于整个团队、作用于团队全部 API 密钥；只有团队管理员能在控制台 Team settings 的 Model output watermarking 行操作，状态为全部开、全部关或自定义；逐个模型取消勾选后保存即退出，改动 5 分钟内对新请求生效；重新勾选则恢复水印。</li>
+    <li>退出要担责：确认法律例外、留审计记录——退出时须确认自己的使用情形适用法律例外，并确认由自己全权负责标记、披露等法律要求；个别模型可能被锁定开启，控制台里显示但无勾选框、无法关闭，须联系团队管理员；每次开启与退出都记入团队审计日志，可按事件、描述或用户检索。</li>
+  </ul>
+</section>
+
+<section class="card brief c2" id="brief-32">
+  <div class="eyebrow">2026-11-06<span class="tag">新论文</span></div>
+  <h2>Google DeepMind 智能体攻下 1024 位 RSA 签名伪造：391 核年复现，两智能体四天跑完</h2>
+  <div class="src">来源：<a href="https://storage.googleapis.com/deepmind-media/papers/Faster_Affine_Root_and_a_1024bit%20Computation.pdf">Google DeepMind · Modular Roots from a Restricted Oracle: Faster Affine Roots and a 1024-bit Computation</a></div>
+  <p>11 月 6 日，Google DeepMind 公布：两智能体在人类密码学家指导下复现了 1024 位 RSA 签名伪造计算，只用 391 CPU 核年（原先 1380 核年），并给出更快的仿射根算法；论文同时声明，2048 位及以上 RSA 不受影响。</p>
+  <p><b>这是什么：</b>RSA 签名先把调用方的数据按固定格式填充，再对填充后的块求 e 次根（签名）。论文研究的就是这个过程能被利用到什么程度：攻击者先离线向一个会求 e 次根的 oracle（预言机）提问，拿到一批选定输入的根；oracle 撤走后，再对随机目标求根。oracle 分两种：无限制 oracle 接受任何输入；仿射 oracle 只接受固定格式 c+z，z 是调用方能控制的小整数，正好模拟签名接口先填充再签名的形态。论文有三项结果：证明格式约束在可变部分够大时不再起作用；把仿射问题的每根代价从 L[1/3, 1.8171] 降到 L[1/3, 1.5803]（L 记号是数域筛类算法的启发式时间度量，常数越小越快）；以及在 1024 位规模上完整复现 9 月 Shea 等人论文的无限制 oracle 计算。计算由两个 cooperating AI agents 完成：主管智能体写设计、设检查点、审计每个结果，执行智能体写代码、跑分布式任务、修故障；人类研究员只发了约 20 条短消息，多为批准。两篇工作论文均未经同行评审。</p>
+  <p><b>为什么重要：</b>它值得学在三处。第一，AI 辅助科研的速度与分工：一个通常推进缓慢的密码学方向，数周内拿出两篇论文，一次大计算从约五个月压缩到 3.2 天，靠的不是新算法，而是两智能体分工把工程做扎实——写约 3.35 万行新代码、跑 336 次分布式实验、现场排除 32 位索引溢出这类只有大规模才会暴露的故障。第二，安全建模的教训：危险不在密钥长度本身，而在攻击者能控制多少签名输入——能控制半个块以上时，填充格式基本不再提供保护；这是接口设计问题，不是纯数学问题。第三，证据要分层读：391 核年是实测复现，1600 倍是新算法的理论换算、未在 1024 位规模跑过；全部复杂度结论依赖数域筛标准启发式假设；论文用黑体声明 2048 位及以上 RSA 不受影响。代价同样写在论文里：oracle 模型本身来自 9 月人类团队的论文，智能体做的是复现与改进，不是凭空发现攻击面。</p>
+  <div class="blab">深入讲解</div>
+  <ul>
+    <li>仿射 oracle 模型：先离线问、再在线算——算法分两阶段：离线阶段向 oracle 提问，拿到一批选定剩余类的 e 次根；oracle 随即撤走，在线阶段对随机目标求根，全程不再提问；提问必须在目标出现前选定，即非自适应。无限制 oracle 接受任何剩余类；仿射 oracle 只接受固定格式 c+z，z 是调用方能控制的小整数，模拟签名接口先填充再签名的真实形态。</li>
+    <li>平方根阈值：格式何时不再起作用——把目标剩余类写成两个可接受输入之根的商，归结为行列式为 N 的二维格上的最近向量问题；当可变部分 z 能取到约 √N 大小（1024 位下即一半比特）时，仿射 oracle 用平均每个查询两次提问加常数次重随机化就能模拟无限制 oracle；低于 √N，每少一位，重随机化次数下界翻四倍。实测 1024 位、半比特窗口平均每次查询 1.26 次重随机化。</li>
+    <li>PKCS#1 v1.5 的分类：哪些接口落入无限制情形——PKCS#11 的 CKM_RSA_PKCS 机制接受至多 nB−11 字节数据（nB 为模长字节数）；调用方数据超过约半个块、或 1024 位下用 64 字节摘要时，格式不增加难度，等同于原始映射；32 字节摘要仍落在仿射问题里；若设备在内部先算摘要、调用方碰不到摘要值，则两种 oracle 模型都不适用。</li>
+    <li>更快的仿射根算法：多阶段提前终止——旧算法每个目标都要重付下降初始化的代价，摊到每根 L[1.8171]；新算法用最优多阶段提前终止做光滑性测试：候选数逐段筛，某段已找到的光滑部分太小就立刻丢弃，阶段阈值对任意阶段数都有最优解；再加只用可接受输入的因子基扩展；单目标每根降至 L[1.5803]，离线代价 L[1.6373] 时在线每根趋近 L[1.3867]，仍远低于分解模数的 L[1.923]。</li>
+    <li>1024 位复现计算：两智能体分工跑大工程——在 Shea 等人 9 月论文的同一模数、多项式与因子基界上，用 C++ 与 CADO-NFS 复现无限制 oracle 算法；首根 391 CPU 核年（离线 318、在线 73），原为 1380 核年，约 3.5 倍；筛法两阶段分别省 2.7 与 4 倍，下降省 2.2 倍、求根省约 6 倍；同一台机器上优化后的筛子比 CADO-NFS 快 1.8–4.4 倍且找到相同关系，说明节省主要来自代码而非硬件。主管智能体写设计、设检查点、审计每个结果，执行智能体写代码、跑分布式任务、修故障；人类研究员约 20 条短消息多为批准；共写约 33500 行新代码、跑 336 次分布式实验，3.2 天完成（峰值约 30 万核与 16 块 GPU），排除了 82–85 比特下降节点被筛子丢弃、32 位索引溢出导致首根算错等故障。</li>
+    <li>证据分层与边界：实测与理论分开记——391 核年是实测复现；1600 倍是把 L 常数从 1.8171 降到 1.5803 换算出的理论估计，DeepMind 称其对应 32 字节摘要情形，未在 1024 位规模实测；论文用黑体声明 2048 位及以上 RSA 不受影响；全部复杂度结论依赖数域筛标准启发式假设，且工作论文未经同行评审。</li>
+  </ul>
+</section>
+
+<section class="card brief c3" id="brief-31">
+  <div class="eyebrow">2026-11-06<span class="tag">新论文</span></div>
+  <h2>PSI 宣布 AI 证明了 Aaronson–Ambainis 猜想：18 年量子难题，Lean 已验算通过</h2>
+  <div class="src">来源：<a href="https://psi.inc/research/aaronson-ambainis/">Physical Superintelligence · A proof of the Aaronson-Ambainis conjecture</a></div>
+  <p>11 月 6 日，PSI（Physical Superintelligence）宣布，其内部研究系统（运行未公开的 Anthropic 模型）找到了 Aaronson–Ambainis 猜想的证明：该猜想自 2008 年悬而未决，关系到量子计算机能否在随机输入上指数级快于经典计算机；形式化证明已由 Lean 验算通过，但专家对形式化表述与猜想原文是否一致的核对仍在进行。</p>
+  <p><b>这是什么：</b>1994 年，Shor 找到一种量子算法，能比任何已知的经典方法快得多地分解大数，但它依赖输入暗藏的重复模式。Aaronson 与 Ambainis 问：随机输入几乎没有这种结构，量子计算机还能指数级地少读输入吗？他们把问题化成纯数学：量子计算机回答“是”的概率可写成输入比特的多项式，次数至多为读取次数的两倍、取值在 0 与 1 之间；猜想说，每个有界低次多项式都有一个“高影响力”变量——翻转它会显著改变多项式的值。若成立，经典计算机只需多读多项式倍的输入就能模仿量子计算机，随机输入上就没有指数加速。PSI 的证明给出具体界：某个变量的影响力至少为 (ε/d)^7，其中 ε 是多项式取值的方差、d 是次数，显式常数约为 0.0025。</p>
+  <p><b>为什么重要：</b>它值得学，因为这是 AI 系统攻克长期开放数学问题的标志性案例：猜想自 2008 年提出，悬了 18 年，期间不少专家尝试过；8 月斯坦福团队刚证明了平行轮数受限的特殊情形，PSI 的证明覆盖一般情形。更值得学的是它的验证结构：发现过程不可复现——模型未公开、系统在 PSI 内部运行；但验证过程是公开的，任何人都能重跑 Lean 验算。真正的信任边界不在 Lean 算得对不对，而在形式化表述是否就是猜想本身，这一步只能由专家人工确认，斯坦福团队正在读证明并写更短的专家版。此外要认清结论的范围：它只约束读取输入的次数，不约束总计算时间，Shor 算法这类结构化问题不受影响；论文是预印本，未经同行评审。</p>
+  <div class="blab">深入讲解</div>
+  <ul>
+    <li>猜想变成影响力命题：量子计算机看 T 次输入后回答“是”的概率，是输入比特的一个多项式，次数至多 2T、取值在 0 与 1 之间；把多项式想成由开关控制的表盘，每组至多 d 个开关同时打开会拨动表盘，表盘读数恒在 0 与 1 之间；一个比特的影响力，就是翻转它时表盘读数平均变化多少。猜想断言：只要表盘读数确实有变化（方差为 ε），就一定存在某个开关，翻转它平均能拨动表盘至少 (ε/d) 的某个固定次幂。</li>
+    <li>研究系统三天出证明、两次收紧：研究系统由 PSI 内部开发，在公司自己的基础设施上运行，使用未公开的 Anthropic 模型的多个实例；系统在运行第三天写出完整证明，Lean 验算通过，随后被指派去攻相关开放问题，过程中结果又收紧两次，Lean 每次都重新验算。仓库声明写明，数学表述、论文初稿与 Lean 形式化由 AI 模型产出，David Turturean 开发了研究系统、审阅论文并对正确性负责，顾问 Jim Halverson 审计了证明、Phiala Shanahan 点评了 Lean 形式化。</li>
+    <li>证明走 Lovett–Zhang 的路线并补上缺口：证明沿用 Shachar Lovett 与 Jiapeng Zhang 的计划：对表盘读数的每个水平，考察读数不低于该水平的开关设置，并给每个开关赋权重，使得翻转任意一组开关时表盘读数的移动不超过这组开关的权重总和；Lovett 与 Zhang 把其中一个不等式留作猜想，PSI 的证明用一个新证出的不等式替代了它；为证这个不等式，他们把开关设置一一配对，配对由一个行列式给出，并在 Reimer 的 Butterfly Lemma 提供的较弱配对上，进一步限制配对设置在每个开关上重合的频率。</li>
+    <li>四段初等证明链：论文与 Lean 库把证明拆成四段：先由行列式最低次项导出点集的双射定理，再得所有点对的不等式；接着对水平集积分，得到三阶矩不等式；再对影响力小的坐标取平均，得到影响力的下界；最后证明行界（row bound）：次数至多 d 的函数在每一点都有总权重至多 π²d² 的增量证书，且各坐标变化量之和至多 4d²，代入前面三段即得主定理，最终界为 (ε/d)^7。</li>
+    <li>Lean 验算与信任边界：形式化证明用 Lean 4 写成，静态审计确认没有 sorry（缺失证明的占位符）、没有额外添加的公理；声明被 Lean 内核与 lean4lean（独立实现的 Lean 类型检查器）各重跑一遍，一个比较器（comparator）把四条最终定理与形式化表述逐一对照，并用 Rust 写的 nanoda 核查器再跑一次。信任边界写在仓库 README 里：形式化表述 PrintedConjecture 是否就是猜想原文，需要读者自己确认；供人阅读的论文本身不经过机器验算。</li>
+  </ul>
+</section>
+
+<section class="card brief c4" id="brief-33">
+  <div class="eyebrow">2026-11-05<span class="tag">新论文</span></div>
+  <h2>DeepMind 提出 Fan Factories：批量分解 1024 位 RSA，每把新增密钥便宜约 30 倍</h2>
+  <div class="src">来源：<a href="https://storage.googleapis.com/deepmind-media/papers/Fan_Factories_Multiple_Number_Fields_in_Factorization_Factories_and_Batch_NFS.pdf">Google DeepMind · Fan Factories: Multiple Number Fields in Factorization Factories and Batch NFS</a></div>
+  <p>11 月 5 日的 DeepMind 工作论文给出批量分解的新构造：每个目标整数配一把数域“扇”，共用一次有理侧预计算；以一次完整分解为预计算预算，每把新增 1024 位密钥的代价约为单次数域筛的 1/58，比此前最优批量方法低约 30 倍——这是首阶理论估计，尚未实现。</p>
+  <p><b>这是什么：</b>分解大整数最快的经典方法是数域筛（NFS），时间写作 L[1/3, c]，常数 c 越小越快：通用筛 c≈1.923，多域筛（MNFS）c≈1.9019。要分解很多把同尺寸密钥时，可以共用一部分工作：Coppersmith 1993 年的 factorization factory 先花一次大代价预计算有理侧、存下有理范数光滑的数对，每把密钥复用它；但预计算预算只有一次完整分解时，单多项式工厂毫无增益，最优仍是每把各跑 MNFS。Fan Factories 的新构造是：给每个目标整数配一把由多个数域组成的“扇”，全部共用同一批预计算的有理数对，并给出任意预算下每把密钥最小代价的闭式解。论文由两智能体协作完成，一个生成证明、一个验证；代数恒等式与可行性见证由 Lean 4 机器验证。</p>
+  <p><b>为什么重要：</b>它值得学，因为它讲的是批量攻击的经济学，而非单把密钥的攻防：现实中的攻击者面对的往往是一批密钥、一份档案，预计算摊到每一把上的成本才是真正的威胁模型。论文的巧妙处在于找出了一个被忽视三十年的中间地带：预计算不多不少、恰好一次分解时，此前所有方法都认为共享没有意义，而一把扇让共享重新变得划算——每把密钥的指数常数从 1.9019 降到 1.7929。代价与边界同样明确：这是首阶理论估计，低阶项未定、不能直接读成实测耗时；没有任何 fan factory 被实现过；增益只在预算指数 1.902 到约 1.950 的窄带里存在，预算再大就回到单多项式工厂；无预计算的批量模式增益至多 0.018 个指数单位；论文声明 2048 位及以上 RSA 不受影响。</p>
+  <div class="blab">深入讲解</div>
+  <ul>
+    <li>数域筛的记账单位：指数常数 c——分解整数 N 的启发式时间写作 L[1/3, c]，c 越小越快；通用数域筛 c≈1.923，多域筛 MNFS c≈1.9019；论文所有改进都体现为 c 的下降，c 差 0.1 在 1024 位规模上就是数十倍的代价差（首阶换算），但这只是首阶估计，低阶项未定，不能直接读成实测耗时。</li>
+    <li>Coppersmith 工厂：一次预计算、多把密钥复用——有理多项式 x−m 只依赖 N 的大小，与具体 N 无关；先筛一遍有理侧，把有理范数光滑的数对 (a,b) 存下来；每把目标密钥复用这批数对，只需再筛代数侧；1993 年的工厂预计算代价 L[2.007]，每把密钥 L[1.639]；但预算只有一次完整分解时，单多项式工厂还不如不用预计算，最优仍是每把各跑 MNFS 的 L[1.9019]。</li>
+    <li>扇：每个目标配一把数域——新构造给每个目标整数配 L[τ] 个代数多项式组成的一把“扇”，全部共用同一批预计算的有理数对；批量光滑性测试一次检验整把扇：每把扇里每个域只需贡献较少的关系（矩阵维度由 L[β] 降到每域 L[γ]），测试代价随之下降；测试代价低于线性代数代价时省下的部分，正好就是最优扇指数 τ=β−γ 的来源。</li>
+    <li>闭式权衡与相变点：预算定扇的大小——对任意预计算预算 L[c]，论文给出每把密钥最小代价的闭式函数 F(c)；预算指数在 1.902 到约 1.950 之间时扇严格优于此前所有方法；预算为一次通用筛（c≈1.923）时，每把密钥 L[1.7929]，对 1.9019；超过相变点 ctr≈1.9496，最优扇缩为单个多项式，代价触底于 Coppersmith 工厂的 L[1.6386]；增益集中在小预算区，最大约 0.1098。</li>
+    <li>无预计算的批量模式：增益很小——M=L[μ] 把同尺寸整数一起分解、不用预计算时，每把配扇仍优于 MNFS 与单多项式批量筛，但只在 μ&lt;0.2785 时成立，指数增益至多 0.018；批量模式不比线性代数多用内存，也不存候选表。</li>
+    <li>验证与边界：Lean 4 只验代数部分——闭式权衡背后的代数恒等式与四个预算点上的精确有理可行性见证由 Lean 4 机器验证；但运行时间估计建立在数域筛标准启发式假设上，未被验证；没有任何 fan factory 被实现过，1024 位下的 1/58 与 30 倍是把低阶项置零的首阶换算；论文声明 2048 位及以上 RSA 不受影响；证明由两智能体协作完成，一个生成、一个验证。</li>
+  </ul>
+</section>
+
+<section class="card brief c5" id="brief-39">
+  <div class="eyebrow">2026-10-27<span class="tag">新模型</span></div>
+  <h2>Google 发布 Genie 4：输入一句话，实时生成一个能走进去、能改动、能对话的世界</h2>
+  <div class="src">来源：<a href="https://deepmind.google/blog/genie-4-a-new-generation-of-world-simulation/">Google DeepMind · Genie 4: A new generation of world simulation</a></div>
+  <p>10月27日，Google DeepMind 发布世界模型 Genie 4：输入一句话，实时生成一个能走进去、能用键盘走动、用文字改动的世界，环境音、音乐与人物对话和画面同一趟生成；Gemini Omni 管世界长什么样，Gemini 3.8 Flash 在循环里当导演兼监工。目前只是研究预览，先给受信任测试者。</p>
+  <p><b>这是什么：</b>Genie 4 是 Google DeepMind 的新一代世界模型：输入一句话，就实时生成一个可以走进去的世界——键盘控制走动与镜头，文字指令改天气、换镜头、加人物或加物体，世界实时跟变。和视频生成的区别在于：视频是“放录像，只能看”；世界模型是“现场演，能参与”，画面、环境音、音乐与人物对话同一趟生成，人物会实时接话、对你的输入作出反应。</p>
+  <p><b>为什么重要：</b>DeepMind 把理解并模拟物理世界称为通向 AGI 的关键能力之一：一个能实时模拟世界、还能被人干预的模型，既是交互体验的新形态，也是训练机器人与智能体的沙盒。眼前用途已经很具体：电影预演、游戏原型、机器人模拟训练、老照片变成可进入的历史场景。更值得学的是它的架构形态——世界模型负责渲染现实，推理模型在循环里负责规划与校验，这种“生成 + 监工”的双模型回路，正在成为智能体系统的主流做法。</p>
+  <div class="blab">深入讲解</div>
+  <ul>
+    <li>双模型分工：Gemini Omni 管“世界长什么样、合不合现实”——把模拟锚定在真实世界的外观与行为上；Gemini 3.8 Flash 在生成循环里当导演兼监工，把目标拆成一串步骤、逐帧盯着进度、确认每步做成、世界一变就调整计划。Genie 负责逐像素渲染当下的现实，Gemini 负责结构与叙事时间线，两者互补才有连贯的世界。</li>
+    <li>实时改世界：自然语言改动实时生效——改天气、移镜头、加人物或物体，Gemini 会把提示按场景上下文改写；两次输入之间，Gemini 也在监控和引导场景，让世界自己往前走得连贯，而不是每帧都等用户下指令。</li>
+    <li>物理与人的真实感：内置对物理世界的理解，模拟空气动力学、碰撞等真实物理场景；跃升最大的是人：角色移动自然、对环境有有机反应、可以被实时引导对话，不再是摆拍的假人。</li>
+    <li>声音是原生生成的：第一个实时生成原生音频的世界模型——环境音、音乐、人物对话与画面同一趟生成，人物会实时接话，对用户的输入和世界里的事件作出反应，而不是事后配音。</li>
+    <li>复杂事件的因果链：Gemini 加入后能建模多步复杂事件、测试 AI 系统在不同环境里的行为；与 Gemini 4 Argon 配合可模拟机器人任务——Argon 把任务拆成步骤，Genie 实时渲染，官方例子是 Apptronik Apollo 人形机器人下跳棋。</li>
+    <li>短板与边界：仍是早期研究预览——跑久或改动多会“漂移”，细节与物体变样甚至消失；实时语音准确度、画面文字、空间准确度、长期一致性仍在研究中；所有生成内容带 SynthID 隐形水印；先给受信任测试者，之后到 Google AI Ultra 订阅用户（Project Genie）与 Gemini API / AI Studio 早期合作伙伴。</li>
+  </ul>
+</section>
+</main>
+<footer>归档自学习应用 · AI 前沿速递 · 第 3 组</footer>
+</div>
+<button class="navbtn" id="navbtn" aria-label="打开课程目录">☰</button>
+<div class="navoverlay" id="navoverlay"></div>
+<aside class="navdrawer" id="navdrawer" aria-label="课程目录">
+  <button class="nd-close" id="ndclose" aria-label="关闭目录">×</button>
+  <h3>课程目录</h3>
+  <div id="ndlist"></div>
+  <a class="nd-home" id="ndhome" href="../index.html">← 回到首页</a>
+  <a class="nd-home" href="../briefs.html">查看全部速递 →</a>
+</aside>
+<script>
+(function(){
+  var btn = document.getElementById('navbtn');
+  var overlay = document.getElementById('navoverlay');
+  var drawer = document.getElementById('navdrawer');
+  var list = document.getElementById('ndlist');
+  var home = document.getElementById('ndhome');
+  var jsonUrl = '../lessons.json';
+  var prefix = '../lessons/';
+  home.href = '../index.html';
+  function open(){ drawer.classList.add('open'); overlay.classList.add('open'); }
+  function close(){ drawer.classList.remove('open'); overlay.classList.remove('open'); }
+  btn.addEventListener('click', open);
+  document.getElementById('ndclose').addEventListener('click', close);
+  overlay.addEventListener('click', close);
+  var cur = location.pathname.split('/').pop();
+  fetch(jsonUrl).then(function(r){ return r.json(); }).then(function(items){
+    list.innerHTML = '';
+    items.forEach(function(it){
+      var a = document.createElement('a');
+      a.className = 'nd-item' + (it.file === cur ? ' cur' : '');
+      a.href = prefix + it.file;
+      a.innerHTML = '<div class="nd-day">第 ' + it.day + ' 天</div><div class="nd-title">' + it.title + '</div><div class="nd-meta">' + it.date + ' · 约 ' + it.minutes + ' 分钟</div>';
+      list.appendChild(a);
+    });
+  }).catch(function(){
+    list.innerHTML = '<p style="font-size:14px;color:#666;">目录加载失败，请点“回到首页”查看全部课程。</p>';
+  });
+})();
+</script>
+</body>
+</html>
