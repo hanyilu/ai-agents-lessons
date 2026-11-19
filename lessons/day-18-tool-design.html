@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 18 天：工具设计：模型不看你的代码，只看你的文档</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f4f2ec; color: #222; line-height: 1.75; }
+  .wrap { max-width: 780px; margin: 0 auto; padding: 32px 20px 60px; }
+  header { background: linear-gradient(135deg, #1e1b4b, #4c1d95); color: #fff; border-radius: 16px; padding: 28px 26px; }
+  .kicker { font-size: 13px; letter-spacing: 2px; opacity: .85; }
+  header h1 { margin: 10px 0 12px; font-size: 26px; line-height: 1.4; }
+  .thesis { font-size: 16px; opacity: .95; margin: 0 0 14px; }
+  .meta { font-size: 13px; opacity: .75; }
+  section.card { background: #fff; border-radius: 14px; padding: 22px 24px; margin-top: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.06); border-left: 5px solid #2563eb; }
+  section.card.c2 { border-left-color: #7c3aed; }
+  section.card.c3 { border-left-color: #0891b2; }
+  section.card.c4 { border-left-color: #d97706; }
+  section.card.c5 { border-left-color: #dc2626; }
+  section.card.c6 { border-left-color: #059669; }
+  section.card.c7 { border-left-color: #4f46e5; }
+  .eyebrow { font-size: 12px; letter-spacing: 2px; font-weight: 700; color: #6b7280; }
+  h2 { margin: 6px 0 12px; font-size: 20px; line-height: 1.5; }
+  p { margin: 0 0 12px; }
+  ul { margin: 0 0 12px; padding-left: 20px; }
+  li { margin-bottom: 6px; }
+  pre { background: #1e1e2e; color: #e8e8f0; border-radius: 10px; padding: 14px 16px; overflow-x: auto; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+  .anim { background: #f8f7ff; border: 1px solid #e4e1f5; border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .anim h3 { margin: 0 0 4px; font-size: 16px; }
+  .anim .cap { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+  .step { display: flex; gap: 12px; background: #fff; border: 1px solid #e8e6f2; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
+  .step .n { flex: 0 0 26px; height: 26px; border-radius: 50%; background: #4c1d95; color: #fff; text-align: center; line-height: 26px; font-size: 13px; font-weight: 700; }
+  .step .lab { font-weight: 700; font-size: 14px; }
+  .step .txt { font-size: 14px; color: #333; }
+  .step .ro { display: inline-block; margin-top: 4px; font-family: monospace; font-size: 12px; background: #f1f0f8; border-radius: 6px; padding: 1px 8px; color: #4c1d95; }
+  .takeaways { background: #fffbeb; border: 1px solid #f5d98b; }
+  .quiz { background: #eff6ff; border: 1px solid #bfdbfe; }
+  .quiz .opt { background: #fff; border: 1px solid #dbeafe; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: 14px; }
+  .quiz .opt.right { border-color: #22c55e; background: #f0fdf4; }
+  .quiz .exp { margin-top: 10px; font-size: 14px; background: #fff; border-radius: 8px; padding: 10px 12px; }
+  .sources { font-size: 14px; }
+  .sources li { margin-bottom: 14px; }
+  .sources a { color: #1d4ed8; }
+  .sources .b { color: #6b7280; font-size: 13px; }
+  footer { margin-top: 28px; text-align: center; font-size: 12px; color: #9ca3af; }
+  header { padding-right: 66px; }
+  .navbtn { position: fixed; top: 14px; right: 14px; z-index: 100; width: 40px; height: 40px; border-radius: 50%; border: none; background: #fff; color: #1e1b4b; font-size: 20px; line-height: 1; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+  .navoverlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 101; display: none; }
+  .navoverlay.open { display: block; }
+  .navdrawer { position: fixed; top: 0; right: 0; width: min(320px, 85vw); height: 100%; background: #fff; z-index: 102; transform: translateX(100%); transition: transform .25s ease; overflow-y: auto; padding: 20px; box-shadow: -2px 0 12px rgba(0,0,0,.2); }
+  .navdrawer.open { transform: translateX(0); }
+  .navdrawer h3 { margin: 0 0 4px; font-size: 17px; }
+  .nd-close { position: absolute; top: 12px; right: 14px; border: none; background: none; font-size: 22px; cursor: pointer; color: #666; }
+  .nd-item { display: block; text-decoration: none; color: inherit; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 12px; margin-top: 10px; }
+  .nd-item.cur { border-color: #4c1d95; background: #f5f3ff; }
+  .nd-day { font-size: 12px; color: #6b7280; font-weight: 700; letter-spacing: 1px; }
+  .nd-title { font-size: 14px; line-height: 1.5; margin-top: 2px; }
+  .nd-meta { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+  .nd-home { display: block; margin-top: 14px; font-size: 14px; color: #1d4ed8; text-decoration: none; }
+
+  .visual { background: #f8f7ff; border: 1px solid #e4e1f5; border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .visual h3 { margin: 0 0 4px; font-size: 16px; }
+  .visual .cap { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+  .vbar { margin-bottom: 10px; }
+  .vbar .vlab { font-size: 14px; font-weight: 700; }
+  .vbar .vval { font-size: 13px; color: #4c1d95; font-weight: 700; }
+  .vbar .vtrack { background: #e8e6f2; border-radius: 6px; height: 14px; margin-top: 4px; }
+  .vbar .vfill { background: linear-gradient(90deg, #1e1b4b, #7c3aed); border-radius: 6px; height: 14px; }
+  .vflow { list-style: none; margin: 0; padding: 0; }
+  .vflow li { background: #fff; border: 1px solid #e8e6f2; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: 14px; }
+  .vflow li + .varrow { text-align: center; color: #9ca3af; font-size: 14px; margin: -2px 0 6px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="kicker">AI AGENTS 深入学习 · 第 18 天</div>
+  <h1>工具设计：模型不看你的代码，只看你的文档</h1>
+  <p class="thesis">工具是 Agent 的手，但模型看不到你的实现代码，只能看到名字、描述、参数表这三件套——这份文档就是模型与系统之间的全部接口（Anthropic 叫它 ACI，Agent-Computer Interface）。设计工具不是包一层 API，而是写一份让概率模型挑得准、填得对、错了能自己改回来的契约：名字像动词、描述第一句写边界、参数防呆收窄、错误写成反馈、副作用上锁；工具多了按需加载，跨系统用 MCP 统一接头。</p>
+  <div class="meta">2026-11-18 · 约 18 分钟</div>
+</header>
+
+<main>
+<section class="card">
+  <div class="eyebrow">01 问题</div>
+  <h2>模型的手好不好使，取决于你怎么写工具</h2>
+  <p>第 8 天讲过：模型只生成调用意图，执行在后端。但还有另一面没讲——模型看得到什么？它看不到你的实现代码：查库的 SQL、鉴权、重试、缓存，全被挡在工具定义外面。</p>
+  <p>模型看到的只有三件套：工具名、一段描述、一张参数表。这份文档就是它与真实世界之间的全部接口——Anthropic 给它起了个名字：ACI，Agent-Computer Interface，Agent 版的人机界面。</p>
+  <ul>
+    <li>工具 = 模型的手，但手长什么样由文档决定。</li>
+    <li>ACI 的地位与 HCI 相当：给人用的界面要精心设计，给模型用的也一样。</li>
+    <li>第 8 天讲模型侧怎么选；今天讲提供侧怎么写。</li>
+  </ul>
+</section>
+
+<section class="card c2">
+  <div class="eyebrow">02 契约三件套</div>
+  <h2>名字、描述、参数表，一件都不能含糊</h2>
+  <p>契约第一件是名字：模型选工具是在工具名上算概率，名字就是检索信号。动词短语最稳——search_orders、refund_order；别让两个工具叫近义词，search、lookup、query 摆在一起，模型只能靠猜区分。</p>
+  <p>第二件是描述，第三件是参数表：描述讲清这工具是干什么的、什么时候用、什么时候别用；参数表画好格子——哪个必填、什么类型、只能取哪些值。描述里还要写返回值长什么样、有没有副作用。</p>
+  <ul>
+    <li>名字是概率的锚点：含糊的名字，选错是必然。</li>
+    <li>描述第一句就要写清使用边界，别只写功能。</li>
+    <li>参数表是格子，不是建议：必填、类型、枚举，一格都不能含糊。</li>
+  </ul>
+  <div class="anim"><h3>动画：模型看到的只有三件套</h3><div class="cap">机制示意，不是真实模型行为：工具定义是模型看到的全部接口，实现代码它看不到。</div><div class="step"><div class="n">1</div><div><div class="lab">实现</div><div class="txt">工具背后是你的代码：查库、鉴权、重试、缓存，全套后端工程。</div><div class="ro">后端代码</div></div></div><div class="step"><div class="n">2</div><div><div class="lab">墙</div><div class="txt">但模型看不到这些：实现被挡在工具定义外面，它只收到一段文档。</div><div class="ro">实现被挡住</div></div></div><div class="step"><div class="n">3</div><div><div class="lab">名字</div><div class="txt">第一件是名字：动词短语最稳，是模型选工具时算概率的锚点。</div><div class="ro">第一件：名字</div></div></div><div class="step"><div class="n">4</div><div><div class="lab">描述</div><div class="txt">第二件是描述：何时用、何时不用、边界在哪，都写在这里。</div><div class="ro">第二件：描述</div></div></div><div class="step"><div class="n">5</div><div><div class="lab">参数表</div><div class="txt">第三件是参数表：必填、类型、枚举，格子画好，模型照着填。</div><div class="ro">第三件：参数表</div></div></div><div class="step"><div class="n">6</div><div><div class="lab">结论</div><div class="txt">模型眼里，工具定义就是全部接口：文档写多好，Agent 就有多稳。</div><div class="ro">文档就是接口</div></div></div></div>
+</section>
+
+<section class="card c3">
+  <div class="eyebrow">03 描述写法</div>
+  <h2>描述是写给模型看的检索信号</h2>
+  <p>好描述有固定配方：第一句写“什么时候用、什么时候不用”；接着写输入格式与边界——order_id 是什么样、日期写哪种格式；再写返回值与副作用——返回什么、会不会改数据。</p>
+  <p>描述里还能放例子与边界情况：一个正确调用的例子，胜过三行抽象说明。Anthropic 的做法是把工具定义当给初级开发者的文档写——例子、边界、输入格式要求，一个都不能省。</p>
+  <ul>
+    <li>第一句定边界：用与不用，先讲清楚。</li>
+    <li>例子是最好的描述：一个正确调用胜过抽象说明。</li>
+    <li>描述太长也要付 token 钱：写全，但别写废话。</li>
+  </ul>
+</section>
+
+<section class="card c4">
+  <div class="eyebrow">04 粒度</div>
+  <h2>一个工具干一件事：Unix 哲学</h2>
+  <p>工具太大，模型不敢调、调错了全错：一个 manage_order 又查又改又退，模型分不清这次该干哪一半，测试也难写。工具太小，简单任务要串五六步：每步都是一次调用、一次等待、一次出错的机会，账单跟着步数乘。</p>
+  <p>判断标准很简单：一次调用的结果能不能独立验证。查得到、改得对、退得了，每一步都有明确的成功信号，粒度就合适。后端类比：这就是 Unix 的“一个程序做好一件事”，也是微服务拆分的同一道题。</p>
+  <ul>
+    <li>太大：职责不清，调错全错，难测。</li>
+    <li>太小：步数乘账单，中间状态多。</li>
+    <li>标准：一次调用的结果能独立验证。</li>
+  </ul>
+</section>
+
+<section class="card c5">
+  <div class="eyebrow">05 参数防呆</div>
+  <h2>防呆：让模型想错都难</h2>
+  <p>参数设计的第一原则是防呆（poka-yoke）：把容易错的格式收进工具内部，别让模型猜。Anthropic 的 SWE-bench 故事就是例子——模型总在相对路径上栽跟头，改成强制绝对路径，问题直接消失。</p>
+  <p>具体做法：必填收窄到最少、枚举代替自由文本、默认值取最安全的那档（默认只读、默认小范围）；单位写死——金额用分、时间用 ISO 格式；自然语言日期让工具内部解析，别让模型拼字符串。</p>
+  <ul>
+    <li>相对路径改绝对路径：格式问题在工具内解决。</li>
+    <li>枚举收窄选择：自由文本是选错的温床。</li>
+    <li>默认值取最安全档：默认只读、默认小范围。</li>
+  </ul>
+</section>
+
+<section class="card c6">
+  <div class="eyebrow">06 错误即反馈</div>
+  <h2>错误信息是模型唯一的反馈通道</h2>
+  <p>模型调错了参数，唯一能学到的东西就是你返回的错误。只回“参数错误”四个字，模型改不对——它不知道错在哪、该怎么改。错误要写成给模型的提示：错在哪个字段、期望什么格式、今天是几号、合法值有哪些。</p>
+  <p>第 8 天的分层兜底在这里收口：解析层、schema 层、语义层拦下的错，每一层都要把错因写清楚再回填。回填不是认错，是给模型下一次调用的输入——写得越具体，自我修正的成功率越高。</p>
+  <ul>
+    <li>错因 + 期望格式 + 当前事实，三件套缺一不可。</li>
+    <li>不要只回 400：模型看不懂状态码。</li>
+    <li>错误回填是输入，不是道歉：为下一次调用服务。</li>
+  </ul>
+</section>
+
+<section class="card c7">
+  <div class="eyebrow">07 规模与标准</div>
+  <h2>工具多了按需加载，跨系统用 MCP 统一接头</h2>
+  <p>工具清单进提示是要付 token 钱的：第 8 天算过，每个定义几百 token，50 个工具光清单就上万 token，又贵又挤内容，选错率也跟着涨。做法是按需加载：平时只留一个搜工具的元工具，用时再把具体定义取回来。</p>
+  <p>跨系统还有一层问题：每个数据源各写一套接头，N 个应用 × M 个数据源就是 N×M 份集成。MCP（模型上下文协议）把接头标准化：2024 年 11 月由 Anthropic 开源，2025 年 12 月捐给 Linux 基金会旗下机构；它分三件——工具（模型调）、资源（只读数据）、提示词（模板），各接一次就能任意组合。</p>
+  <ul>
+    <li>清单是成本：按需加载，用时再取。</li>
+    <li>MCP 把 N×M 份集成变成 N+M。</li>
+    <li>MCP 不管认证与审计：那些还在实现层。</li>
+  </ul>
+  <div class="anim"><h3>动画：工具清单越长，上下文越贵</h3><div class="cap">机制示意，不是真实模型行为：token 数为举例（每个工具定义几百 token），说明清单长度与成本的关系。</div><div class="step"><div class="n">1</div><div><div class="lab">5 个工具</div><div class="txt">5 个工具，清单只占上下文一小角，挑错也少。</div><div class="ro">清单约 1500 token</div></div></div><div class="step"><div class="n">2</div><div><div class="lab">20 个工具</div><div class="txt">20 个工具，清单开始挤占真正的内容。</div><div class="ro">清单约 6000 token</div></div></div><div class="step"><div class="n">3</div><div><div class="lab">50 个工具</div><div class="txt">50 个工具，大半个窗口被工具描述占了，又贵又容易挑错。</div><div class="ro">清单约 15000 token</div></div></div><div class="step"><div class="n">4</div><div><div class="lab">按需加载</div><div class="txt">平时只留一个搜工具的元工具，用时再取定义，清单回到 300 token。</div><div class="ro">只留一个搜工具</div></div></div><div class="step"><div class="n">5</div><div><div class="lab">结论</div><div class="txt">工具定义进提示是要付 token 钱的：清单越长，越贵、越容易挑错。</div><div class="ro">清单是成本</div></div></div></div>
+  <div class="visual"><h3>MCP 之前与之后</h3><div class="cap">MCP 不发明新能力，它只统一接头：接头标准化之后，工具定义本身仍要按本课的契约写。</div><ol class="vflow"><li>每个数据源各写一套接头</li><div class="varrow">↓</div><li>N 个应用 × M 个数据源</li><div class="varrow">↓</div><li>MCP：各接一次协议</li><div class="varrow">↓</div><li>N + M，任意组合即插即用</li></ol></div>
+</section>
+
+<section class="card">
+  <div class="eyebrow">08 落地</div>
+  <h2>落地：工具设计检查清单</h2>
+  <p>新工具上线前过一遍清单：名字是不是动词短语、有没有近义词撞车；描述第一句写没写边界；参数有没有收窄、默认值安不安全；副作用工具有没有确认门与幂等键；错误信息能不能让模型自己改对。</p>
+  <p>最后是读与写的分界：查数据的工具与改数据的工具分开命名、分别授权；改数据的默认走确认或 dry-run（试运行）——先算一遍给模型看，确认了再真执行。工具设计不是包一层 API，是给不可靠的调用方写一份可靠的契约。</p>
+  <pre>def search_orders(order_id: str, ...):
+    &quot;&quot;&quot;按订单号查订单状态与物流。
+
+    何时用：用户问订单到哪了、多少钱、包含什么。
+    何时不用：退款、改地址、取消订单——用专用工具。
+    参数：order_id 形如 ORD-2026-000123，不存在会返回
+    NOT_FOUND（不要猜一个编号重试）。
+    只读：不改任何数据。
+    &quot;&quot;&quot;
+    ...</pre>
+  <ul>
+    <li>清单五问：名字、边界、参数、副作用、错误。</li>
+    <li>读与写分开：改数据的默认确认或试运行。</li>
+    <li>上线前拿真实任务跑几遍：看模型实际怎么调。</li>
+  </ul>
+</section>
+
+<section class="card takeaways">
+  <div class="eyebrow">要点回顾</div>
+  <h2>这课记住什么</h2>
+  <ul>
+    <li>模型看不到你的代码，只能看到名字、描述、参数表——这份文档就是 ACI，Agent 与系统的全部接口。</li>
+    <li>名字是概率的锚点：动词短语、别撞近义词；描述第一句写清何时用、何时不用。</li>
+    <li>描述按配方写：边界、输入格式、返回值、副作用，再加一个正确调用的例子。</li>
+    <li>粒度按 Unix 哲学：一个工具干一件事；标准是一次调用的结果能独立验证。</li>
+    <li>参数防呆：格式收进工具内、枚举收窄、默认值取最安全档；Anthropic 把相对路径改成绝对路径，问题直接消失。</li>
+    <li>错误是模型唯一的反馈：写清错因、期望格式与当前事实，回填给模型重试。</li>
+    <li>副作用工具要上锁：读与写分开命名，改数据的走确认门、幂等键或 dry-run。</li>
+    <li>工具多了按需加载；跨系统用 MCP 统一接头，把 N×M 份集成变成 N+M；但 MCP 不管认证审计，契约本身仍要自己写好。</li>
+  </ul>
+</section>
+
+<section class="card quiz">
+  <div class="eyebrow">自测</div>
+  <h2>客服 Agent 有两个工具：get_order 查订单，refund_order 退款。模型经常在用户只问“我的订单到哪了”时就调 refund_order。按本课的做法，最该先改什么？</h2>
+  <div class="opt">A. 在提示词里加粗写“不许随便退款”</div>
+  <div class="opt right">B. 把 refund_order 的描述第一句写清“仅用户明确要求退款时用；只查询不用它”，并给退款加上人工确认门 ✓</div>
+  <div class="opt">C. 把两个工具合并成一个 order_tool，省 token</div>
+  <div class="opt">D. 把模型换成更大的</div>
+  <div class="exp"><b>解析：</b>描述是检索信号：选工具是在工具名上算概率，描述第一句写清边界才能把查询与退款分流；退款是不可逆副作用，确认门必须长在执行层，不能只靠提示词。合并工具会让粒度变粗、更难选；换模型不解决契约问题。</div>
+</section>
+
+<section class="card sources">
+  <div class="eyebrow">证据</div>
+  <h2>论文与文章</h2>
+  <ul>
+    <li><a href="https://www.anthropic.com/engineering/building-effective-agents">Building effective agents</a>（Anthropic，Anthropic Engineering Blog 2024）<br>支持：ACI（Agent-Computer Interface）是模型看到的工具定义集合，应像 HCI 一样精心设计；SWE-bench 编码 Agent 上调工具花的时间比调整体提示词还多；相对路径总出错后改成强制绝对路径，问题消失；好的工具定义应含示例用法、边界情况与输入格式要求。<br><span class="b">边界：工程经验总结，不是受控实验；页面注明 2024 年 12 月发表后工具生态已有变化，落地前以当前文档为准。</span></li>
+    <li><a href="https://www.anthropic.com/news/model-context-protocol">Introducing the Model Context Protocol</a>（Anthropic，Anthropic News 2024）<br>支持：MCP 是连接 AI 应用与数据源的开放标准，用统一协议取代每对系统各写一套接头的 N×M 集成；发布时带规范与 SDK、Claude Desktop 本地服务器支持及 Google Drive、Slack、GitHub、Git、Postgres、Puppeteer 的预置服务器。<br><span class="b">边界：官方发布公告；协议后续修订与治理变化（如 2025 年 12 月捐给 Linux 基金会旗下机构）以 modelcontextprotocol.io 为准。</span></li>
+    <li><a href="https://arxiv.org/abs/2302.04761">Toolformer: Language Models Can Teach Themselves to Use Tools</a>（Timo Schick 等，NeurIPS 2023 2023）<br>支持：自监督学工具使用：只保留让后续文本更容易预测（loss 下降）的调用来微调；工具的价值在于让后面的 token 更好算——工具好不好用，最终体现在模型愿不愿意在正确时机调它。<br><span class="b">边界：工具调用各自独立生成，不能串联多步、不能交互式追问，也不考虑调用成本。</span></li>
+  </ul>
+</section>
+</main>
+<footer>归档自学习应用 · 第 18 天 · 2026-11-18</footer>
+</div>
+<button class="navbtn" id="navbtn" aria-label="打开课程目录">☰</button>
+<div class="navoverlay" id="navoverlay"></div>
+<aside class="navdrawer" id="navdrawer" aria-label="课程目录">
+  <button class="nd-close" id="ndclose" aria-label="关闭目录">×</button>
+  <h3>课程目录</h3>
+  <div id="ndlist"></div>
+  <a class="nd-home" id="ndhome" href="../index.html">← 回到首页</a>
+</aside>
+<script>
+(function(){
+  var btn = document.getElementById('navbtn');
+  var overlay = document.getElementById('navoverlay');
+  var drawer = document.getElementById('navdrawer');
+  var list = document.getElementById('ndlist');
+  var home = document.getElementById('ndhome');
+  var inLessons = /\/lessons\//.test(location.pathname);
+  var jsonUrl = inLessons ? '../lessons.json' : 'lessons.json';
+  var prefix = inLessons ? '' : 'lessons/';
+  home.href = inLessons ? '../index.html' : 'index.html';
+  function open(){ drawer.classList.add('open'); overlay.classList.add('open'); }
+  function close(){ drawer.classList.remove('open'); overlay.classList.remove('open'); }
+  btn.addEventListener('click', open);
+  document.getElementById('ndclose').addEventListener('click', close);
+  overlay.addEventListener('click', close);
+  var cur = location.pathname.split('/').pop();
+  fetch(jsonUrl).then(function(r){ return r.json(); }).then(function(items){
+    list.innerHTML = '';
+    items.forEach(function(it){
+      var a = document.createElement('a');
+      a.className = 'nd-item' + (it.file === cur ? ' cur' : '');
+      a.href = prefix + it.file;
+      a.innerHTML = '<div class="nd-day">第 ' + it.day + ' 天</div><div class="nd-title">' + it.title + '</div><div class="nd-meta">' + it.date + ' · 约 ' + it.minutes + ' 分钟</div>';
+      list.appendChild(a);
+    });
+  }).catch(function(){
+    list.innerHTML = '<p style="font-size:14px;color:#666;">目录加载失败，请点“回到首页”查看全部课程。</p>';
+  });
+})();
+</script>
+</body>
+</html>
