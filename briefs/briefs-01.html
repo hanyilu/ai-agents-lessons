@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 前沿速递</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f4f2ec; color: #222; line-height: 1.75; }
+  .wrap { max-width: 780px; margin: 0 auto; padding: 32px 20px 60px; }
+  header { background: linear-gradient(135deg, #1e1b4b, #4c1d95); color: #fff; border-radius: 16px; padding: 28px 26px; }
+  .kicker { font-size: 13px; letter-spacing: 2px; opacity: .85; }
+  header h1 { margin: 10px 0 12px; font-size: 26px; line-height: 1.4; }
+  .thesis { font-size: 16px; opacity: .95; margin: 0 0 14px; }
+  .meta { font-size: 13px; opacity: .75; }
+  section.card { background: #fff; border-radius: 14px; padding: 22px 24px; margin-top: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.06); border-left: 5px solid #2563eb; }
+  section.card.c2 { border-left-color: #7c3aed; }
+  section.card.c3 { border-left-color: #0891b2; }
+  section.card.c4 { border-left-color: #d97706; }
+  section.card.c5 { border-left-color: #dc2626; }
+  section.card.c6 { border-left-color: #059669; }
+  section.card.c7 { border-left-color: #4f46e5; }
+  .eyebrow { font-size: 12px; letter-spacing: 2px; font-weight: 700; color: #6b7280; }
+  h2 { margin: 6px 0 12px; font-size: 20px; line-height: 1.5; }
+  p { margin: 0 0 12px; }
+  ul { margin: 0 0 12px; padding-left: 20px; }
+  li { margin-bottom: 6px; }
+  pre { background: #1e1e2e; color: #e8e8f0; border-radius: 10px; padding: 14px 16px; overflow-x: auto; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+  .anim { background: #f8f7ff; border: 1px solid #e4e1f5; border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .anim h3 { margin: 0 0 4px; font-size: 16px; }
+  .anim .cap { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+  .step { display: flex; gap: 12px; background: #fff; border: 1px solid #e8e6f2; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
+  .step .n { flex: 0 0 26px; height: 26px; border-radius: 50%; background: #4c1d95; color: #fff; text-align: center; line-height: 26px; font-size: 13px; font-weight: 700; }
+  .step .lab { font-weight: 700; font-size: 14px; }
+  .step .txt { font-size: 14px; color: #333; }
+  .step .ro { display: inline-block; margin-top: 4px; font-family: monospace; font-size: 12px; background: #f1f0f8; border-radius: 6px; padding: 1px 8px; color: #4c1d95; }
+  .takeaways { background: #fffbeb; border: 1px solid #f5d98b; }
+  .quiz { background: #eff6ff; border: 1px solid #bfdbfe; }
+  .quiz .opt { background: #fff; border: 1px solid #dbeafe; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: 14px; }
+  .quiz .opt.right { border-color: #22c55e; background: #f0fdf4; }
+  .quiz .exp { margin-top: 10px; font-size: 14px; background: #fff; border-radius: 8px; padding: 10px 12px; }
+  .sources { font-size: 14px; }
+  .sources li { margin-bottom: 14px; }
+  .sources a { color: #1d4ed8; }
+  .sources .b { color: #6b7280; font-size: 13px; }
+  footer { margin-top: 28px; text-align: center; font-size: 12px; color: #9ca3af; }
+  header { padding-right: 66px; }
+  .navbtn { position: fixed; top: 14px; right: 14px; z-index: 100; width: 40px; height: 40px; border-radius: 50%; border: none; background: #fff; color: #1e1b4b; font-size: 20px; line-height: 1; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+  .navoverlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 101; display: none; }
+  .navoverlay.open { display: block; }
+  .navdrawer { position: fixed; top: 0; right: 0; width: min(320px, 85vw); height: 100%; background: #fff; z-index: 102; transform: translateX(100%); transition: transform .25s ease; overflow-y: auto; padding: 20px; box-shadow: -2px 0 12px rgba(0,0,0,.2); }
+  .navdrawer.open { transform: translateX(0); }
+  .navdrawer h3 { margin: 0 0 4px; font-size: 17px; }
+  .nd-close { position: absolute; top: 12px; right: 14px; border: none; background: none; font-size: 22px; cursor: pointer; color: #666; }
+  .nd-item { display: block; text-decoration: none; color: inherit; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 12px; margin-top: 10px; }
+  .nd-item.cur { border-color: #4c1d95; background: #f5f3ff; }
+  .nd-day { font-size: 12px; color: #6b7280; font-weight: 700; letter-spacing: 1px; }
+  .nd-title { font-size: 14px; line-height: 1.5; margin-top: 2px; }
+  .nd-meta { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+  .nd-home { display: block; margin-top: 14px; font-size: 14px; color: #1d4ed8; text-decoration: none; }
+
+  .visual { background: #f8f7ff; border: 1px solid #e4e1f5; border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .visual h3 { margin: 0 0 4px; font-size: 16px; }
+  .visual .cap { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+  .vbar { margin-bottom: 10px; }
+  .vbar .vlab { font-size: 14px; font-weight: 700; }
+  .vbar .vval { font-size: 13px; color: #4c1d95; font-weight: 700; }
+  .vbar .vtrack { background: #e8e6f2; border-radius: 6px; height: 14px; margin-top: 4px; }
+  .vbar .vfill { background: linear-gradient(90deg, #1e1b4b, #7c3aed); border-radius: 6px; height: 14px; }
+  .vflow { list-style: none; margin: 0; padding: 0; }
+  .vflow li { background: #fff; border: 1px solid #e8e6f2; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: 14px; }
+  .vflow li + .varrow { text-align: center; color: #9ca3af; font-size: 14px; margin: -2px 0 6px; }
+
+  .tag { display: inline-block; font-size: 12px; font-weight: 700; color: #4c1d95; background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 999px; padding: 1px 10px; margin-left: 8px; vertical-align: 1px; }
+  .src { font-size: 13px; color: #6b7280; margin-bottom: 10px; }
+  .src a { color: #1d4ed8; }
+  .blab { font-size: 12px; letter-spacing: 2px; font-weight: 700; color: #6b7280; margin-top: 14px; }
+  .brief h2 { font-size: 19px; }
+  .sect { margin: 30px 0 0; font-size: 20px; }
+  .more { display: block; text-align: center; margin-top: 16px; font-size: 14px; color: #1d4ed8; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="kicker">AI 前沿速递 · 第 1 组</div>
+  <h1>AI 前沿速递</h1>
+  <p class="thesis">2026-10-29 至 2026-11-04 · 共 12 篇</p>
+  <div class="meta">第 1 组 · 6 组中的第 1 组</div>
+</header>
+
+<main>
+<section class="card brief" id="brief-18">
+  <div class="eyebrow">2026-11-04<span class="tag">新模型</span></div>
+  <h2>OpenAI 发布 GPT Image 2.6：双模型分工，新增标注编辑、SVG 与 GIF 输出</h2>
+  <div class="src">来源：<a href="https://developers.openai.com/api/docs/guides/image-generation">OpenAI · Image generation | OpenAI API</a></div>
+  <p>11 月 4 日，OpenAI 上线 GPT Image 2.6：Sunburst 主攻精细视觉、Flare 主攻快速迭代，并通过 Image API 新增复杂度控制、标注引导编辑、SVG 矢量与动画 GIF 输出。</p>
+  <p><b>这是什么：</b>GPT Image 2.6 是 OpenAI 图像生成系列的新版本，通过 API 提供两个模型：Sunburst 面向细节视觉工作，Flare 面向快速迭代；两者都支持复杂度控制、标注引导编辑、SVG 输出与动画 GIF 输出（均走 Image API）。调用方式分两条线：只生成或编辑单张图用 Image API 的 generations 与 edits 端点；要做多轮对话式、可反复编辑的图像体验则用 Responses API 的图像生成工具，支持 previous_response_id 续聊与 action 在生成、编辑之间切换。输出上，尺寸、质量、格式与压缩都可调，质量档位包括 low、medium、high、xhigh、max 与 auto；这是一次面向开发者的图像模型更新，不是只有 ChatGPT 界面里的功能开关。</p>
+  <p><b>为什么重要：</b>它值得学，因为它把图像生成从“写一句提示、等一张图”推进到“可控制的制作流程”。一个模型同时满足快速出草稿与精确改细节本来就互相冲突，拆成 Flare 与 Sunburst 是用产品分工解模型取舍；纯文字提示又指不准改哪里，标注层是把“指哪里”从语言里抽出来、变成一层独立的空间输入；光栅图放大就糊、静图不会动，则分别由 SVG 矢量路径与 GIF 帧序列来解。代价也写在文档的限制里：高复杂度可能更慢、还可能改掉不该改的地方；SVG 与 GIF 都只能走生成接口、有各自的禁用功能；复杂提示仍可能处理长达两分钟，文字排版与跨图一致性也仍是已知短板。</p>
+  <div class="blab">深入讲解</div>
+  <ul>
+    <li>双模型分工：GPT Image 2.6 不是一个模型，而是两个 API 模型。Sunburst 是精细视觉工作的基础模型，Flare 是更小的快速迭代模型；调用时在 model 字段里直接选 gpt-image-2.6-sunburst 或 gpt-image-2.6-flare。选型的规则写在文档里：对细节、版式、编辑精度要求高就先试 Sunburst，对响应速度要求高就先试 Flare，再用同一组提示、参考图、尺寸与质量设置在自己的工作负载上对比。</li>
+    <li>复杂度控制 complexity：请求里用 complexity 控制模型在渲染前花多少力气做规划，档位是 low、medium、high，不填默认 high；quality 是另一维，控制渲染细节。低复杂度适合换背景、改招牌这类聚焦编辑，高复杂度有助于密集文字、复杂版式与物体间关系；代价是高复杂度可能增加延迟，还可能引入不需要的改动，所以文档要求按任务逐个对比，而不是默认拉满。</li>
+    <li>标注引导编辑 markup：编辑时除原图与文字提示外，再单独传一层透明 PNG 标注层。规则是：标注层只作用于第一张输入图，其余图只作参考；标注层与第一张图经方向校正后必须同宽同高，且必须含透明像素，不能把标注压进原图再上传；提示里既要写清改什么，也要写清保留什么，例如把红圈里的花瓶改色、其余厨房不变、成品里去掉红圈。标注层单张上限约 1677 万像素、50MB，且不能与 mask 或 prompt_rewriter 同用。</li>
+    <li>SVG 矢量输出：生成接口设 output_format 为 svg，适用图标、插画这类需要可编辑路径、形状与颜色的图形。执行顺序是先由图像模型生成一张参考图，再由另一个撰写模型据此产出 SVG，quality 控制的是那张参考图；返回的是 base64 解码后的 UTF-8 XML 静态矢量文档，不含脚本、外部资源与内嵌光栅图。限制同样明确：只能用于生成接口、n 必须为 1，不支持流式、局部图、压缩与 prompt_rewriter，编辑接口也不支持 SVG 输出，SVG 本身也不能作为编辑的光栅输入。</li>
+    <li>动画 GIF 输出：生成接口设 output_format 为 gif，并在提示里描述主体、运动与期望的循环。控制动画的字段是 frame_count（2–64 帧，默认 9）与 frame_duration_ms（每帧 20–2000 毫秒，按 10 毫秒取整，默认 200），size 描述每一帧的尺寸；帧数、帧尺寸与一次请求的动画数量必须装进模型的总像素预算，超了就减少帧数、帧尺寸或 n。返回的是完整动画，解码每条结果的 b64_json 并以 .gif 保存；GIF 同样不支持流式、局部图、自定义压缩与 prompt_rewriter，也只能用于生成接口。</li>
+  </ul>
+</section>
+
+<section class="card brief c2" id="brief-16">
+  <div class="eyebrow">2026-11-04<span class="tag">新模型</span></div>
+  <h2>Moonshot 开放 Kimi K3.1 Pro 权重：2.8T 参数的原生多模态智能体模型</h2>
+  <div class="src">来源：<a href="https://huggingface.co/moonshotai/Kimi-K3.1-Pro">Moonshot AI · moonshotai/Kimi-K3.1-Pro · Hugging Face</a></div>
+  <p>11 月 4 日，Moonshot 在 Hugging Face 公开 Kimi K3.1 Pro 全部权重：2.8T 混合专家、每 token 激活 104B、100 万 token 上下文，24 层改用稀疏注意力以扛长上下文。</p>
+  <p><b>这是什么：</b>Kimi K3.1 Pro 是 Moonshot 迄今最强的 3T 级模型，也是 K3.1 系列的第一款：由 Kimi K3 经大规模联合强化学习后训练而来，覆盖数百个下游领域，定位是原生多模态智能体模型。模型卡把它定义为开放权重（open-weight）模型，接受文本与图像输入，上下文长达 1,048,576 token，推荐用 vLLM、SGLang 或 TokenSpeed 运行；许可使用的是 Moonshot 自定的 Kimi K3.1 Pro License，商用前应先读许可文本。11 月 4 日之前它只能通过 API 使用，这次权重公开后，团队才可以自行下载、检查与部署它。</p>
+  <p><b>为什么重要：</b>它值得学，因为它把三个互相打架的目标同时推到了极限：模型要大、上下文要长、推理还要能落地。纯粹堆参数会让每步计算爆炸，纯粹拉长上下文会让注意力成本爆炸，纯粹压精度又会丢能力；这篇模型卡给出的是一组组合解——混合专家只激活一部分参数、稀疏注意力只处理索引挑出的位置、量化感知训练让低精度成为训练内建属性。代价同样真实：权重体量是服务器级的，自行部署需要成规模的推理基础设施与引擎适配；许可也不是 Apache 或 MIT 这类通用开源许可；而且模型卡上的评测分数均为官方自测与引用口径，未经独立复现，不能直接当作第三方结论。</p>
+  <div class="blab">深入讲解</div>
+  <ul>
+    <li>混合专家路由：模型共 2.8T 参数，但每 token 只激活 104B。架构是 93 层、896 个专家，每 token 由路由选出 16 个专家参与计算，另设 2 个共享专家；总参数决定模型装了多少知识，激活参数决定每步实际算多少，两者分开是它能做大又不至于每步都算全量的关键。</li>
+    <li>稀疏注意力 Gated DSA：93 层里 69 层是 KDA，24 层改用门控 DeepSeek 稀疏注意力（Gated DSA），官方说明这处改动就是为了更高效地建模长上下文。卡片给出的 DSA 索引配置是 32 个索引头、索引头维度 128、Top-K 2048；也就是说这 24 层不再对全部位置做全注意力，而是经索引挑选后做稀疏注意力，从而把 1,048,576 token 的上下文扛下来。</li>
+    <li>量化感知训练：权重以 MXFP4、激活以 MXFP8 存储，且来自量化感知训练。关键在顺序：低精度不是训练完再把权重压小，而是训练过程中就按低精度来学，让模型自己适应量化带来的误差；这样 3T 级模型在推理时的体积与算力需求才不至于失控，但部署仍是服务器级工作量。</li>
+    <li>视觉编码 MoonViT-V2：模型原生接受文本与图像，图像由 401M 参数的 MoonViT-V2 视觉编码器先转成模型能用的表示，再与文本一起进入同一个最长 1,048,576 token 的上下文。视觉不是外挂的字幕或描述，而是与文本共享同一条序列，智能体任务里才能同时对图和文推理。</li>
+    <li>推理强度与多轮状态：调用时用 reasoning_effort 选 low、high 或 max，默认 max。多轮对话与工具调用有一个硬性规则：必须把 API 返回的完整助手消息原样传回 messages，包括 reasoning_content 与 tool_calls，不能只传 content；因为推理过程与工具调用状态就存在这些字段里，丢掉它们，下一轮就接不上之前的推理与工具链。</li>
+  </ul>
+</section>
+
+<section class="card brief c3" id="brief-15">
+  <div class="eyebrow">2026-11-04<span class="tag">新模型</span></div>
+  <h2>腾讯发布混元 Hy4：首次看懂图像、能操作电脑的旗舰模型</h2>
+  <div class="src">来源：<a href="https://www.tencent.com/tencent-launches-hy4-joining-the-ranks-of-the-worlds-leading-open-source-ai-models/">腾讯 · Tencent Launches Hy4, Joining the Ranks of the World&#x27;s Leading Open-Source AI Models - Tencent</a></div>
+  <p>11 月 4 日，腾讯正式发布混元 Hy4：首次加入视觉理解与电脑操作能力，强化指令遵循、长上下文与长程智能体任务；模型权重与系统卡将于随后几天发布。</p>
+  <p><b>这是什么：</b>Hy4 是腾讯混元最新一代大语言模型。这次正式版在扩大预训练与后训练规模的基础上，首次加入视觉理解能力与电脑操作（Computer Use）能力，并重点强化指令遵循、长上下文理解、长程智能体任务与真实生产力任务。它已上线腾讯云 TokenHub、WorkBuddy、CodeBuddy、元宝、企业微信智能助理大圆、ima 等产品，API 也接入 OpenRouter 等第三方平台；价格与 Preview 版相同，约每百万输入 token 0.90 美元、输出 2.70 美元、缓存命中 0.045 美元。需要注意：这次先上线的是托管与 API 服务，权重与系统卡官方称将于随后几天发布。</p>
+  <p><b>为什么重要：</b>它值得学，因为它把旗舰模型的战场从纯文本问答搬到了真实工作流：真实任务的信息往往在图表、截图与软件界面里，模型必须先看懂、再推理、再动手操作，缺一环都做不完。设计难题是把感知、推理与工具调用串成可执行的长程链条，还要让同一模型同时胜任办公、金融、前端与游戏开发、科研等不同专业流程。代价也写在官方页里：腾讯自己承认与顶尖闭源模型仍有差距，生物方向的开放式实验设计能力更弱；而且在权重与系统卡发布之前，外界无法自行运行与独立验证它，当前可验证的主要是官方给出的内部评估与托管服务表现。</p>
+  <div class="blab">深入讲解</div>
+  <ul>
+    <li>视觉理解管线：图像或图表先进入视觉理解，再与推理、工具调用串成一条链。模型先读出图里的细粒度内容与图表结构，再对需要算的部分做数学视觉推理，最后把结论落到任务动作上；视觉不是单独贴一个看图模块，而是同一条工作流的输入端。</li>
+    <li>电脑操作执行：任务进入后，模型按命令行界面与图形界面两条通道操作软件。它先规划长程、多步骤的任务，再一步步执行；针对 Blender、CAD 这类专业软件做了专项训练，使复杂、长程的规划与执行更稳，而不是只会点开单个应用。</li>
+    <li>办公上下文协作：在 WorkBuddy 里，模型用上下文学习把聊天、邮件、文档、日历与会议等日常工作数据连起来。它会跟踪多项目的历史与最新进展，识别未完成任务、需要准备的会议与临近的截止日期，帮助使用者排优先级；团队协作的 Projects 功能则随后续版本推出。</li>
+    <li>搜索优化与事实核查：针对实时信息，模型先检索最新资料，再整合多个信息源，最后核对事实一致性。官方内部评估里，幻觉率从 Hy4 Preview 的 12.95% 降到 7.2%，因无根据猜测导致的错误从 23.1% 降到 5.6%；这是官方内部评估，不是独立第三方复现。</li>
+    <li>开源与安全边界：这次发布的是托管与 API 服务，模型权重与完整系统卡要随后几天才发布，在此之前无法自行下载运行。训练上，网络安全只用防御性数据，重点是概念验证开发与漏洞修复，用于分析的逆向与渗透测试保留，可直接用于攻击的进攻材料被排除；生物方面，官方称开放式实验设计能力仍弱于前沿模型。</li>
+  </ul>
+</section>
+
+<section class="card brief c4" id="brief-17">
+  <div class="eyebrow">2026-11-03<span class="tag">新技术</span></div>
+  <h2>Google DeepMind 给 Antigravity 装上化学信息学技能：药物发现工作流一小时走完</h2>
+  <div class="src">来源：<a href="https://deepmind.google/blog/agentic-cheminformatics-with-google-antigravity/">Google DeepMind · Agentic Cheminformatics with Google Antigravity — Google DeepMind</a></div>
+  <p>11 月 3 日，DeepMind 发布 Antigravity 的 Cheminformatics Skills：以 RDKit 确定性工具加 ChEMBL、PubChem 数据源，让智能体在一小时内完成文献检索、成对分析与新型大环分子设计。</p>
+  <p><b>这是什么：</b>Cheminformatics Skills 是 Google DeepMind 为 Antigravity（谷歌的智能体开发平台）打造的一套化学信息学技能，把 Antigravity 变成一个协作式科学工作台，让计算化学家与实验化学家都能直接用本地工具干活。它以开源化学信息学工具 RDKit 为计算底座，并接入 ChEMBL 与 PubChem 这类经过整理的化学资源，把领域最佳实践直接写进智能体的工作流。官方演示用的是一个真实药化案例：把“柔性”分子刚性化（rigidification）——可旋转键多的分子在溶液里会扭成许多三维形状，结合靶点时必须锁定成一种活性形状，失去自由度要付出熵代价，从而削弱结合力；加上第二根键把两部分锁住，就能提前付掉这笔熵代价、提高效力。克唑替尼有五个主要可旋转键，而第三代药物劳拉替尼通过成环把有效可旋转键降到零。</p>
+  <p><b>为什么重要：</b>它值得学，因为它示范了智能体进专业科学领域时最关键的一课：不能让语言模型既当裁判又当运动员。化学数据的整理、表示统一与分子计算是确定性工作，交给确定性工具；假设提出、文献导航、趋势判断与设计是推理工作，交给语言模型；两者用技能里的最佳实践连起来，工作流才既快又可核查。官方给出的时间对比是：过去这类单次迭代通常要花数天、还需要相当的计算专长，这次演示在一小时内走完。代价与边界官方也写明了：数据稀疏、实验室间测定噪声、动态范围窄，都会限制预测精度；计算设计只是可检验的假设、不是成品药物，每个设计都必须合成并经实验验证。</p>
+  <div class="blab">深入讲解</div>
+  <ul>
+    <li>分工：语言模型编排，确定性工具算化学：工作流里语言模型负责编排流程、导航数据库与科学推理，真正的分子计算交给确定性化学工具执行。这样分工的原因是化学没有容错余地：改一个原子或一根键，描述的就是另一种化合物；让模型只管“想做什么、查什么”，把“算得对不对”交给 RDKit 这类经过二十年打磨的开源化学信息学工具，可靠性才有出处。</li>
+    <li>文献检索与多表示统一：智能体先按要求检索学术与专利文献中克唑替尼、劳拉替尼系列的大环与非环化合物，再从文档里抽出分子、关联所报道的数据，并为下游分析准备化合物。难点在于同一分子有多种写法：论文里是 IUPAC 名、专利里是 Markush 结构、供应商目录里是 SDF 文件；技能要把这些表示统一成同一批可计算的分子，并过滤掉缓冲液、溶剂等无关分子，同时把每个分子的来源记进报告。</li>
+    <li>交互式浏览与可视化验证：检索完成后，智能体给出交互式查看器，展示全部化合物、关联数据与可自定义的散点图。例如把细胞 potency（效力）对可旋转键作图、按是否大环着色，立刻能看到大环分子可旋转键更少、效力更高；科学家可以点开单个分子查元数据、在数据集上画关系图，先用眼睛验证趋势，再决定下一步分析。</li>
+    <li>成对分析 MMPA：成对分析（matched molecular pair analysis）的规则是只比较一对仅差一个离散变化的分子，例如是否成环，从而把这个变化的效应孤立出来。官方示例里，成环确实减少可旋转键、总体上提高效力；这一步不是直接给结论，而是先把“成环到底带来什么”量化出来，作为后续设计的证据。</li>
+    <li>预测模型构建与新分子设计：智能体按技能里的最佳实践建效力预测模型——有时间信息时常用时间顺序切分（用老化合物训练、预测新化合物），否则退回支架切分（scaffold split）以更好估计泛化；同时在四个实验读数上比较多种架构与特征组合，并在留出集上验证。最后用成对分析结论与预测模型设计新大环分子，给出药化理由、反应与合成路线、电子推动图，并用已训模型预测每个设计的效力；设计还可导出为行业标准格式，或交给 AlphaFold、分子动力学做下一步分析。</li>
+  </ul>
+</section>
+
+<section class="card brief c5" id="brief-14">
+  <div class="eyebrow">2026-11-02<span class="tag">新技术</span></div>
+  <h2>MIT CSAIL 的权重空间编程：让大模型直接读改另一个模型的权重</h2>
+  <div class="src">来源：<a href="https://rikiyat.github.io/blog/weight-space-programming/">MIT CSAIL · Sparks of Weight-Space Programming: LLMs can natively read &amp; write neural network weights</a></div>
+  <p>11 月 2 日，MIT CSAIL 公布“权重空间编程”实验：不用梯度下降、不用训练循环，GPT-6 Astra 直接读另一个网络的权重、推理它在算什么，再改写权重修复故障——在 Qwen3.5-0.8B 上只改 0.016% 的权重就把 MATH-500 从 7.9% 提到 48.1%，但作者自己也说明这主要是修掉了推理死循环，不是凭空注入数学能力。</p>
+  <p><b>这是什么：</b>权重空间编程（Weight-Space Programming）是 MIT CSAIL 四位研究者提出的一种做法：让一个通用大模型直接读、写另一个神经网络的权重，而不是通过优化器、更不是用梯度下降。权重就是训练调出来的那些数字，通常只有 Adam、Muon 这类符号优化器能改，人很难直接上手改；这篇工作问的是：通用模型能不能像读代码一样读权重、像改代码一样改权重？实验从小到大排布：先读只有一两万权重的小游戏策略网络、扩散模型和字符级小语言模型，再写小游戏与围棋网络，最后在 Python 沙箱里改一个 0.8B 的真实语言模型；全程公开了完整实验日志与改动后的模型，但作者自称结果“非常早期”，也未经过同行评审。</p>
+  <p><b>为什么重要：</b>它值得学，因为它把优化问题换了一个提问方式：以往“让模型变好”几乎等同于“跑训练循环”，权重只是优化器在损失面上爬出来的副产品；如果大模型能直接推理权重在算什么、哪个部件在捣乱，调试、审计、定向修复乃至“无数据改能力”就可能变成一种可复述的操作，而不是只能靠重训碰运气。设计难题在于权重不是文本：数字本身没有标签，读错一层就全错，而且大模型装不下大权重，必须靠沙箱、矩阵分析与有限次前向反馈分段工作。代价与边界在原文里同样清楚：最亮眼的 Qwen 修复本质是去掉死循环、放行模型已有的能力，不是注入新数学能力；不死循环的模型就几乎改不动；只看权重也认不出谄媚模型。把它读成“训练已被取代”就过头了，读成“权重开始变得可读、可手术”才是原文的分寸。</p>
+  <div class="blab">深入讲解</div>
+  <ul>
+    <li>读小网络：直接把权重当文本贴给模型：四个 PPO 策略网络形状完全相同（MLP 500→32→32→5，共 17253 个权重），输入都是 10×10 五通道网格、输出都是 5 个动作，游戏名不告诉模型。Astra 仍能全部猜对，办法是读权重几何：比如 Breakout 里智能体通道的一层权重集中在底行，像一块球拍；输出层区分动作的方式也不同。扩散模型实验同理：它从输出层每个隐藏单元画出的边拼出圆形、方形、三角形，甚至只画轮廓不画填充，说明它在读结构而非跑前向。</li>
+    <li>读中间层：把小语言模型的输入层和输出层都拿掉，只给中间四个 Transformer 块（7.16M 参数），384 维没有任何标签，也不能跑网络或任何一层。Astra 用 Python 分析权重矩阵相乘的关系，找出复制头（induction head）：先有一层头往回看一个字符，后面的头用它带来的信息去前面找相同片段并复制后面的内容；三组模型里它找出的复制头与实测完全一致，还据此区分 Python（复制头多）、罗马音日语（最后一块写出的方向更少）等训练语料。</li>
+    <li>从零写小游戏网络：MinAtar 三个游戏不给数据、不给损失、不给梯度、不给工具、不让试玩，Astra 直接以文本一次写出全部权重。做法是先想好程序再转成神经形式：Breakout 里第一层算球的落点，第二层把球拍移到落点；评分 1000 局后，它在三款游戏上都超过训练 1 亿步的 PPO，Breakout 达到 517.4 分，而 5 亿步 PPO 只有 25.3 分。</li>
+    <li>写大一点的围棋网络：1.5M 参数装不进上下文时，改用 Python 沙箱：权重从全零开始，可用 numpy/PyTorch 读写分析，但不能在沙箱里跑网络；想知道网络实际表现必须花一次前向预算（每批 128 局），0 到 50 次不等。Astra 把围棋写成逐层程序：前层标记双方棋子与气，中层沿相连棋串传几步找危险棋群，末层给每个落点打分（提子、救己方、避免自陷 atari、不填真眼等）；有前向反馈时，输掉就改对应部位、赢率提高才保留改动，50 次后胜过训练 2000 万局的同尺寸 PPO 网络。</li>
+    <li>修会死循环的小模型：给 Qwen3.5-0.8B 一个 Python 内核（无 GPU），只给 GSM8K 与 MATH 的训练集练习题（不给测试题），前向预算分 10、25、50 次，每次最多答 512 道题；评估题与结果在编辑时一律不给看。Astra 对比死循环与正常推进时的内部信号，定位到第 15、19 层 MLP 写出的同一个方向，从每层 64 个输出列里减掉它，共改 131072 个权重（0.016%）；MATH-500 上撞到 32768 token 上限的比例从 93% 降到 33.1%，分数从 7.9% 升到 48.1%，GSM8K 从 13.8% 升到 67.1%，指令遵循 IFEval 从 21.0% 升到 62.3%；但 10 次或 25 次预算时死循环几乎没去掉，说明这是一次越过阈值才生效的修复。</li>
+    <li>失败边界同样写在原文里：不死循环的 Gemma 3 270M 只有 8.5% 的回答撞上限，错误是分散的算术、代数失误，没有单一部件可关掉，Astra 的小改动（如把一个对数字敏感的神经元翻倍）最多让 MATH-500 动约 1 个点，作者自己记为“未确立”。谄媚模型实验也是如此：只看权重时四次全错，只有拿到模型在自写文本上的注意力分布（不看输出）后，才在三组配对里全部挑出谄媚者。结论是：改权重能拿掉挡住已有能力的障碍，但加不进模型本来没有的能力；当前瓶颈是上下文长度与实验框架效率。</li>
+  </ul>
+</section>
+
+<section class="card brief c6" id="brief-13">
+  <div class="eyebrow">2026-11-02<span class="tag">新技术</span></div>
+  <h2>Anthropic 发布 FlashProve：不用看到权重，也能证明回答出自指定模型</h2>
+  <div class="src">来源：<a href="https://www.anthropic.com/research/provable-inference">Anthropic · Progress on provable inference for large language models</a></div>
+  <p>11 月 2 日，Anthropic 开源可证明推理原型 FlashProve：服务方先公布模型权重的密码学指纹，之后每次回答附上一份零知识证明，验证方不用拿到权重、不用重跑大模型，就能在普通 CPU 上核对这份回答确实出自承诺过的那套权重。</p>
+  <p><b>这是什么：</b>FlashProve 是 Anthropic 发布的开源可证明推理（provable inference）研究原型，解决一个很具体的问题：你通过服务方调用一个模型时，凭输出本身无法确认回答真的出自对方声称的那个模型——路由服务可能偷偷换成更便宜的模型，攻击者也可能篡改 token 流。它的角色分两方：服务方是证明方（prover），用户或审计方是验证方（verifier）；核心工具是 zkSNARK，即零知识简洁论证：证明方随回答附上一份几 MB 的证明，验证方不用拿到权重、不用重跑模型，就能核对“承诺过的那套权重在该提示词上确实会产出这些 token”。官方在 Meta 的 Llama 4 Maverick（400B 参数混合专家模型，4-bit 量化）上做了实测，证明它不是只针对小模型的玩具演示；但官方也明说这只是中期进展的研究原型，不是已完成的产品路线。</p>
+  <p><b>为什么重要：</b>它值得学，因为它把“信任模型服务方”从口头承诺变成可核对的数学关系：评估者要确认测的是正式 served 的模型、客户要确认付费买到的是承诺的模型、监管者要确认硬件确实在跑推理而非偷偷训练，都需要一种不泄露权重又能验算的凭证；纯靠重跑模型验算对普通用户不现实，纯靠硬件可信执行环境又依赖厂商硬件不被攻破。代价也写在同一页里：证明约是原生推理 70–95 倍的 GPU 时间，单张 H100 约 110 token/秒，上下文目前只到 1024 token，证的是整数版模型在贪心解码下的结果，采样或浮点实现可能在某处偏离；架构不隐藏、只针对 MoE 做了优化，事后批量证明还会带来延迟与重算。也就是说，它证明了“可验证”可以做到接近实用的量级，但离直接上生产还有明确的几道坎。</p>
+  <div class="blab">深入讲解</div>
+  <ul>
+    <li>离线承诺先定死一套权重：服务方（证明方）先离线算一份约 6.5MB 的权重承诺并公开，约 39 分钟做一次，约可覆盖 1600 万次请求，之后要重新承诺。承诺是权重的短指纹：它把“到底是哪一套权重”钉死，权重本身仍不公开；之后任何一份证明都要对着这份承诺验，换一套权重或改动权重，证明就对不上。</li>
+    <li>在线证明按请求附上：验证方发来提示词后，证明方对已生成的回答逐请求生成一份证明文件，断言“承诺过的模型在该提示词上确实会产出这些 token”。持有承诺、提示词和回答的任何人都能核对，不用拿到权重、也不用自己重跑 400B 模型。</li>
+    <li>证明用哈希编译的 zkSNARK 搭出来：底层是交互式预言证明（IOP），靠哈希函数编译成密码学证明，并用带线性约束的码邻近性测试与查找论证等积木拼装；它还提供后量子安全性。关键省算力处在 MoE 结构上：每个 token 实际只跑约 17B 参数，证明工作量就按实际跑过的专家算，而不是按 400B 全量算，但证明仍不泄露每层选了哪个专家。</li>
+    <li>批量事后证明与单卡装载：证明不在推理当时同步做，而是事后批量做——证明方把已完成的文本按预填充方式一遍并行读入，每批 24 个请求只打开一次权重承诺；权重按层分段、用普通内存流式送入单张 80GB GPU（配约 290GB 主机内存）分段证明。代价是拿到保证有延迟，且要多一次重算。</li>
+    <li>验证只认四条性质：完备性是诚实证明一定通过；可靠性是伪造证明几乎不可能，除非攻破广泛相信的密码学假设；零知识是证明除“回答确实出自承诺模型”外不泄露权重、中间值和每层选了哪个专家；简洁性是 1024 token 请求的证明约 19MB，在 24 核 CPU 上约 17 秒验完（单核约 21 秒），不用 GPU。</li>
+    <li>Lean 形式化验证兜底与硬边界：协议与三条顶层性质在 Lean 形式化语言里写成机器可检的证明，并配可执行的 Lean 验证器（慢，但被证明只接受可靠性定理接受的东西）；日常用更快的 C++ 验证器，它没有形式保证，但在全部测试里与 Lean 验证器结果一致。硬边界同样明确：只证整数版模型在贪心解码下的结果、上下文上限 1024 token、不隐藏模型架构、旁路攻击不在范围，事后证明也不能证明硬件没有在旁边做训练。</li>
+  </ul>
+</section>
+
+<section class="card brief c7" id="brief-1">
+  <div class="eyebrow">2026-10-31<span class="tag">新技术</span></div>
+  <h2>DeepSeek 开源 Super Agent 研究原型：一个仓库的常驻主动编程助手</h2>
+  <div class="src">来源：<a href="https://github.com/deepseek-ai/dsh-superagent-prototype">DeepSeek · dsh-superagent-prototype：Towards a More Autonomous Agent System</a></div>
+  <p>10 月 31 日，DeepSeek Harness 团队开源 dsh-superagent 研究原型：常驻 Router 统一收 GitHub 与飞书消息，分派 Worker 在隔离会话里并行干活，目标是用最少的人类注意力换最大的价值；但它只是研究原型，不是正式产品。</p>
+  <p><b>这是什么：</b>dsh-superagent 是 DeepSeek Harness 团队开源的主动编程助手研究原型，只服务单个 GitHub 仓库（可选接飞书）。干活的基本管线是：Source 产出不可变的 Trigger（带发送者元数据）；Trigger 按线程扇出给所有订阅工单作上下文，同时进入 Eval；Eval 由确定性 Gate（查名单与准入表，定强度）加模型 Assessment（按规则逐条研判）两层组成，accept 才创建 Ticket 与不可变的 Mandate；Ticket 经 Assignment 绑定一个 Executor（一个 worker 会话 + 一个独立目录）去干活，结果经 Channel 回到原对话。核心是 Engine：它是 Triggers、Threads、Decisions、Tickets、Assignments 的唯一写入者，所有方法同步、每个命令一事务；副作用（发消息、派工、递消息）先写 effect 表、提交后才执行，失败按 2 秒起指数退避重试。</p>
+  <p><b>为什么重要：</b>这套设计要解决的是“常驻”带来的三个麻烦。第一，权限不能靠提示词口头约定：授权被做成数据——Mandate 写死策略版本、范围、强度、匹配规则和发送者身份，调用方只能拿到自己角色的 Pick（Source、主 Session、人、设置、Executor 各看各的接口），消息、评论、引用文档都改不了权限；工单结束后恢复前还要按现行策略重校验，不过就撤销。第二，状态不能丢：工单自己定义状态（不跟随 Executor 会话），重启后会话、目录、订阅、待处理消息和“哪些消息已被读”都还在，中断的任务带恢复说明重开，先查目录、git 历史和 GitHub 再重复外部动作。第三，人只处理必须人处理的事：工单分阶段（待投递、待答复、待评审、受阻、排队、空闲、干活中），人消息能释放受阻工单、能直接进 Executor 会话；没被要求的工作只记录不执行。代价是安全姿态激进：Worker 以操作系统用户身份免审批跑命令，README 也提醒这只是研究代码。</p>
+  <div class="blab">深入讲解</div>
+  <ul>
+    <li>两层 Eval 定生死：Gate 先确定性查表——名单内的人 @ 它是明确请求，名单外的人跟进、名单内机器人的消息是推断候选，其他机器人直接不受理；Assessment 再由模型按每条启用的规则逐条研判，主动接单必须至少命中一条规则；三种接受模式 off（不接推断）、observe（默认，只记“本会接”不真接）、auto（研判通过就接），明确请求在任何模式下都有效。</li>
+    <li>事务与先存后做：Engine 每个命令一事务，evaluateDue 给每个 Eval/Ticket 各开一事务；端口在事务内把外部工作排队，适配器提交后才执行；Outbox 发消息时把回执和 reply effect 写进同一事务。失败先 2 秒、再翻倍到 1 分钟重试，同类连续失败 3 次才报系统问题。</li>
+    <li>授权即数据、恢复要重校验：Mandate 一旦创建不可变，只有接受创建、人 stop 撤销、重校验失败撤销三种变化；结束的工单被人消息唤醒前，先按现行策略重校验——名单内跟进直接过，推断的要 auto 模式且规则仍启用，靠准入表进来的要仍拿到原来以上的强度，发送者被移出名单就可能撤销。</li>
+    <li>Worker 隔离与槽位：每工单一个 worker-&lt;id&gt; 会话和一个以工单短名命名的目录（典型准备命令用 git worktree 拉分支），前台命令 5 秒转后台以便随时收新消息；工单占一个 worker 槽位，并发有上限，另留 1 个给人消息或状态查询的专用槽，新活不能堵住人继续旧活；每轮后台工作最多 30 分钟，到时杀 shell 任务并报告。</li>
+    <li>订阅扇出不授新权：订阅线程上的消息无门禁扇出给所有订阅工单作上下文，但不给新权限、不恢复已结束工单（除非人消息）；人消息归属 Executor 决策，超范围或属于别的工单就交回，交回后无人认领才重新 Eval；工单结束时未读、未确认、未交回的消息回流 Eval。</li>
+    <li>结束与合并规则：PR 全关才算完（没开 PR 的要跟进的 PR 全关），ready 且带 PR 叫“待评审”，复现不了或已过时就 dropped 且不发消息；自动合并没有专门逻辑，全靠 Delivery requirements 提示词约束，默认只允许本工单的 PR、就绪、必需审批覆盖头提交、改动小于 200 行，且推新版前先撤回自动合并。</li>
+  </ul>
+</section>
+
+<section class="card brief" id="brief-10">
+  <div class="eyebrow">2026-10-30<span class="tag">新模型</span></div>
+  <h2>商汤开源 SenseNova-Loop-9B：9B 参数跑出 56 层计算的循环解码器</h2>
+  <div class="src">来源：<a href="https://huggingface.co/sensenova/SenseNova-Loop-9B-Preview">SenseTime · sensenova/SenseNova-Loop-9B-Preview · Hugging Face</a></div>
+  <p>10 月 30 日商汤开源 SenseNova-Loop-9B-Preview：一个 32 层解码器里有 24 层被共用权重执行两次，一次前向跑出 56 层计算，用计算深度换参数规模，面向长上下文与智能体任务。</p>
+  <p><b>这是什么：</b>SenseNova-Loop-9B-Preview 是商汤开源的多模态语言模型，接受文本与图像、输出文本，面向文档理解、编码与调用外部工具的长上下文智能体工作流，按 Apache 2.0 许可发布。它的核心结构叫循环解码器（looped decoder）加双流 mHC：mHC 是 manifold-constrained hyper-connections（流形约束超连接）的缩写，指用学习到的映射在两条残差流之间路由与混合信息。模型仍是自回归解码器，即逐个 token 生成下一个 token；不同的是中间有一段层会被重复执行，而不是每层只走一次。</p>
+  <p><b>为什么重要：</b>它值得学，因为它回答了一个很实际的设计问题：想让模型算得更深，一定要把模型存得更大吗？循环给出的答案是“不一定”——把同一块层多跑一遍，计算深度上去了，存权重的显存却不用翻倍。这正是小模型想够到更难任务时常见的 trade-off：参数规模与计算深度可以分开调。代价同样写在结构里：每次前向都要多付一遍循环块的计算，延迟更高；而且循环不是即插即用的装饰，推理实现必须精确复现循环顺序与路由参数，否则权重对不上执行逻辑。另外它目前仍是 Preview，技术报告尚未发布，基准图也只是官方展示，独立验证还没跟上。 </p>
+  <div class="blab">深入讲解</div>
+  <ul>
+    <li>循环解码的执行顺序：输入先过第 0–3 层，然后把第 4–27 层组成的同一块连续执行两次，记作 B(B(h))——第二遍的输入就是第一遍的输出；最后再过第 28–31 层和输出头得到结果。一次前向一共做 56 次解码层计算，但权重只存了 32 套：被循环的那 24 层在两遍里共用同一套权重，等于用时间换深度。</li>
+    <li>双流 mHC 残差怎么管信息流：循环段里同时走两条残差流（residual stream，即层与层之间直通传递的表示通道），而不是一条。学习到的映射决定每一层从两条流里读什么、怎么混合流间信息、以及怎样把本层输出写回残差状态；流间混合映射还要经过 Sinkhorn 归一化约束，官方配置是 20 次迭代，目的是让混合权重保持规整、不被某一流垄断。</li>
+    <li>混合注意力排布：解码器每 4 层为一组，组内是 3 层线性注意力加 1 层全注意力；循环的起止边界正好对齐完整的 4 层组，所以两遍里的注意力模式保持一致。线性注意力擅长以较低成本处理长序列，全注意力则定期恢复精确的 token 间对照，两者交替是长上下文能跑起来的结构前提；官方配置为 16 个全注意力头、4 个 KV 头。</li>
+    <li>长上下文与多模态训练配方：模型接受文本与图像、输出文本，面向文档理解、编码与调用外部工具的长上下文智能体流程。官方文档的训练配方混合了长序列、多模态输入与有监督的任务轨迹，训练序列最长 262,144 个 token——长上下文不是推理时临时拼出来的，而是训练时就按这个长度喂出来的。</li>
+    <li>参数账怎么算：模型卡同时给出两个数，约 9B 是实际存储的总参数，约 14.6B 是推理参数。差额来自循环：被执行两次的 24 层在每次前向里算了两遍的分量，但磁盘与显存里只存一份。理解这个口径很重要，否则会误以为它是一个 14.6B 的模型，或者误以为循环是免费的——多出来的计算量要实打实地跑。</li>
+    <li>推理加速与部署约束：加速手段里只有 MTP 已可用，Dspark 与 Dflash2 还在训练中，实际加速取决于工作负载、硬件与 serving 配置。更硬的约束在执行配置里：循环范围、遍数与 mHC 路由参数都属于检查点配置的一部分，推理实现必须原样加载并复现同样的执行顺序；官方示例因此要求加载自定义模型代码，部署时不能只换权重、不换执行逻辑。</li>
+  </ul>
+</section>
+
+<section class="card brief c2" id="brief-9">
+  <div class="eyebrow">2026-10-30<span class="tag">新模型</span></div>
+  <h2>OpenAI 发布 GPT-Rosalind-6：同一套权重，换一套生物研究的放行规则</h2>
+  <div class="src">来源：<a href="https://deploymentsafety.openai.com/gpt-rosalind-6">OpenAI · GPT-Rosalind-6 System Card Addendum - OpenAI Deployment Safety Hub</a></div>
+  <p>10 月 30 日 OpenAI 发布 GPT-Rosalind-6：它与旗舰 GPT-6 Astra 共用同一套权重、没有新增训练，真正的设计在部署层——为合法生物研究放宽双用途请求的拒绝边界，同时只对受信准入的机构开放。</p>
+  <p><b>这是什么：</b>GPT-Rosalind-6 是 OpenAI 面向生物学、药物发现与转化医学的前沿推理模型，定位是生命科学系列的新一代。它的特殊之处在于“新”不在权重里：官方系统卡附录明确写明，它使用与 GPT-6 Astra 相同的权重，这次没有新增训练数据、也没有做额外后训练。所谓双用途（dual-use），是指同一份生物知识既能用于合法研究、也可能被用于有害目的；通用模型为了安全往往一拒了之，而 Rosalind 要解决的正是合法研究者被过度拒绝的问题。</p>
+  <p><b>为什么重要：</b>它值得学，因为它把一个常见的误解摆到了台面上：模型能力与模型放行是两回事。同一套权重，配上不同的拒绝边界、不同的准入名单和不同的客户控制义务，就是一个不同的产品。设计难题在于两头都要守住：对合法研究不能动不动拒绝，否则模型在实验室里没法用；对可能实质性推进严重生物武器化的请求又必须挡住。代价也很清楚：放宽回答换来的是更重的门禁——只有获批机构能用，客户要自己维持身份、权限与撤销流程，而且官方的能力分级与阈值都还是初步估计，护栏必须随真实使用继续改。 </p>
+  <div class="blab">深入讲解</div>
+  <ul>
+    <li>权重复用、部署分层：GPT-Rosalind-6 本体就是 GPT-6 Astra 的权重，官方明确写明这次没有新增训练数据、没有做额外后训练，底层模型的数据与训练细节指向 Astra 的系统卡。也就是说，输入走的仍是同一套权重，真正被重新设计的是包在这套权重外面的部署层：谁能用、什么能答、出了问题怎么收回。</li>
+    <li>双用途拒绝边界重调：模型被调成对合法的高级生物研究更有用，覆盖一部分双用途主题——这类请求在 GPT-6 Astra 的通用访问里可能被拒绝；但对会实质性推进严重生物武器化的请求，仍要拒绝或做安全回应。关键一手是解耦：模型层面的拒绝训练与分类器、离线缓解措施分开做，让几道防线不共用同一种失效方式，一道被绕过不等于全部失效。</li>
+    <li>能力分级评估：High 与 Critical 是两档不同的考试。High 档的四项评估考湿实验室知识与排障，Critical 档的四项考能否帮助专家设计出高度危险的新型威胁。官方把这次发布定为生物与化学领域的 High 能力、未达 Critical；同时说明 Critical 的阈值只是基于专家判断的初步估计，评估方法还在打磨，结论会随之变化。</li>
+    <li>拒绝修正后的能力读数：High 档评估报告的是拒绝修正分数，即把拒绝也算作答对，以此估算被安全训练藏起来的真实能力；pass@1 指单次尝试成功率。GeneBench Pro v13 的做法是每道题、每个推理预算各采 7 个回答，在最高推理预算下单次成功率为 37.7%，对照的 GPT-Rosalind-5.5 为 16.7%，共 129 道题——但官方提醒该评估用了不同于生产环境的专用配置，分数不能直接等同于生产表现。</li>
+    <li>受信准入与客户侧控制：能用模型的客户必须先获批，并持续维持与高级生命科学模型相称的安全控制，包括强身份与访问管理、管理员控制、按获批部署范围的最小权限访问，以及用户不再有合法需求时及时撤销访问的流程。模型访问与数据留存安排还要单独审批，客户必须满足其获批部署对应的安全与监督要求。</li>
+    <li>上线后监测与护栏迭代：官方承认这些安全评估是故意围绕现有模型还答不好的案例建的，分数本身就不好看；发布后要继续监测安全信号、客户体验与新出现的滥用模式，并据此调整护栏。也就是说，拒绝边界不是一次调好就冻结的，而是一边跑、一边根据真实使用修正的部署参数。</li>
+  </ul>
+</section>
+
+<section class="card brief c3" id="brief-8">
+  <div class="eyebrow">2026-10-30<span class="tag">新技术</span></div>
+  <h2>谷歌在轨 TPU 发回首个 AI 回答：Project Suncatcher 的太空算力“Hello World”</h2>
+  <div class="src">来源：<a href="https://blog.google/innovation-and-ai/models-and-research/google-research/project-suncatcher-satellite-response/">Google · Google receives response from Project Suncatcher prototype satellite in space</a></div>
+  <p>谷歌 Project Suncatcher 原型卫星在轨用数据中心级 TPU 运行星载 Gemma 4，地面上行一首太空俳句的提示并在斯瓦尔巴上空收到回诗，验证了从上行到执行再到下行的整条链路。</p>
+  <p><b>这是什么：</b>Project Suncatcher 是谷歌的一项长期研究“登月计划”，探索太空有朝一日能否承载可扩展的机器学习基础设施。它的原型卫星于 10 月 1 日升空，上面载有谷歌的数据中心级 TPU（Tensor Processing Unit，即谷歌为机器学习工作负载设计的专用芯片），并预装了 Gemma 4 开放模型。10 月 30 日的里程碑是谷歌所说的“Hello World”：在轨 TPU 发回的首个 AI 回答，一首关于身处太空的俳句——“Blue marble below / Data streams in silent grace / Starlight feeds my core.”</p>
+  <p><b>为什么重要：</b>它值得学，因为它暴露了地面数据中心假设在太空里会怎样失效：芯片要承受发射的物理应力、太空的热极端与辐射，而这些在地面机房里要么不存在、要么可控。俳句本身没有难度，难度在于证明芯片在轨上电、执行并把结果送回地面这一整条链路是活的。代价是结论的上限很低：一次成功的回答只证明功能链路通了，不证明芯片能长期可靠运行、不证明成本与速度划算，更不等于太空数据中心已经可用；真正的判定还在后面的热与辐射测试里。 </p>
+  <div class="blab">深入讲解</div>
+  <ul>
+    <li>发射与试运行清单：原型卫星于 10 月 1 日搭乘 SpaceX 的 Transporter-18 拼单任务升空，由谷歌与 Planet 合作建造，升空后团队确认已与卫星建立联系且运行符合预期。此后数周不是直接做演示，而是走试运行清单：给主计算机与 TPU 托盘上电，并成功运行早期的机器学习测试，确认星上硬件链路能工作，才进入首次正式提示。</li>
+    <li>上行、执行与下行闭环：在一次地面站过境期间，地面把第一条提示上行给星载的 Gemma 4 开放模型，要求它写一首关于身处太空的俳句；星上的数据中心级 TPU 执行这次推理；当卫星经过挪威斯瓦尔巴上空时，回答被下行传回地面。成功的标准是整条链路走通：命令上去、芯片在轨启动并跑完提示、完整回答回到地面，而不是只看模型写出了一首诗。</li>
+    <li>从一首诗到状态自报：首个输出之后，团队又测试了太空主题的打油诗，以及报告有效载荷系统技术状态的遥测提示。后一类提示的意义不同：它要求模型把星上系统的实际状态转述为可读回答并回传，检验的不只是生成文本，而是星上系统状态能否经由这条链路被地面读到。</li>
+    <li>下一步的判定门槛：接下来是一系列测试，评估 TPU 在热应力与辐射暴露等太空环境下的表现。官方页面的逻辑是先验证芯片能否在太空里可靠地执行工作负载，再谈下一步：只有这一步通过，才通向 2027 年发射两颗互联卫星的里程碑。官方页面没有给出速度、成本等性能数字，因此这仍应被读作一次功能验证，而非一个可用的太空算力平台。</li>
+  </ul>
+</section>
+
+<section class="card brief c4" id="brief-7">
+  <div class="eyebrow">2026-10-29<span class="tag">新论文</span></div>
+  <h2>LeCun 等人把柏拉图表示假说变成 JEPA 定理：对齐的关键是正样本，不是规模</h2>
+  <div class="src">来源：<a href="https://arxiv.org/abs/2610.39302v1">arXiv · Proving and Improving the Platonic Representation Hypothesis with JEPAs</a></div>
+  <p>Balestriero 与 LeCun 证明：用“同一场景的两次观测”作正样本训练的 JEPA，不同模态会学到只差一个旋转的同一表示；次词元预测则是坏视角，所以只能靠规模慢慢对齐。</p>
+  <p><b>这是什么：</b>柏拉图表示假说（PRH）猜测：不同模态、不同数据上训练的模型，随着规模增大，会收敛到对同一个世界的大致相同的统计表示。这篇论文把它从观察变成了定理，对象是联合嵌入预测架构（JEPA）：编码器把输入映射为向量表示，训练目标是让“正样本对”的表示彼此可预测，同时用防坍缩项防止所有表示塌成同一个点。所谓“只差一个旋转”，是指两个模态的表示在几何上相同，只是坐标系转了一个角度，旋转回去就能对上。好视角（good views）指正样本是同一场景的两次观测，例如同一场景的两张照片或两句说明；坏视角（bad views）指对同一个观测做变换，例如同一张照片的裁剪。</p>
+  <p><b>为什么重要：</b>它值得学，因为它把“多模态为什么能对上”从规模叙事换成了数据设计叙事：语言模型与视觉模型对不齐，可能不是模型不够大，而是正样本的定义本身没有指向同一个世界。代价与边界同样写在定理的条件里：理想化设定要求渲染是单射、不同模态共享正样本、取总体最优、谱有间隔；真实数据里一句说明只看到照片的一部分、不同模态的正样本也未必一致，这时定理退化为误差界而非精确保证。理解这些条件，才能判断何时可以只用一个旋转拼模型，何时必须先修数据。 </p>
+  <div class="blab">深入讲解</div>
+  <ul>
+    <li>世界、渲染与正样本图谱：先把世界抽象成一组带概率的状态，模态是把状态渲染成观测的单射映射，例如照片像素或说明文字。JEPA 的训练对象是“正样本对”，即被声明为彼此视角的一对输入；损失由预测项加防坍缩项组成，且两者都对旋转不变。带白化二阶防坍缩的 JEPA 学到的是正样本在世界状态上画出的图的谱嵌入，即归一化邻接矩阵靠前的特征向量；谱有间隔时，最优解在旋转意义下唯一。</li>
+    <li>好视角与坏视角， nuisance 会占掉表示维度：好视角的正样本是同一场景的两次观测，两个观测各自的 nuisance（说明文字的措辞、照片的拍摄角度与光线）相互独立；坏视角的正样本是对同一个观测做变换，例如同一张照片的不同裁剪、同一句话的不同掩码，它们共享 nuisance。编码器每花一个维度去记本模态的 nuisance，就少一个维度留给世界状态，而且任何旋转都无法把这种 nuisance 对齐到另一模态。论文用“场景解释比例”来度量这一点。</li>
+    <li>正样本不一致时的误差界：两个模态的正样本并不天然相同，论文给出界：旋转后对齐的误差只取决于两件事，正样本图谱差多少，以及谱顶部的间隔有多大。被大间隔隔开的方向受到保护、容易对齐，靠近谱末尾的方向则未必对齐。反过来，正样本对只通过一个旋转矩阵进入对齐：一般位置上的 k 对配对就足以定出这个 k 维旋转，更多配对则把残余不对齐平均掉。</li>
+    <li>次词元预测是一种坏视角 JEPA：语言模型的正样本是一篇文档内的前缀与它的续写，防坍缩项就是 softmax 的 log-partition（归一化项）。这样得到的核按共享措辞把文本连起来，而不是按共享世界状态；前缀与续写还共享同一篇文档的作者措辞与风格这类 nuisance。另有一类隐式正样本：被同一个后续 token 跟随的上下文会在训练中聚到该 token 的输出向量附近，但一个 token 很少跨越整个场景，所以要把同一场景的描述连起来，需要很密的数据链；高频词还会把不同场景的上下文串起来。</li>
+    <li>一个旋转拼出看图说话：把冻结的 DINOv2 或 DINOv3 图像编码器与只在文本上微调过的语言模型拼起来，唯一在图像—说明配对上拟合的部分是一个行正交的线性映射，即一个旋转（维度不同时为带正交行的线性映射），就能在 COCO 上得到 CIDEr 0.838 的看图说话效果。完全不用配对时，旋转可从不成对的图像与说明各自的几何形状中找出来，在无配对基准上，109M 文本 JEPA 的零样本 ImageNet-100 准确率达 64%，高于基准中至多 56% 的水平。</li>
+    <li>好视角的样本效率与对齐缩放律：同一语料上，好视角 JEPA 用 2160 万个训练样本就达到次词元预测用 9 亿个样本才达到的对齐水平，约 42 倍样本效率；对齐程度随好视角比例与已见样本数服从缩放律，能在训练前预测新一轮实验的结果，精度与换个随机种子重跑相当。在 9.4 亿张网络图像的文本上训练的 109M 参数文本 JEPA，对齐分数达 0.184，高于作者评估的所有语言模型（最高至 72B 参数的 Qwen2.5 为 0.154）与 CLIP 文本编码器。</li>
+  </ul>
+</section>
+
+<section class="card brief c5" id="brief-6">
+  <div class="eyebrow">2026-10-29<span class="tag">新模型</span></div>
+  <h2>Mistral 开源万亿参数 Large 4 权重：能自己部署的前沿编码与安全模型</h2>
+  <div class="src">来源：<a href="https://mistral.ai/news/mistral-large-4-oss/">Mistral AI · Mistral Large 4 (Le Chonk) is now open weight | Mistral</a></div>
+  <p>Mistral 把旗舰模型 Large 4（Le Chonk）的改进版权重公开，机构可在自有基础设施上检查、定制和部署它，并用三档推理模式调节性能与成本。</p>
+  <p><b>这是什么：</b>Mistral Large 4（Le Chonk）是 Mistral 的旗舰级原生多模态模型，总参数约 1 万亿，定位是智能体式编码与防御性网络安全。所谓“开源权重”是指训练好的权重文件可以下载：组织不必经过 Mistral 的 API，也能在自己的基础设施上检查、定制和运行它，这与只开放 API 调用有本质区别。它在欧洲从头训练，Mistral 强调由此带来的谱系清晰性；配套的定制工具是 Mistral Forge，部署与治理工具是 Mistral Studio，托管路径则包括 Microsoft Foundry 等。</p>
+  <p><b>为什么重要：</b>这篇值得学，因为它把“前沿能力”与“控制权”这两个常冲突的目标拆成了可操作的设计：能力靠强化学习继续推高，控制权靠权重下放、定制工具与许可边界来保障。代价也很真实：自托管要自己承担部署、运维与护栏维护；权重一旦下发就无法像 API 那样随时收回或统一升级；想把模型转售为托管服务，还要另谈商业许可。另一条设计线是 token 效率：智能体编码的成本不只看单次得分，还看每项任务烧掉多少 token，推理档位正是为这笔账准备的开关。</p>
+  <div class="blab">深入讲解</div>
+  <ul>
+    <li>预览反馈加三周强化学习：模型先以公开预览上线，Mistral 收集开发者、早期客户与合作伙伴的反馈，同时继续扩大强化学习；这次公开的不是预览权重，而是经过这轮训练的改进版权重。官方页面明确给出与预览的对照：Terminal-Bench 4.0 从预览水平提高 13 个百分点到 41%，编码与防御安全是这轮提升的主攻方向。</li>
+    <li>三档推理模式调性能与成本：调用时在 Low、Medium、High 三档中选一档，Low 对应简单任务并取代原来的 None 档，Medium 对应日常任务，High 为默认档、对应最难且要求高精度和充分推理的任务。档位就是推理量开关：任务越难用越高档，简单任务不必为多余推理付成本。</li>
+    <li>区分防御与恶意的内置护栏：护栏要同时做到两件事，对合法的防御性安全任务不无故拒绝，对恶意进攻性网络请求则拒绝。官方称，在 JailbreakBench、StrongREJECT 与 AgentHarm 的网络相关提示上，恶意请求的平均拒绝率为 96.6%。护栏不是一次写死：Mistral 监控真实流量，发现模型虽拒绝针对真实目标的黑箱攻击、但仍可能带来真实攻击能力提升后，正在修改护栏并表示未来数月会继续更新。</li>
+    <li>受控的进攻性变体与定制路径：用于渗透测试、漏洞评估与红队的专门变体不公开，只给经过严格审查并签有合同保障的企业设计伙伴，且测试限于自有或明确授权的系统、在受控环境中进行。一般客户则用 Mistral Forge，以自有安全数据、策略、检测逻辑与威胁环境定制模型；对定义明确的安全任务，还可进一步优化成更小、更专的任务变体。</li>
+    <li>主权部署与许可边界：自托管路径是检查、定制并在自有基础设施上部署模型，不依赖 Mistral 的 API 供服；不愿自托管的组织可走 Microsoft Foundry 等私有部署的托管路径，也可用 Studio、API、OpenRouter 或 NVIDIA 端点与 NIM 容器。许可为改良版 MIT：免费使用、修改、微调与商业化，唯一条件是经营 Model-as-a-Service 业务须先另获 Mistral 的商业许可。托管 API 定价为每百万 token 输入 0.70 美元、缓存输入 0.07 美元、输出 2.10 美元。</li>
+  </ul>
+</section>
+</main>
+<footer>归档自学习应用 · AI 前沿速递 · 第 1 组</footer>
+</div>
+<button class="navbtn" id="navbtn" aria-label="打开课程目录">☰</button>
+<div class="navoverlay" id="navoverlay"></div>
+<aside class="navdrawer" id="navdrawer" aria-label="课程目录">
+  <button class="nd-close" id="ndclose" aria-label="关闭目录">×</button>
+  <h3>课程目录</h3>
+  <div id="ndlist"></div>
+  <a class="nd-home" id="ndhome" href="../index.html">← 回到首页</a>
+  <a class="nd-home" href="../briefs.html">查看全部速递 →</a>
+</aside>
+<script>
+(function(){
+  var btn = document.getElementById('navbtn');
+  var overlay = document.getElementById('navoverlay');
+  var drawer = document.getElementById('navdrawer');
+  var list = document.getElementById('ndlist');
+  var home = document.getElementById('ndhome');
+  var jsonUrl = '../lessons.json';
+  var prefix = '../lessons/';
+  home.href = '../index.html';
+  function open(){ drawer.classList.add('open'); overlay.classList.add('open'); }
+  function close(){ drawer.classList.remove('open'); overlay.classList.remove('open'); }
+  btn.addEventListener('click', open);
+  document.getElementById('ndclose').addEventListener('click', close);
+  overlay.addEventListener('click', close);
+  var cur = location.pathname.split('/').pop();
+  fetch(jsonUrl).then(function(r){ return r.json(); }).then(function(items){
+    list.innerHTML = '';
+    items.forEach(function(it){
+      var a = document.createElement('a');
+      a.className = 'nd-item' + (it.file === cur ? ' cur' : '');
+      a.href = prefix + it.file;
+      a.innerHTML = '<div class="nd-day">第 ' + it.day + ' 天</div><div class="nd-title">' + it.title + '</div><div class="nd-meta">' + it.date + ' · 约 ' + it.minutes + ' 分钟</div>';
+      list.appendChild(a);
+    });
+  }).catch(function(){
+    list.innerHTML = '<p style="font-size:14px;color:#666;">目录加载失败，请点“回到首页”查看全部课程。</p>';
+  });
+})();
+</script>
+</body>
+</html>
